@@ -1,0 +1,119 @@
+"""Chroma 向量存储管理 — 双 Collection（父文档 + 子块）。"""
+import uuid
+from datetime import datetime, timezone
+
+import chromadb
+from langchain_core.documents import Document
+from langchain_chroma import Chroma
+
+from rag_core.indexing.embedder import create_embedder
+
+
+class VectorStoreManager:
+    """管理 Chroma 中的两个 Collection：rag_parents 和 rag_children。"""
+
+    def __init__(self, persist_dir: str):
+        self.persist_dir = persist_dir
+        self._embedder = create_embedder()
+
+        self._client = chromadb.PersistentClient(path=persist_dir)
+
+        self._parent_store = Chroma(
+            collection_name="rag_parents",
+            embedding_function=self._embedder,
+            client=self._client,
+        )
+        self._children_store = Chroma(
+            collection_name="rag_children",
+            embedding_function=self._embedder,
+            client=self._client,
+        )
+
+    def add_parents(self, documents: list[Document]) -> list[str]:
+        """添加父文档到 rag_parents 集合。"""
+        if not documents:
+            return []
+        ids = [f"parent_{doc.metadata.get('source', uuid.uuid4())}" for doc in documents]
+        return self._parent_store.add_documents(documents, ids=ids)
+
+    def add_children(self, documents: list[Document]) -> list[str]:
+        """添加子文档到 rag_children 集合。"""
+        if not documents:
+            return []
+        ids = [f"child_{uuid.uuid4().hex[:12]}_{doc.metadata.get('parent_id', 'unknown')}"
+               for doc in documents]
+        return self._children_store.add_documents(documents, ids=ids)
+
+    def similarity_search(
+        self, query: str, k: int = 10, filter_dict: dict | None = None
+    ) -> list[Document]:
+        """在子块中进行语义搜索。"""
+        return self._children_store.similarity_search(query, k=k, filter=filter_dict)
+
+    def search_parents_by_source(self, source: str) -> list[Document]:
+        """按 source 查找父文档。"""
+        result = self._parent_store.get(where={"source": source})
+        if not result or not result["documents"]:
+            return []
+        docs = []
+        for i, content in enumerate(result["documents"]):
+            meta = result["metadatas"][i] if result["metadatas"] else {}
+            docs.append(Document(page_content=content, metadata=meta))
+        return docs
+
+    def get_parents_by_sources(self, sources: list[str]) -> list[Document]:
+        """批量按 source 获取父文档。"""
+        docs = []
+        seen: set[str] = set()
+        for source in sources:
+            if source in seen:
+                continue
+            seen.add(source)
+            docs.extend(self.search_parents_by_source(source))
+        return docs
+
+    def delete_by_source(self, source: str) -> None:
+        """删除指定 source 的所有文档（父 + 子）。"""
+        for store in [self._parent_store, self._children_store]:
+            try:
+                store._collection.delete(where={"source": source})
+            except Exception:
+                pass
+
+    def rebuild(self, parents: list[Document], children: list[Document]) -> None:
+        """清空所有数据并重建。"""
+        for name in ["rag_parents", "rag_children"]:
+            try:
+                self._client.delete_collection(name)
+            except Exception:
+                pass
+
+        self._parent_store = Chroma(
+            collection_name="rag_parents",
+            embedding_function=self._embedder,
+            client=self._client,
+        )
+        self._children_store = Chroma(
+            collection_name="rag_children",
+            embedding_function=self._embedder,
+            client=self._client,
+        )
+
+        self.add_parents(parents)
+        self.add_children(children)
+
+    def get_stats(self) -> dict:
+        """获取索引统计信息。"""
+        try:
+            parent_count = self._parent_store._collection.count()
+        except Exception:
+            parent_count = 0
+        try:
+            child_count = self._children_store._collection.count()
+        except Exception:
+            child_count = 0
+        return {
+            "parent_count": parent_count,
+            "child_count": child_count,
+            "last_sync": datetime.now(timezone.utc).isoformat(),
+        }

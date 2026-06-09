@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG 知识库助手</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body x-data="chatApp()" x-init="init()">
+    <header class="header">
+        <h1>📚 我的知识库助手</h1>
+        <div>
+            <span class="status-bar" x-text="statusText">连接中...</span>
+            <button @click="showSettings = !showSettings" style="background:none;border:none;cursor:pointer;font-size:18px;margin-left:12px;">⚙️</button>
+        </div>
+    </header>
+
+    <div class="chat-container" x-ref="chatContainer" id="chatContainer">
+        <template x-if="messages.length === 0">
+            <div class="message assistant">
+                🤖 你好，我是你的知识库助手。<br>可以问我关于你笔记中的任何问题。
+            </div>
+        </template>
+
+        <template x-for="msg in messages" :key="msg.id">
+            <div class="message" :class="msg.role">
+                <div x-html="renderMarkdown(msg.content)"></div>
+                <div class="sources" x-show="msg.sources && msg.sources.length > 0">
+                    📄 来源：
+                    <template x-for="src in msg.sources">
+                        <a @click="viewSource(src)" x-text="src" style="margin-right:12px;"></a>
+                    </template>
+                </div>
+            </div>
+        </template>
+
+        <div class="typing-indicator" x-show="loading" x-text="typingText">...</div>
+    </div>
+
+    <div class="input-area">
+        <input
+            type="text"
+            x-model="question"
+            placeholder="输入你的问题..."
+            @keydown.enter="sendMessage"
+            :disabled="loading"
+        />
+        <button @click="sendMessage" :disabled="loading || !question.trim()">发送</button>
+    </div>
+
+    <template x-if="showSettings">
+        <div>
+            <div class="overlay" @click="showSettings = false"></div>
+            <div class="settings-panel">
+                <h2>⚙️ 设置</h2>
+                <label>Obsidian 仓库路径</label>
+                <input type="text" x-model="settings.vaultPath" placeholder="C:/Users/.../ObsidianVault">
+                <label>DeepSeek API Key</label>
+                <input type="password" x-model="settings.apiKey" placeholder="sk-...">
+                <label>检索数量 (top-k)</label>
+                <input type="number" x-model="settings.topK" min="1" max="50">
+                <button @click="saveSettings()">保存设置</button>
+                <button @click="rebuildIndex()" style="background:var(--danger);margin-top:8px;">🔄 重建索引</button>
+            </div>
+        </div>
+    </template>
+
+    <script>
+    function chatApp() {
+        return {
+            messages: [],
+            question: '',
+            loading: false,
+            typingText: '',
+            showSettings: false,
+            sessionId: 'web_' + Date.now(),
+            settings: {
+                vaultPath: localStorage.getItem('vaultPath') || '',
+                apiKey: localStorage.getItem('apiKey') || '',
+                topK: parseInt(localStorage.getItem('topK') || '10'),
+            },
+            statusText: '连接中...',
+
+            async init() {
+                await this.fetchStatus();
+                setInterval(() => this.fetchStatus(), 60000);
+            },
+
+            async fetchStatus() {
+                try {
+                    const res = await fetch('/api/status');
+                    const data = await res.json();
+                    if (data.status === 'ok' && data.index) {
+                        const t = new Date(data.index.last_sync).toLocaleTimeString('zh-CN');
+                        this.statusText = `已索引 ${data.index.parent_count} 篇笔记 · 最近同步 ${t}`;
+                    }
+                } catch (e) {
+                    this.statusText = '服务未连接';
+                }
+            },
+
+            async sendMessage() {
+                const q = this.question.trim();
+                if (!q || this.loading) return;
+
+                const userMsg = { id: Date.now(), role: 'user', content: q, sources: [] };
+                this.messages.push(userMsg);
+                this.question = '';
+                this.loading = true;
+                this.typingText = '🔍 正在检索笔记...';
+                this.scrollToBottom();
+
+                const assistantMsg = { id: Date.now() + 1, role: 'assistant', content: '', sources: [] };
+                this.messages.push(assistantMsg);
+
+                try {
+                    const resp = await fetch('/api/chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ question: q, session_id: this.sessionId }),
+                    });
+
+                    const reader = resp.body.getReader();
+                    const decoder = new TextDecoder();
+                    let buffer = '';
+
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+                        buffer += decoder.decode(value, { stream: true });
+                        const lines = buffer.split('\n');
+                        buffer = lines.pop() || '';
+
+                        for (const line of lines) {
+                            if (line.startsWith('data: ')) {
+                                try {
+                                    const parsed = JSON.parse(line.slice(6));
+                                    // Support both flat format and SSE dict format
+                                    if (typeof parsed === 'object') {
+                                        if (parsed.event === 'thinking') {
+                                            this.typingText = typeof parsed.data === 'string' ? parsed.data : '处理中...';
+                                        } else if (parsed.event === 'token') {
+                                            this.typingText = '';
+                                            assistantMsg.content += typeof parsed.data === 'string' ? parsed.data : '';
+                                        } else if (parsed.event === 'done') {
+                                            this.loading = false;
+                                        } else if (parsed.event === 'error') {
+                                            assistantMsg.content = '⚠️ 出错了：' + (typeof parsed.data === 'string' ? parsed.data : '');
+                                            this.loading = false;
+                                        } else if (typeof parsed === 'string') {
+                                            assistantMsg.content += parsed;
+                                        }
+                                    }
+                                } catch (e) { /* skip partial chunks */ }
+                            }
+                        }
+                        this.scrollToBottom();
+                    }
+                } catch (e) {
+                    assistantMsg.content = '⚠️ 网络错误：' + e.message;
+                    this.loading = false;
+                }
+                this.loading = false;
+                this.typingText = '';
+                this.scrollToBottom();
+            },
+
+            scrollToBottom() {
+                this.$nextTick(() => {
+                    const c = this.$refs.chatContainer;
+                    if (c) c.scrollTop = c.scrollHeight;
+                });
+            },
+
+            renderMarkdown(text) {
+                if (!text) return '';
+                try { return marked.parse(text); } catch (e) { return text; }
+            },
+
+            async viewSource(source) {
+                try {
+                    const resp = await fetch('/api/sources/' + encodeURIComponent(source));
+                    const data = await resp.json();
+                    alert(`[${data.source}]\n\n${data.content.substring(0, 1000)}...`);
+                } catch (e) {
+                    alert('无法加载笔记：' + e.message);
+                }
+            },
+
+            async saveSettings() {
+                localStorage.setItem('vaultPath', this.settings.vaultPath);
+                localStorage.setItem('apiKey', this.settings.apiKey);
+                localStorage.setItem('topK', this.settings.topK);
+                this.showSettings = false;
+                alert('设置已保存（部分设置需要重启服务生效）');
+            },
+
+            async rebuildIndex() {
+                if (!confirm('确定要重建整个索引吗？这可能需要几分钟。')) return;
+                try {
+                    const resp = await fetch('/api/reindex', { method: 'POST' });
+                    const data = await resp.json();
+                    alert(`索引重建完成：${data.total_parents} 篇父文档，${data.total_children} 个子块`);
+                    await this.fetchStatus();
+                } catch (e) {
+                    alert('重建失败：' + e.message);
+                }
+            },
+        };
+    }
+    </script>
+</body>
+</html>
