@@ -73,17 +73,22 @@ class ObsidianLoader:
             filepath.stat().st_mtime, tz=timezone.utc
         ).isoformat()
 
+        metadata = {
+            "source": str(rel_path).replace("\\", "/"),
+            "filename": filepath.stem,
+            "folder": folder,
+            "mtime": mtime,
+            "doc_type": "raw",
+        }
+        # ChromaDB rejects empty lists — only include when non-empty
+        if tags:
+            metadata["tags"] = tags
+        if links:
+            metadata["links"] = links
+
         return Document(
             page_content=content.strip(),
-            metadata={
-                "source": str(rel_path).replace("\\", "/"),
-                "filename": filepath.stem,
-                "folder": folder,
-                "tags": tags,
-                "links": links,
-                "mtime": mtime,
-                "doc_type": "raw",
-            },
+            metadata=metadata,
         )
 
     def _split_frontmatter(self, text: str) -> tuple[dict, str]:

@@ -178,10 +178,13 @@ class VaultWatcher:
             vault_path=self.vault_path,
             ignore_dirs=list(self.ignore_dirs),
         )
+        print("  [1/3] 加载笔记...", flush=True)
         docs = loader.load()
+        print(f"  [1/3] 加载完成: {len(docs)} 篇笔记", flush=True)
 
+        print("  [2/3] 文本切分...", flush=True)
         all_docs = []
-        for doc in docs:
+        for idx, doc in enumerate(docs):
             split_docs = parent_child_split(
                 [doc],
                 child_chunk_size=self.config.child_chunk_size,
@@ -189,9 +192,13 @@ class VaultWatcher:
                 child_max_len=self.config.child_max_len_before_split,
             )
             all_docs.extend(split_docs)
+            if (idx + 1) % 100 == 0:
+                print(f"  [2/3] 切分进度: {idx + 1}/{len(docs)}", flush=True)
+        print(f"  [2/3] 切分完成: {len(all_docs)} 个文档块", flush=True)
 
         parents = [d for d in all_docs if d.metadata["doc_type"] == "parent"]
         children = [d for d in all_docs if d.metadata["doc_type"] == "child"]
+        print(f"  [3/3] 向量嵌入: {len(parents)} 父文档 + {len(children)} 子块", flush=True)
 
         self.store.rebuild(parents, children)
 

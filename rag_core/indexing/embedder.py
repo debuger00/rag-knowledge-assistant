@@ -13,5 +13,8 @@ def create_embedder() -> HuggingFaceEmbeddings:
     return HuggingFaceEmbeddings(
         model_name=config.embedding_model,
         model_kwargs={"device": config.embedding_device},
-        encode_kwargs={"normalize_embeddings": True},
+        encode_kwargs={
+            "normalize_embeddings": True,
+            "batch_size": 16,          # 控制内部 batch，降低内存峰值
+        },
     )

@@ -29,20 +29,63 @@ class VectorStoreManager:
             client=self._client,
         )
 
+    _BATCH_SIZE = 20  # 较小批次，降低内存峰值
+
+    @staticmethod
+    def _clean_metadata(metadata: dict) -> dict:
+        """清理 metadata，移除 ChromaDB 不支持的值（空列表、嵌套结构等）。"""
+        cleaned = {}
+        for key, value in metadata.items():
+            if isinstance(value, list):
+                if len(value) == 0:
+                    continue  # ChromaDB rejects empty lists
+                # Flatten list to string if needed (ChromaDB only accepts str, int, float, bool)
+                if value and not isinstance(value[0], (str, int, float, bool)):
+                    cleaned[key] = [str(v) for v in value]
+                else:
+                    cleaned[key] = value
+            elif isinstance(value, dict):
+                continue  # ChromaDB rejects nested dicts
+            elif isinstance(value, (str, int, float, bool, type(None))):
+                cleaned[key] = value
+            else:
+                cleaned[key] = str(value)
+        return cleaned
+
     def add_parents(self, documents: list[Document]) -> list[str]:
-        """添加父文档到 rag_parents 集合。"""
+        """添加父文档到 rag_parents 集合（分批处理避免内存溢出）。"""
         if not documents:
             return []
-        ids = [f"parent_{doc.metadata.get('source', uuid.uuid4())}" for doc in documents]
-        return self._parent_store.add_documents(documents, ids=ids)
+        total = len(documents)
+        all_ids = []
+        for i in range(0, total, self._BATCH_SIZE):
+            batch = documents[i:i + self._BATCH_SIZE]
+            for doc in batch:
+                doc.metadata = self._clean_metadata(doc.metadata)
+            ids = [f"parent_{doc.metadata.get('source', uuid.uuid4())}" for doc in batch]
+            self._parent_store.add_documents(batch, ids=ids)
+            all_ids.extend(ids)
+            done = min(i + self._BATCH_SIZE, total)
+            print(f"  [parents] {done}/{total}", flush=True)
+        return all_ids
 
     def add_children(self, documents: list[Document]) -> list[str]:
-        """添加子文档到 rag_children 集合。"""
+        """添加子文档到 rag_children 集合（分批处理避免内存溢出）。"""
         if not documents:
             return []
-        ids = [f"child_{uuid.uuid4().hex[:12]}_{doc.metadata.get('parent_id', 'unknown')}"
-               for doc in documents]
-        return self._children_store.add_documents(documents, ids=ids)
+        total = len(documents)
+        all_ids = []
+        for i in range(0, total, self._BATCH_SIZE):
+            batch = documents[i:i + self._BATCH_SIZE]
+            for doc in batch:
+                doc.metadata = self._clean_metadata(doc.metadata)
+            ids = [f"child_{uuid.uuid4().hex[:12]}_{doc.metadata.get('parent_id', 'unknown')}"
+                   for doc in batch]
+            self._children_store.add_documents(batch, ids=ids)
+            all_ids.extend(ids)
+            done = min(i + self._BATCH_SIZE, total)
+            print(f"  [children] {done}/{total}", flush=True)
+        return all_ids
 
     def similarity_search(
         self, query: str, k: int = 10, filter_dict: dict | None = None

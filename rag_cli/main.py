@@ -1,4 +1,5 @@
-"""CLI 入口 — Typer 命令：rag ask, rag index, rag server。"""
+"""CLI - Typer commands: rag ask, rag index, rag server."""
+import os
 from typing import Optional
 
 import typer
@@ -9,9 +10,11 @@ from rag_core.retrieval.pipeline import RAGPipeline
 from rag_core.watcher import VaultWatcher
 from config import get_config
 
+os.environ.setdefault("PYTHONIOENCODING", "utf-8")
+
 app = typer.Typer(
     name="rag",
-    help="个人知识库 RAG 问答助手",
+    help="RAG knowledge assistant for Obsidian vaults",
     no_args_is_help=True,
 )
 console = Console()
@@ -19,19 +22,19 @@ console = Console()
 
 @app.command()
 def ask(
-    question: str = typer.Argument(..., help="你的问题"),
-    no_history: bool = typer.Option(False, "--no-history", help="不使用对话历史"),
-    folder: Optional[str] = typer.Option(None, "--folder", help="限定搜索文件夹"),
-    tag: Optional[str] = typer.Option(None, "--tag", help="限定搜索标签"),
+    question: str = typer.Argument(..., help="Your question"),
+    no_history: bool = typer.Option(False, "--no-history", help="Disable chat history"),
+    folder: Optional[str] = typer.Option(None, "--folder", help="Filter by folder"),
+    tag: Optional[str] = typer.Option(None, "--tag", help="Filter by tag"),
 ):
-    """向知识库提问（流式输出）。"""
+    """Ask your knowledge base a question (streaming output)."""
     config = get_config()
 
     if not config.obsidian_vault_path:
-        console.print("[red]❌ 请先设置 OBSIDIAN_VAULT_PATH 环境变量或 .env 文件[/red]")
+        console.print("[red][ERROR] OBSIDIAN_VAULT_PATH not set. Check your .env file.[/red]")
         raise typer.Exit(code=1)
 
-    console.print(f"[dim]📚 仓库: {config.obsidian_vault_path}[/dim]")
+    console.print(f"[dim]Vault: {config.obsidian_vault_path}[/dim]")
 
     store = VectorStoreManager(persist_dir=config.chroma_persist_dir)
     pipeline = RAGPipeline(store=store)
@@ -43,12 +46,12 @@ def ask(
     )
     try:
         result = watcher.full_sync()
-        console.print(f"[dim]📊 索引: {result['total']} 篇笔记[/dim]")
+        console.print(f"[dim]Index: {result['total']} notes[/dim]")
     except FileNotFoundError:
-        console.print(f"[red]❌ Obsidian 仓库路径不存在: {config.obsidian_vault_path}[/red]")
+        console.print(f"[red][ERROR] Vault path not found: {config.obsidian_vault_path}[/red]")
         raise typer.Exit(code=1)
 
-    console.print(f"[dim]🔍 正在检索...[/dim]\n")
+    console.print(f"[dim]Searching...[/dim]\n")
 
     history: list[dict] = [] if no_history else []
 
@@ -59,42 +62,51 @@ def ask(
         else:
             stream = pipeline.ask(question, history)
 
+        # 用 sys.stdout 直接输出，避免 Rich 在 GBK 终端上的编码问题
+        import sys
         for chunk in stream:
             if chunk:
                 full_answer += chunk
-                console.print(chunk, end="")
+                try:
+                    sys.stdout.write(chunk)
+                    sys.stdout.flush()
+                except UnicodeEncodeError:
+                    # GBK 无法编码的字符用 ? 替代
+                    sys.stdout.write(chunk.encode("gbk", errors="replace").decode("gbk"))
+                    sys.stdout.flush()
 
-        console.print("\n")
+        sys.stdout.write("\n")
+        sys.stdout.flush()
 
         if not no_history:
             history.append({"role": "user", "content": question})
             history.append({"role": "assistant", "content": full_answer})
 
     except Exception as e:
-        console.print(f"\n[red]❌ 错误: {e}[/red]")
+        console.print(f"\n[red][ERROR] {e}[/red]")
         raise typer.Exit(code=1)
 
 
 @app.command()
 def index(
-    rebuild: bool = typer.Option(False, "--rebuild", help="全量重建索引"),
-    sync: bool = typer.Option(False, "--sync", help="增量同步一次"),
-    status: bool = typer.Option(False, "--status", help="查看索引状态"),
+    rebuild: bool = typer.Option(False, "--rebuild", help="Full rebuild of index"),
+    sync: bool = typer.Option(False, "--sync", help="Incremental sync"),
+    status: bool = typer.Option(False, "--status", help="Show index status"),
 ):
-    """管理知识库索引。"""
+    """Manage knowledge base index."""
     config = get_config()
 
     if status:
         store = VectorStoreManager(persist_dir=config.chroma_persist_dir)
         stats = store.get_stats()
-        console.print(f"[bold]📊 索引状态:[/bold]")
-        console.print(f"   父文档数: {stats['parent_count']}")
-        console.print(f"   子块数:   {stats['child_count']}")
-        console.print(f"   最近同步: {stats['last_sync']}")
+        console.print(f"[bold]Index Status:[/bold]")
+        console.print(f"   Parents: {stats['parent_count']}")
+        console.print(f"   Children: {stats['child_count']}")
+        console.print(f"   Last sync: {stats['last_sync']}")
         return
 
     if not config.obsidian_vault_path:
-        console.print("[red]❌ 请先设置 OBSIDIAN_VAULT_PATH[/red]")
+        console.print("[red][ERROR] OBSIDIAN_VAULT_PATH not set.[/red]")
         raise typer.Exit(code=1)
 
     store = VectorStoreManager(persist_dir=config.chroma_persist_dir)
@@ -105,35 +117,35 @@ def index(
     )
 
     if rebuild:
-        console.print("🔄 正在全量重建索引...")
+        console.print("Rebuilding index...")
         result = watcher.rebuild()
         console.print(
-            f"[green]✅ 索引重建完成: {result['total_parents']} 篇父文档, "
-            f"{result['total_children']} 个子块[/green]"
+            f"[green]Done: {result['total_parents']} parents, "
+            f"{result['total_children']} children[/green]"
         )
     elif sync:
-        console.print("🔄 正在增量同步...")
+        console.print("Syncing...")
         result = watcher.full_sync()
         console.print(
-            f"[green]✅ 同步完成: {result['total']} 篇笔记 "
-            f"({result['new']} 新增, {result['updated']} 更新)[/green]"
+            f"[green]Done: {result['total']} notes "
+            f"({result['new']} new, {result['updated']} updated)[/green]"
         )
 
 
 @app.command()
 def server(
-    port: int = typer.Option(8501, "--port", help="服务端口"),
-    host: str = typer.Option("127.0.0.1", "--host", help="绑定地址"),
-    no_watch: bool = typer.Option(False, "--no-watch", help="不启动文件监听"),
+    port: int = typer.Option(8501, "--port", help="Server port"),
+    host: str = typer.Option("127.0.0.1", "--host", help="Bind address"),
+    no_watch: bool = typer.Option(False, "--no-watch", help="Disable file watching"),
 ):
-    """启动 Web 服务。"""
+    """Start Web server."""
     config = get_config()
     config.server_port = port
     config.server_host = host
 
-    console.print(f"🚀 启动 RAG 知识库助手服务...")
-    console.print(f"   Web 界面: http://{host}:{port}")
-    console.print(f"   API:      http://{host}:{port}/api/chat")
+    console.print(f"Starting RAG Assistant server...")
+    console.print(f"   Web UI: http://{host}:{port}")
+    console.print(f"   API:    http://{host}:{port}/api/chat")
 
     from rag_server.app import run_server
     run_server(host=host, port=port, no_watch=no_watch)

@@ -25,7 +25,7 @@ class Config:
     deepseek_base_url: str = "https://api.deepseek.com"
 
     # Embedding
-    embedding_model: str = "BAAI/bge-m3"
+    embedding_model: str = "BAAI/bge-small-zh-v1.5"
     embedding_device: str = "cpu"
 
     # Chroma
@@ -42,7 +42,7 @@ class Config:
     # Chunking
     child_chunk_size: int = 800
     child_chunk_overlap: int = 100
-    child_max_len_before_split: int = 1000
+    child_max_len_before_split: int = 2000
 
 
 _config: Config | None = None

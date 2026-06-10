@@ -90,15 +90,23 @@ class RAGPipeline:
         docs = self.retriever.invoke(query)
         return _format_docs(docs)
 
+    def _stream_with_inputs(self, context: str, question: str, history_str: str) -> Any:
+        """绕过 chain 的第一层 dict-runnable，直接用预计算数据流式问 LLM。"""
+        prompt_value = self.prompt.invoke({
+            "context": context,
+            "question": question,
+            "history": history_str,
+        })
+        # StrOutputParser 将 AIMessageChunk → str
+        parser = StrOutputParser()
+        return parser.transform(self.llm.stream(prompt_value))
+
     def ask(self, question: str, history: list[dict] | None = None) -> Any:
         """执行问答，返回 LangChain stream 对象。"""
         history = history or []
-        input_data = {
-            "context": self._retrieve_and_format(question),
-            "question": question,
-            "history": _format_history(history),
-        }
-        return self.chain.stream(input_data)
+        context = self._retrieve_and_format(question)
+        history_str = _format_history(history)
+        return self._stream_with_inputs(context, question, history_str)
 
     def ask_with_filter(
         self,
@@ -121,11 +129,8 @@ class RAGPipeline:
         original_filter = self.retriever.filter_dict
         self.retriever.filter_dict = filter_dict
         try:
-            input_data = {
-                "context": self._retrieve_and_format(question),
-                "question": question,
-                "history": _format_history(history),
-            }
-            return self.chain.stream(input_data)
+            context = self._retrieve_and_format(question)
+            history_str = _format_history(history)
+            return self._stream_with_inputs(context, question, history_str)
         finally:
             self.retriever.filter_dict = original_filter
