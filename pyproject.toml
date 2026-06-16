@@ -2,7 +2,7 @@
 name = "rag-assistant"
 version = "0.1.0"
 description = "个人知识库 RAG 问答助手"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 dependencies = [
     "fastapi>=0.115.0",
     "uvicorn[standard]>=0.30.0",
@@ -28,6 +28,9 @@ rag = "rag_cli.main:app"
 [build-system]
 requires = ["setuptools>=75.0"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["config"]
 
 [tool.setuptools.packages.find]
 include = ["rag_core*", "rag_server*", "rag_cli*"]
