@@ -1,11 +1,11 @@
 """FastAPI 应用 — RAG 知识库助手后端服务。"""
+import json
 from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
-from sse_starlette.sse import EventSourceResponse
 
 from rag_core.indexing.store import VectorStoreManager
 from rag_core.retrieval.pipeline import RAGPipeline
@@ -79,13 +79,21 @@ def create_app(config: Config | None = None) -> FastAPI:
         if _pipeline is None:
             raise HTTPException(status_code=500, detail="服务未初始化")
 
-        async def event_generator():
+        async def sse_generator():
             async for event_data in chat_stream(
                 _pipeline, question, session_id=session_id, folder=folder, tag=tag
             ):
-                yield event_data
+                yield f"data: {json.dumps(event_data, ensure_ascii=False)}\n\n"
 
-        return EventSourceResponse(event_generator())
+        return StreamingResponse(
+            sse_generator(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "X-Accel-Buffering": "no",
+            },
+        )
 
     @app.get("/api/status")
     async def status():
