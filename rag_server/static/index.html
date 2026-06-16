@@ -55,12 +55,20 @@
             <div class="overlay" @click="showSettings = false"></div>
             <div class="settings-panel">
                 <h2>⚙️ 设置</h2>
-                <label>Obsidian 仓库路径</label>
-                <input type="text" x-model="settings.vaultPath" placeholder="C:/Users/.../ObsidianVault">
-                <label>DeepSeek API Key</label>
-                <input type="password" x-model="settings.apiKey" placeholder="sk-...">
+                <label>Obsidian 仓库路径 <span style="color:var(--muted);font-size:12px;">（服务端 .env 配置）</span></label>
+                <input type="text" x-model="settings.vaultPath" disabled
+                       x-bind:value="serverConfig?.vault_path || ''"
+                       placeholder="E:/你的Obsidian仓库路径">
                 <label>检索数量 (top-k)</label>
                 <input type="number" x-model="settings.topK" min="1" max="50">
+
+                <hr style="margin:12px 0;border-color:var(--border);">
+                <div style="font-size:12px;color:var(--muted);line-height:1.8;">
+                    <div>嵌入模型：<span x-text="serverConfig?.embedding_model || '-'"></span></div>
+                    <div>推理设备：<span x-text="serverConfig?.embedding_device || '-'"></span></div>
+                    <div>LLM 模型：<span x-text="serverConfig?.deepseek_model || '-'"></span></div>
+                </div>
+
                 <button @click="saveSettings()">保存设置</button>
                 <button @click="rebuildIndex()" style="background:var(--danger);margin-top:8px;">🔄 重建索引</button>
             </div>
@@ -76,9 +84,9 @@
             typingText: '',
             showSettings: false,
             sessionId: 'web_' + Date.now(),
+            serverConfig: null,
             settings: {
                 vaultPath: localStorage.getItem('vaultPath') || '',
-                apiKey: localStorage.getItem('apiKey') || '',
                 topK: parseInt(localStorage.getItem('topK') || '10'),
             },
             statusText: '连接中...',
@@ -95,6 +103,16 @@
                     if (data.status === 'ok' && data.index) {
                         const t = new Date(data.index.last_sync).toLocaleTimeString('zh-CN');
                         this.statusText = `已索引 ${data.index.parent_count} 篇笔记 · 最近同步 ${t}`;
+                    }
+                    // Fill settings defaults from server config (localStorage takes priority)
+                    if (data.config) {
+                        if (!localStorage.getItem('vaultPath')) {
+                            this.settings.vaultPath = data.config.vault_path || '';
+                        }
+                        if (!localStorage.getItem('topK')) {
+                            this.settings.topK = data.config.retrieval_top_k || 10;
+                        }
+                        this.serverConfig = data.config;
                     }
                 } catch (e) {
                     this.statusText = '服务未连接';
@@ -203,11 +221,9 @@
             },
 
             async saveSettings() {
-                localStorage.setItem('vaultPath', this.settings.vaultPath);
-                localStorage.setItem('apiKey', this.settings.apiKey);
                 localStorage.setItem('topK', this.settings.topK);
                 this.showSettings = false;
-                alert('设置已保存（部分设置需要重启服务生效）');
+                alert('设置已保存（top-k 即时生效，仓库路径等请修改 .env 后重启）');
             },
 
             async rebuildIndex() {

@@ -104,7 +104,14 @@ def create_app(config: Config | None = None) -> FastAPI:
         return JSONResponse({
             "status": "ok",
             "index": stats,
-            "vault_path": cfg.obsidian_vault_path,
+            "config": {
+                "vault_path": cfg.obsidian_vault_path,
+                "embedding_model": cfg.embedding_model,
+                "embedding_device": cfg.embedding_device,
+                "deepseek_model": cfg.deepseek_model,
+                "retrieval_top_k": cfg.retrieval_top_k,
+                "server_port": cfg.server_port,
+            },
         })
 
     @app.post("/api/reindex")
