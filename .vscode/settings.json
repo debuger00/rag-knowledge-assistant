@@ -1,5 +1,6 @@
 {
     "python.defaultInterpreterPath": "E:\\aaa_SpecializedSoftware\\MiniConda\\envs\\pytorch251\\python.exe",
+    "python.terminal.activateEnvironment": false,
     "terminal.integrated.defaultProfile.windows": "PowerShell with Conda",
     "terminal.integrated.profiles.windows": {
         "PowerShell with Conda": {
