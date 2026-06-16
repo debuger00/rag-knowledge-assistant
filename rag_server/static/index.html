@@ -130,16 +130,14 @@
                 this.typingText = '🔍 正在检索笔记...';
                 this.scrollToBottom();
 
-                // Use direct DOM manipulation for streaming (bypass Alpine reactivity)
-                const container = this.$refs.chatContainer;
-                const msgDiv = document.createElement('div');
-                msgDiv.className = 'message assistant';
-                const contentDiv = document.createElement('div');
-                msgDiv.appendChild(contentDiv);
-                container.appendChild(msgDiv);
-
                 const assistantMsg = { id: Date.now() + 1, role: 'assistant', content: '', sources: [] };
                 this.messages.push(assistantMsg);
+
+                // Wait for Alpine to render the new message DOM, then grab its content div
+                await this.$nextTick();
+                const allMsgs = this.$refs.chatContainer.querySelectorAll('.message.assistant');
+                const lastEl = allMsgs[allMsgs.length - 1];
+                const contentDiv = lastEl ? lastEl.querySelector('div') : null;
 
                 try {
                     const resp = await fetch('/api/chat', {
@@ -171,15 +169,14 @@
                                             this.typingText = '';
                                             const t = typeof parsed.data === 'string' ? parsed.data : '';
                                             rawContent += t;
-                                            contentDiv.textContent = rawContent;
+                                            if (contentDiv) contentDiv.textContent = rawContent;
                                         } else if (parsed.event === 'done') {
                                             this.loading = false;
                                             assistantMsg.content = rawContent;
-                                            contentDiv.innerHTML = this.renderMarkdown(rawContent);
+                                            if (contentDiv) contentDiv.innerHTML = this.renderMarkdown(rawContent);
                                         } else if (parsed.event === 'error') {
                                             const errMsg = parsed.data || '未知错误';
                                             assistantMsg.content = '⚠️ 出错了：' + errMsg;
-                                            contentDiv.textContent = assistantMsg.content;
                                             this.loading = false;
                                         }
                                     }
@@ -190,7 +187,6 @@
                     }
                 } catch (e) {
                     assistantMsg.content = '⚠️ 网络错误：' + e.message;
-                    contentDiv.textContent = assistantMsg.content;
                     this.loading = false;
                 }
                 this.loading = false;
