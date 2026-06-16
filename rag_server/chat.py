@@ -28,14 +28,14 @@ async def chat_stream(
 
     try:
         if folder or tag:
-            stream = pipeline.ask_with_filter(question, history, folder=folder, tag=tag)
+            stream = await pipeline.aask_with_filter(question, history, folder=folder, tag=tag)
         else:
-            stream = pipeline.ask(question, history)
+            stream = await pipeline.aask(question, history)
 
         full_answer = ""
         yield {"event": "thinking", "data": "正在检索笔记..."}
 
-        for chunk in stream:
+        async for chunk in stream:
             if chunk:
                 full_answer += chunk
                 yield {"event": "token", "data": chunk}

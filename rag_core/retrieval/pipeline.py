@@ -91,22 +91,38 @@ class RAGPipeline:
         return _format_docs(docs)
 
     def _stream_with_inputs(self, context: str, question: str, history_str: str) -> Any:
-        """绕过 chain 的第一层 dict-runnable，直接用预计算数据流式问 LLM。"""
+        """同步流式 —— CLI 使用。"""
         prompt_value = self.prompt.invoke({
             "context": context,
             "question": question,
             "history": history_str,
         })
-        # StrOutputParser 将 AIMessageChunk → str
         parser = StrOutputParser()
         return parser.transform(self.llm.stream(prompt_value))
 
+    async def _astream_with_inputs(self, context: str, question: str, history_str: str) -> Any:
+        """异步流式 —— SSE / Web 使用。"""
+        prompt_value = self.prompt.invoke({
+            "context": context,
+            "question": question,
+            "history": history_str,
+        })
+        async for chunk in self.llm.astream(prompt_value):
+            yield chunk.content
+
     def ask(self, question: str, history: list[dict] | None = None) -> Any:
-        """执行问答，返回 LangChain stream 对象。"""
+        """执行问答（同步），返回 LangChain stream 对象。"""
         history = history or []
         context = self._retrieve_and_format(question)
         history_str = _format_history(history)
         return self._stream_with_inputs(context, question, history_str)
+
+    async def aask(self, question: str, history: list[dict] | None = None) -> Any:
+        """执行问答（异步），返回 async generator。"""
+        history = history or []
+        context = self._retrieve_and_format(question)
+        history_str = _format_history(history)
+        return self._astream_with_inputs(context, question, history_str)
 
     def ask_with_filter(
         self,
@@ -115,7 +131,7 @@ class RAGPipeline:
         folder: str | None = None,
         tag: str | None = None,
     ) -> Any:
-        """带过滤条件的问答。"""
+        """带过滤条件的问答（同步）。"""
         history = history or []
 
         filter_dict = None
@@ -132,5 +148,32 @@ class RAGPipeline:
             context = self._retrieve_and_format(question)
             history_str = _format_history(history)
             return self._stream_with_inputs(context, question, history_str)
+        finally:
+            self.retriever.filter_dict = original_filter
+
+    async def aask_with_filter(
+        self,
+        question: str,
+        history: list[dict] | None = None,
+        folder: str | None = None,
+        tag: str | None = None,
+    ) -> Any:
+        """带过滤条件的问答（异步）。"""
+        history = history or []
+
+        filter_dict = None
+        if folder:
+            filter_dict = filter_dict or {}
+            filter_dict["folder"] = folder
+        if tag:
+            filter_dict = filter_dict or {}
+            filter_dict["tags"] = {"$contains": tag}
+
+        original_filter = self.retriever.filter_dict
+        self.retriever.filter_dict = filter_dict
+        try:
+            context = self._retrieve_and_format(question)
+            history_str = _format_history(history)
+            return self._astream_with_inputs(context, question, history_str)
         finally:
             self.retriever.filter_dict = original_filter
