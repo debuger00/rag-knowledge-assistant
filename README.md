@@ -2,7 +2,7 @@
 
 基于 Obsidian 笔记仓库的个人 RAG（Retrieval-Augmented Generation）问答助手。提供 CLI 命令行和 Web 界面两种交互方式。
 
-**技术栈**: Python · LangChain · ChromaDB · BGE 中文嵌入模型 · DeepSeek API · FastAPI · Alpine.js
+**技术栈**: Python · PyTorch (GPU/CUDA) · LangChain · ChromaDB · BGE 中文嵌入模型 · DeepSeek API · FastAPI · Alpine.js
 
 ## 目录结构
 
@@ -51,14 +51,18 @@ rag-assistant/
 
 ### 1. 环境准备
 
+需要 Python >= 3.10，推荐使用 conda 环境以获得 GPU 加速推理。
+
 ```bash
-# 克隆仓库后，创建虚拟环境
-python -m venv .venv
-.venv\Scripts\activate   # Windows
+# 克隆仓库后，激活 conda 环境（需提前安装 PyTorch CUDA 版本）
+conda activate pytorch251
 
 # 安装依赖
 pip install -e .
 ```
+
+> **GPU 推理**：本项目使用 PyTorch CUDA 版本进行嵌入模型推理。如无 GPU，可降级为 CPU 版 PyTorch（推理速度较慢）。
+
 
 ### 2. 配置
 
@@ -183,6 +187,7 @@ rag server --port 8080 # 指定端口
 ## 运行测试
 
 ```bash
+conda activate pytorch251
 pytest tests/ -v    # 24 个测试，约 2 分钟
 ```
 
