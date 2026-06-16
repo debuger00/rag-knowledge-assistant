@@ -51,17 +51,19 @@ rag-assistant/
 
 ### 1. 环境准备
 
-需要 Python >= 3.10，推荐使用 conda 环境以获得 GPU 加速推理。
+需要 Python >= 3.10 + NVIDIA GPU（可选，CPU 亦可但推理慢）。
 
 ```bash
-# 克隆仓库后，激活 conda 环境（需提前安装 PyTorch CUDA 版本）
+# 克隆仓库后，激活 conda 环境（需已安装 PyTorch CUDA 版本）
 conda activate pytorch251
 
 # 安装依赖
 pip install -e .
 ```
 
-> **GPU 推理**：本项目使用 PyTorch CUDA 版本进行嵌入模型推理。如无 GPU，可降级为 CPU 版 PyTorch（推理速度较慢）。
+> **注意**：conda 环境目录可能无写权限，导致 CLI 入口 `rag.exe` 安装到用户目录而非 conda 环境。不影响功能——全部命令改用 `python -m rag_cli.main` 即可。
+>
+> **GPU 推理**：默认使用 CUDA（`embedding_device = "cuda"`）。如无 GPU，在 `.env` 中设 `EMBEDDING_DEVICE=cpu`。
 
 
 ### 2. 配置
@@ -82,17 +84,20 @@ OBSIDIAN_VAULT_PATH=E:/你的Obsidian仓库路径
 可选配置（有默认值，按需修改）：
 
 ```ini
-# 嵌入模型（默认 bge-small-zh-v1.5，100MB 轻量中文模型）
-# 也可换用 BAAI/bge-m3（2GB，更强但更慢）
+# 嵌入模型（默认 BAAI/bge-small-zh-v1.5，100MB 轻量中文模型）
+EMBEDDING_MODEL=BAAI/bge-small-zh-v1.5
+EMBEDDING_DEVICE=cuda            # cuda 或 cpu
+
+# LLM
 DEEPSEEK_MODEL=deepseek-chat
 
 # 检索参数
-RETRIEVAL_TOP_K=10          # 检索返回的文档数
+RETRIEVAL_TOP_K=10               # 检索返回的文档数
 
 # 分块参数
-CHILD_CHUNK_SIZE=800        # 子块最大字符数
-CHILD_CHUNK_OVERLAP=100     # 块间重叠字符数
-CHILD_MAX_LEN=2000          # 超过此长度的段落会二次切分
+CHILD_CHUNK_SIZE=800             # 子块最大字符数
+CHILD_CHUNK_OVERLAP=100          # 块间重叠字符数
+CHILD_MAX_LEN=2000               # 超过此长度的段落会二次切分
 ```
 
 ### 3. 建立索引
@@ -100,7 +105,7 @@ CHILD_MAX_LEN=2000          # 超过此长度的段落会二次切分
 首次使用需要将 Obsidian 笔记转为向量索引：
 
 ```bash
-rag index --rebuild
+python -m rag_cli.main index --rebuild
 ```
 
 进度示例：
@@ -120,8 +125,8 @@ Done: 526 parents, 6524 children
 后续增量同步：
 
 ```bash
-rag index --sync       # 增量更新（仅处理变更的文件）
-rag index --status     # 查看索引统计
+python -m rag_cli.main index --sync       # 增量更新（仅处理变更的文件）
+python -m rag_cli.main index --status     # 查看索引统计
 ```
 
 ## 使用方式
@@ -129,19 +134,19 @@ rag index --status     # 查看索引统计
 ### CLI 问答
 
 ```bash
-rag ask "Docker 有哪几种网络模式？"
+python -m rag_cli.main ask "Docker 有哪几种网络模式？"
 ```
 
 流式输出，实时显示 DeepSeek 的回答。支持过滤：
 
 ```bash
-rag ask "这段代码怎么优化？" --folder "000C++/c++刷题" --tag "DP"
+python -m rag_cli.main ask "这段代码怎么优化？" --folder "000C++/c++刷题" --tag "DP"
 ```
 
 ### Web 界面
 
 ```bash
-rag server
+python -m rag_cli.main server
 ```
 
 打开浏览器访问 `http://127.0.0.1:8501`。
@@ -156,13 +161,13 @@ rag server
 ### 命令总览
 
 ```
-rag ask <问题>        # 提问
-rag ask --folder <目录> --tag <标签>  # 带过滤的提问
-rag index --rebuild    # 全量重建索引
-rag index --sync       # 增量同步
-rag index --status     # 查看索引状态
-rag server             # 启动 Web 服务
-rag server --port 8080 # 指定端口
+python -m rag_cli.main ask <问题>                     # 提问
+python -m rag_cli.main ask <问题> --folder <目录> --tag <标签>  # 带过滤
+python -m rag_cli.main index --rebuild                # 全量重建索引
+python -m rag_cli.main index --sync                   # 增量同步
+python -m rag_cli.main index --status                 # 查看索引状态
+python -m rag_cli.main server                         # 启动 Web 服务
+python -m rag_cli.main server --port 8080             # 指定端口
 ```
 
 ## 工作原理
@@ -188,7 +193,7 @@ rag server --port 8080 # 指定端口
 
 ```bash
 conda activate pytorch251
-pytest tests/ -v    # 24 个测试，约 2 分钟
+python -m pytest tests/ -v    # 24 个测试，约 2 分钟
 ```
 
 嵌入模型较大，首次运行测试会自动下载 BGE 模型到 HuggingFace 缓存目录。
@@ -200,7 +205,6 @@ pytest tests/ -v    # 24 个测试，约 2 分钟
 | `langchain-*` | RAG 管线编排 |
 | `chromadb` | 本地向量数据库（持久化到 `chroma_data/`） |
 | `sentence-transformers` | BGE 中文嵌入模型 |
-| `fastapi` + `uvicorn` | Web 服务端 |
-| `sse-starlette` | 流式响应（SSE） |
+| `fastapi` + `uvicorn` | Web 服务端（含原生 SSE） |
 | `typer` + `rich` | CLI 命令行 |
 | `watchdog` | 文件系统监听 |
