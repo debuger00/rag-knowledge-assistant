@@ -112,6 +112,14 @@
                 this.typingText = '🔍 正在检索笔记...';
                 this.scrollToBottom();
 
+                // Use direct DOM manipulation for streaming (bypass Alpine reactivity)
+                const container = this.$refs.chatContainer;
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'message assistant';
+                const contentDiv = document.createElement('div');
+                msgDiv.appendChild(contentDiv);
+                container.appendChild(msgDiv);
+
                 const assistantMsg = { id: Date.now() + 1, role: 'assistant', content: '', sources: [] };
                 this.messages.push(assistantMsg);
 
@@ -125,6 +133,7 @@
                     const reader = resp.body.getReader();
                     const decoder = new TextDecoder();
                     let buffer = '';
+                    let rawContent = '';
 
                     while (true) {
                         const { done, value } = await reader.read();
@@ -137,20 +146,23 @@
                             if (line.startsWith('data: ')) {
                                 try {
                                     const parsed = JSON.parse(line.slice(6));
-                                    // Support both flat format and SSE dict format
-                                    if (typeof parsed === 'object') {
+                                    if (parsed && typeof parsed === 'object') {
                                         if (parsed.event === 'thinking') {
-                                            this.typingText = typeof parsed.data === 'string' ? parsed.data : '处理中...';
+                                            this.typingText = parsed.data || '处理中...';
                                         } else if (parsed.event === 'token') {
                                             this.typingText = '';
-                                            assistantMsg.content += typeof parsed.data === 'string' ? parsed.data : '';
+                                            const t = typeof parsed.data === 'string' ? parsed.data : '';
+                                            rawContent += t;
+                                            contentDiv.textContent = rawContent;
                                         } else if (parsed.event === 'done') {
                                             this.loading = false;
+                                            assistantMsg.content = rawContent;
+                                            contentDiv.innerHTML = this.renderMarkdown(rawContent);
                                         } else if (parsed.event === 'error') {
-                                            assistantMsg.content = '⚠️ 出错了：' + (typeof parsed.data === 'string' ? parsed.data : '');
+                                            const errMsg = parsed.data || '未知错误';
+                                            assistantMsg.content = '⚠️ 出错了：' + errMsg;
+                                            contentDiv.textContent = assistantMsg.content;
                                             this.loading = false;
-                                        } else if (typeof parsed === 'string') {
-                                            assistantMsg.content += parsed;
                                         }
                                     }
                                 } catch (e) { /* skip partial chunks */ }
@@ -160,6 +172,7 @@
                     }
                 } catch (e) {
                     assistantMsg.content = '⚠️ 网络错误：' + e.message;
+                    contentDiv.textContent = assistantMsg.content;
                     this.loading = false;
                 }
                 this.loading = false;
