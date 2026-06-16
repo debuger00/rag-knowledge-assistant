@@ -26,7 +26,7 @@ class Config:
 
     # Embedding
     embedding_model: str = "BAAI/bge-small-zh-v1.5"
-    embedding_device: str = "cpu"
+    embedding_device: str = "cuda"
 
     # Chroma
     chroma_persist_dir: str = "./chroma_data"
