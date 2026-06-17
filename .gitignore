@@ -6,3 +6,4 @@ chroma_data/
 *.egg-info/
 dist/
 .pytest_cache/
+note/
