@@ -7,3 +7,5 @@ chroma_data/
 dist/
 .pytest_cache/
 note/
+.vscode/
+.claude/
