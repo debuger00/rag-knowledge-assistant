@@ -3,9 +3,13 @@ __pycache__/
 *.pyc
 .env
 chroma_data/
+chat_history/
 *.egg-info/
 dist/
 .pytest_cache/
 note/
 .vscode/
 .claude/
+
+
+.wyh/

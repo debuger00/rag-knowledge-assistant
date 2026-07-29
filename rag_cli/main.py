@@ -1,5 +1,7 @@
 """CLI - Typer commands: rag ask, rag index, rag server."""
+import json
 import os
+from pathlib import Path
 from typing import Optional
 
 import typer
@@ -20,12 +22,41 @@ app = typer.Typer(
 console = Console()
 
 
+def _get_history_path(session: str) -> Path:
+    """获取指定 session 的历史记录文件路径。"""
+    config = get_config()
+    history_dir = Path(config.history_dir)
+    history_dir.mkdir(parents=True, exist_ok=True)
+    return history_dir / f"{session}.json"
+
+
+def _load_history(session: str) -> list[dict]:
+    """从文件加载指定 session 的历史记录。"""
+    path = _get_history_path(session)
+    if not path.exists():
+        return []
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return []
+
+
+def _save_history(session: str, history: list[dict]) -> None:
+    """将指定 session 的历史记录保存到文件。"""
+    path = _get_history_path(session)
+    # 只保留最近 20 条
+    trimmed = history[-20:]
+    path.write_text(json.dumps(trimmed, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
 @app.command()
 def ask(
     question: str = typer.Argument(..., help="Your question"),
     no_history: bool = typer.Option(False, "--no-history", help="Disable chat history"),
+    session: str = typer.Option("default", "--session", "-s", help="Session name for history"),
     folder: Optional[str] = typer.Option(None, "--folder", help="Filter by folder"),
     tag: Optional[str] = typer.Option(None, "--tag", help="Filter by tag"),
+    clear: bool = typer.Option(False, "--clear", help="Clear history for this session"),
 ):
     """Ask your knowledge base a question (streaming output)."""
     config = get_config()
@@ -35,6 +66,8 @@ def ask(
         raise typer.Exit(code=1)
 
     console.print(f"[dim]Vault: {config.obsidian_vault_path}[/dim]")
+    if not no_history:
+        console.print(f"[dim]Session: {session}[/dim]")
 
     store = VectorStoreManager(persist_dir=config.chroma_persist_dir)
     pipeline = RAGPipeline(store=store)
@@ -53,7 +86,16 @@ def ask(
 
     console.print(f"[dim]Searching...[/dim]\n")
 
-    history: list[dict] = [] if no_history else []
+    # --clear 清除该 session 的历史记录
+    if clear:
+        _save_history(session, [])
+        console.print(f"[dim]History cleared for session '{session}'[/dim]")
+
+    # 加载历史：--no-history 时为空，否则从文件加载
+    if no_history:
+        history: list[dict] = []
+    else:
+        history = _load_history(session)
 
     try:
         full_answer = ""
@@ -81,6 +123,7 @@ def ask(
         if not no_history:
             history.append({"role": "user", "content": question})
             history.append({"role": "assistant", "content": full_answer})
+            _save_history(session, history)
 
     except Exception as e:
         console.print(f"\n[red][ERROR] {e}[/red]")
@@ -153,3 +196,4 @@ def server(
 
 if __name__ == "__main__":
     app()
+

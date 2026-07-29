@@ -1,5 +1,5 @@
-"""BGE-M3 Embedding 封装 — 通过 LangChain 的 HuggingFaceEmbeddings 使用。"""
-from langchain_community.embeddings import HuggingFaceEmbeddings
+"""BGE-M3 Embedding 封装 — 通过 langchain-huggingface 的 HuggingFaceEmbeddings 使用。"""
+from langchain_huggingface import HuggingFaceEmbeddings
 
 from config import get_config
 
@@ -12,7 +12,10 @@ def create_embedder() -> HuggingFaceEmbeddings:
     config = get_config()
     return HuggingFaceEmbeddings(
         model_name=config.embedding_model,
-        model_kwargs={"device": config.embedding_device},
+        model_kwargs={
+            "device": config.embedding_device,
+            "local_files_only": True,  # 模型已缓存，跳过 HF 网络检查
+        },
         encode_kwargs={
             "normalize_embeddings": True,
             "batch_size": 16,          # 控制内部 batch，降低内存峰值

@@ -71,9 +71,8 @@ class RAGPipeline:
             top_k=self.config.retrieval_top_k,
             enable_link_expansion=self.config.enable_link_expansion,
         )
-        self.llm = create_deepseek_llm(streaming=True)
-
         self.prompt = ChatPromptTemplate.from_template(SYSTEM_PROMPT)
+        self.llm = create_deepseek_llm()
 
         self.chain = (
             {

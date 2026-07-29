@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RAG 知识库助手</title>
     <link rel="stylesheet" href="/static/style.css">
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script defer src="/static/alpine.min.js"></script>
+    <script src="/static/marked.min.js"></script>
 </head>
 <body x-data="chatApp()" x-init="init()">
     <header class="header">
@@ -97,24 +97,33 @@
             },
 
             async fetchStatus() {
-                try {
-                    const res = await fetch('/api/status');
-                    const data = await res.json();
-                    if (data.status === 'ok' && data.index) {
-                        const t = new Date(data.index.last_sync).toLocaleTimeString('zh-CN');
-                        this.statusText = `已索引 ${data.index.parent_count} 篇笔记 · 最近同步 ${t}`;
-                    }
-                    // Fill settings defaults from server config (localStorage takes priority)
-                    if (data.config) {
-                        if (!localStorage.getItem('vaultPath')) {
-                            this.settings.vaultPath = data.config.vault_path || '';
+                let connected = false;
+                for (let i = 0; i < 3; i++) {
+                    try {
+                        const res = await fetch('/api/status');
+                        const data = await res.json();
+                        if (data.status === 'ok' && data.index) {
+                            const t = new Date(data.index.last_sync).toLocaleTimeString('zh-CN');
+                            this.statusText = `已索引 ${data.index.parent_count} 篇笔记 · 最近同步 ${t}`;
                         }
-                        if (!localStorage.getItem('topK')) {
-                            this.settings.topK = data.config.retrieval_top_k || 10;
+                        if (data.config) {
+                            if (!localStorage.getItem('vaultPath')) {
+                                this.settings.vaultPath = data.config.vault_path || '';
+                            }
+                            if (!localStorage.getItem('topK')) {
+                                this.settings.topK = data.config.retrieval_top_k || 10;
+                            }
+                            this.serverConfig = data.config;
                         }
-                        this.serverConfig = data.config;
+                        connected = true;
+                        break;
+                    } catch (e) {
+                        if (i < 2) {
+                            await new Promise(r => setTimeout(r, 1000));
+                        }
                     }
-                } catch (e) {
+                }
+                if (!connected) {
                     this.statusText = '服务未连接';
                 }
             },

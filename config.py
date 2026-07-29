@@ -35,6 +35,9 @@ class Config:
     retrieval_top_k: int = 10
     enable_link_expansion: bool = True
 
+    # History
+    history_dir: str = "./chat_history"
+
     # Server
     server_host: str = "127.0.0.1"
     server_port: int = 8501
