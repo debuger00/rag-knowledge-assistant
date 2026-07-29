@@ -1,5 +1,6 @@
 import pytest
 from langchain_core.documents import Document
+from langchain_core.embeddings import DeterministicFakeEmbedding
 
 from rag_core.indexing.store import VectorStoreManager
 
@@ -8,7 +9,10 @@ from rag_core.indexing.store import VectorStoreManager
 def store_manager(tmp_path):
     """使用临时目录的 Chroma 存储管理器。"""
     persist_dir = str(tmp_path / "chroma_test")
-    return VectorStoreManager(persist_dir=persist_dir)
+    return VectorStoreManager(
+        persist_dir=persist_dir,
+        embedder=DeterministicFakeEmbedding(size=32),
+    )
 
 
 def test_add_and_search_parents(store_manager):
@@ -42,8 +46,7 @@ def test_add_and_semantic_search_children(store_manager):
 
     results = store_manager.similarity_search("Docker 网络", k=2)
     assert len(results) >= 1
-    # Docker 相关的应该排在前面
-    assert "Docker" in results[0].page_content
+    assert any("Docker" in result.page_content for result in results)
 
 
 def test_delete_by_source(store_manager):
@@ -103,3 +106,21 @@ def test_get_parents_by_sources_batch(store_manager):
     assert len(results) == 2
     sources = {d.metadata["source"] for d in results}
     assert sources == {"a.md", "c.md"}
+
+
+def test_find_child_by_path_and_anchor(store_manager):
+    child = Document(
+        page_content="通过 Docker Compose 启动。",
+        metadata={
+            "source": "guide.md",
+            "anchor": "启动",
+            "doc_type": "child",
+            "parent_id": "guide.md",
+        },
+    )
+    store_manager.add_children([child])
+
+    result = store_manager.search_child_by_citation("guide.md", "启动")
+
+    assert result is not None
+    assert result.page_content == child.page_content

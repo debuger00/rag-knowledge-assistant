@@ -3,7 +3,7 @@ import json
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -108,11 +108,17 @@ def create_app(config: Config | None = None) -> FastAPI:
                 "vault_path": cfg.obsidian_vault_path,
                 "embedding_model": cfg.embedding_model,
                 "embedding_device": cfg.embedding_device,
-                "deepseek_model": cfg.deepseek_model,
+                "llm_model": cfg.llm_model,
+                "llm_base_url": cfg.llm_base_url,
                 "retrieval_top_k": cfg.retrieval_top_k,
+                "retrieval_score_threshold": cfg.retrieval_score_threshold,
                 "server_port": cfg.server_port,
             },
         })
+
+    @app.get("/health")
+    async def health():
+        return {"status": "ok"}
 
     @app.post("/api/reindex")
     async def reindex():
@@ -126,9 +132,26 @@ def create_app(config: Config | None = None) -> FastAPI:
             raise HTTPException(status_code=500, detail=str(e))
 
     @app.get("/api/sources/{source:path}")
-    async def get_source(source: str):
+    async def get_source(
+        source: str,
+        anchor: str | None = Query(default=None),
+    ):
         if _store is None:
             raise HTTPException(status_code=500, detail="服务未初始化")
+
+        if anchor:
+            cited_doc = _store.search_child_by_citation(source, anchor)
+            if cited_doc is None:
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"未找到引用: {source}#{anchor}",
+                )
+            return JSONResponse({
+                "source": source,
+                "anchor": anchor,
+                "content": cited_doc.page_content,
+                "metadata": cited_doc.metadata,
+            })
 
         docs = _store.search_parents_by_source(source)
         if not docs:

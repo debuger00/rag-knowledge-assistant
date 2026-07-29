@@ -25,38 +25,37 @@ class ParentChildRetriever(BaseRetriever):
         arbitrary_types_allowed = True
 
     def _get_relevant_documents(self, query: str) -> list[Document]:
+        return [doc for doc, _ in self.retrieve_with_scores(query)]
+
+    def retrieve_with_scores(self, query: str) -> list[tuple[Document, float]]:
+        """Return grounded child chunks above the configured score threshold."""
         config = get_config()
         self.top_k = config.retrieval_top_k
         self.enable_link_expansion = config.enable_link_expansion
 
         # Step 1: 在子块中检索
-        children = self.store.similarity_search(
+        scored_children = self.store.similarity_search_with_scores(
             query, k=self.top_k, filter_dict=self.filter_dict
         )
+        threshold = config.retrieval_score_threshold
+        grounded = [
+            (doc, score)
+            for doc, score in scored_children
+            if score >= threshold
+        ]
 
-        if not children:
-            return []
-
-        # Step 2: 按 parent_id 去重分组
-        seen_parents: set[str] = set()
-        for child in children:
-            pid = child.metadata.get("parent_id", "")
-            if pid:
-                seen_parents.add(pid)
-
-        # Step 3: 取出完整父文档
-        parent_docs = self.store.get_parents_by_sources(list(seen_parents))
-
-        # Step 4: 可选 — 链接扩展检索
-        if self.enable_link_expansion:
-            linked_docs = self._expand_by_links(parent_docs)
-            existing_sources = {d.metadata.get("source") for d in parent_docs}
-            for ld in linked_docs:
-                if ld.metadata.get("source") not in existing_sources:
-                    parent_docs.append(ld)
-                    existing_sources.add(ld.metadata["source"])
-
-        return parent_docs
+        # Keep only the strongest evidence for each path + anchor pair.
+        result: list[tuple[Document, float]] = []
+        seen: set[tuple[str, str]] = set()
+        for doc, score in grounded:
+            key = (
+                str(doc.metadata.get("source", "")),
+                str(doc.metadata.get("anchor", "document-start")),
+            )
+            if key not in seen:
+                seen.add(key)
+                result.append((doc, score))
+        return result
 
     def _expand_by_links(self, parent_docs: list[Document]) -> list[Document]:
         """通过 [[链接]] 一阶扩展查找关联文档。"""

@@ -1,210 +1,139 @@
-# RAG 知识库助手
+# 技术文档智能问答与引用溯源系统
 
-基于 Obsidian 笔记仓库的个人 RAG（Retrieval-Augmented Generation）问答助手。提供 CLI 命令行和 Web 界面两种交互方式。
+面向公开技术文档集的 Grounded RAG 系统。回答仅基于检索证据，提供可验证的
+`文档路径 + 段落 anchor` 引用；证据不足时由程序直接拒答。
 
-**技术栈**: Python · PyTorch (GPU/CUDA) · LangChain · ChromaDB · BGE 中文嵌入模型 · DeepSeek API · FastAPI · Alpine.js
+## 核心能力
 
-## 目录结构
+- Markdown 文档加载、父子分块和本地 Chroma 向量索引
+- 结构化引用：`path`、`anchor`、证据摘录和相关度分数
+- 相关度阈值拒答，不依赖 LLM 自觉判断
+- 新增、修改、删除实时同步，服务重启后清理已删除文档
+- FastAPI + SSE 流式问答 Web UI
+- OpenAI-compatible LLM 网关，开发阶段使用 DeepSeek API 占位
+- Docker Compose 一键运行和 GitHub Actions 自动测试
 
-```
-rag-assistant/
-├── config.py                  # 全局配置（从 .env 读取）
-├── pyproject.toml             # 项目依赖与构建配置
-├── .env.example               # 环境变量模板
-│
-├── rag_core/                  # 核心 RAG 引擎
-│   ├── indexing/              # 索引子系统
-│   │   ├── loader.py          # Obsidian .md 文件加载器
-│   │   ├── splitter.py        # 父子分块（按 ## 标题切分）
-│   │   ├── embedder.py        # BGE 嵌入模型封装
-│   │   └── store.py           # ChromaDB 双集合管理（父文档 + 子块）
-│   ├── retrieval/             # 检索子系统
-│   │   ├── retriever.py       # 父子检索器（语义搜索子块 → 返回父文档）
-│   │   └── pipeline.py        # RAG 问答管线（检索 → 格式化 → LLM → 输出）
-│   ├── llm/                   # LLM 子系统
-│   │   └── deepseek.py        # DeepSeek API 封装
-│   └── watcher.py             # 文件监听器（watchdog，自动同步 Obsidian 变更）
-│
-├── rag_server/                # Web 服务端
-│   ├── app.py                 # FastAPI 应用（/api/chat, /api/status, /api/reindex）
-│   ├── chat.py                # SSE 流式聊天 + 会话管理
-│   └── static/                # 前端静态文件
-│       ├── index.html         # Alpine.js 聊天界面
-│       └── style.css          # 样式（含暗色模式）
-│
-├── rag_cli/                   # CLI 命令行
-│   └── main.py                # Typer 入口（rag ask / index / server）
-│
-├── tests/                     # 测试
-│   ├── conftest.py            # Pytest fixtures（临时 Obsidian 仓库）
-│   ├── test_loader.py         # 加载器测试（7 个）
-│   ├── test_splitter.py       # 分块器测试（6 个）
-│   ├── test_store.py          # 向量存储测试（6 个）
-│   └── test_pipeline.py       # 管线测试（5 个）
-│
-└── docs/superpowers/          # 设计文档
-    ├── specs/                 # 设计规格说明
-    └── plans/                 # 实施计划
-```
+## 一键运行
 
-## 快速开始
+### 1. 准备文档和配置
 
-### 1. 环境准备
-
-需要 Python >= 3.10 + NVIDIA GPU（可选，CPU 亦可但推理慢）。
-
-```bash
-# 克隆仓库后，激活 conda 环境（需已安装 PyTorch CUDA 版本）
-conda activate pytorch251
-
-# 安装依赖
-pip install -e .
-```
-
-> **注意**：conda 环境目录可能无写权限，导致 CLI 入口 `rag.exe` 安装到用户目录而非 conda 环境。不影响功能——全部命令改用 `python -m rag_cli.main` 即可。
->
-> **GPU 推理**：默认使用 CUDA（`embedding_device = "cuda"`）。如无 GPU，在 `.env` 中设 `EMBEDDING_DEVICE=cpu`。
-
-
-### 2. 配置
-
-复制并编辑 `.env` 文件：
+将比赛文档集放入 `documents/`，仅使用允许参赛的公开或指定数据。
 
 ```bash
 cp .env.example .env
 ```
 
-必填项：
+开发阶段配置 DeepSeek：
 
 ```ini
-DEEPSEEK_API_KEY=sk-你的DeepSeek密钥
-OBSIDIAN_VAULT_PATH=E:/你的Obsidian仓库路径
+LLM_API_KEY=your-key
+LLM_BASE_URL=https://api.deepseek.com
+LLM_MODEL=deepseek-chat
 ```
 
-可选配置（有默认值，按需修改）：
+比赛网关下发后，只替换以上三个值，业务代码无需修改。禁止在最终比赛环境中绕过
+统一网关直接访问外部模型。
 
-```ini
-# 嵌入模型（默认 BAAI/bge-small-zh-v1.5，100MB 轻量中文模型）
-EMBEDDING_MODEL=BAAI/bge-small-zh-v1.5
-EMBEDDING_DEVICE=cuda            # cuda 或 cpu
-
-# LLM
-DEEPSEEK_MODEL=deepseek-chat
-
-# 检索参数
-RETRIEVAL_TOP_K=10               # 检索返回的文档数
-
-# 分块参数
-CHILD_CHUNK_SIZE=800             # 子块最大字符数
-CHILD_CHUNK_OVERLAP=100          # 块间重叠字符数
-CHILD_MAX_LEN=2000               # 超过此长度的段落会二次切分
-```
-
-### 3. 建立索引
-
-首次使用需要将 Obsidian 笔记转为向量索引：
+### 2. 启动
 
 ```bash
+docker compose up --build
+```
+
+首次启动需要下载嵌入模型。服务就绪后访问：
+
+- Web UI：<http://localhost:8501>
+- 健康检查：<http://localhost:8501/health>
+- 索引状态：<http://localhost:8501/api/status>
+
+也可以使用 `make run`。
+
+## 本地开发
+
+需要 Python 3.10 或更高版本：
+
+```bash
+python -m venv .venv
+.\.venv\Scripts\activate
+pip install -e .
 python -m rag_cli.main index --rebuild
-```
-
-进度示例：
-
-```
-Rebuilding index...
-  [1/3] 加载笔记...
-  [1/3] 加载完成: 526 篇笔记
-  [2/3] 文本切分...
-  [2/3] 切分完成: 7050 个文档块
-  [3/3] 向量嵌入: 526 父文档 + 6524 子块
-  [parents] 526/526
-  [children] 6524/6524
-Done: 526 parents, 6524 children
-```
-
-后续增量同步：
-
-```bash
-python -m rag_cli.main index --sync       # 增量更新（仅处理变更的文件）
-python -m rag_cli.main index --status     # 查看索引统计
-```
-
-## 使用方式
-
-### CLI 问答
-
-```bash
-python -m rag_cli.main ask "Docker 有哪几种网络模式？"
-```
-
-流式输出，实时显示 DeepSeek 的回答。支持过滤：
-
-```bash
-python -m rag_cli.main ask "这段代码怎么优化？" --folder "000C++/c++刷题" --tag "DP"
-```
-
-### Web 界面
-
-```bash
 python -m rag_cli.main server
 ```
 
-打开浏览器访问 `http://127.0.0.1:8501`。
+Linux/macOS 使用 `source .venv/bin/activate` 激活环境。
 
-功能：
-- 🗨️ 流式聊天（SSE 实时推送）
-- 📄 查看引用笔记来源
-- ⚙️ 设置面板（本地存储，无需数据库）
-- 🌙 自动适配系统暗色模式
-- 🔄 网页端一键重建索引
-
-### 命令总览
-
-```
-python -m rag_cli.main ask <问题>                     # 提问
-python -m rag_cli.main ask <问题> --folder <目录> --tag <标签>  # 带过滤
-python -m rag_cli.main index --rebuild                # 全量重建索引
-python -m rag_cli.main index --sync                   # 增量同步
-python -m rag_cli.main index --status                 # 查看索引状态
-python -m rag_cli.main server                         # 启动 Web 服务
-python -m rag_cli.main server --port 8080             # 指定端口
-```
-
-## 工作原理
-
-```text
-┌─────────────┐    ┌──────────────┐    ┌─────────────┐    ┌───────────┐
-│ Obsidian    │───▶│ 父子分块      │───▶│ ChromaDB    │───▶│ RAG 管线  │
-│ .md 文件    │    │ 父文档+子块   │    │ 双集合存储   │    │ 检索+生成  │
-└─────────────┘    └──────────────┘    └─────────────┘    └───────────┘
-                          │                   │                  │
-                    BGE 嵌入模型        语义向量索引        DeepSeek LLM
-```
-
-**父子检索策略**：
-1. 每个笔记保留一份完整父文档（doc_type=parent）
-2. 按 `##` 标题切分为多个子块（doc_type=child）
-3. 搜索时对子块做语义匹配，去重后返回完整的父文档
-4. 可选：通过 `[[wikilinks]]` 扩展关联笔记（1-hop）
-
-**文件监听**：启动 Web 服务后会自动监听 Obsidian 仓库的文件变更（创建/修改/删除），2 秒防抖后增量更新索引。
-
-## 运行测试
+常用命令：
 
 ```bash
-conda activate pytorch251
-python -m pytest tests/ -v    # 24 个测试，约 2 分钟
+python -m rag_cli.main ask "文档中的部署步骤是什么？"
+python -m rag_cli.main index --sync
+python -m rag_cli.main index --status
+python -m pytest tests -q
 ```
 
-嵌入模型较大，首次运行测试会自动下载 BGE 模型到 HuggingFace 缓存目录。
+由于比赛版新增了 anchor 元数据，从旧面试项目升级后必须执行一次
+`index --rebuild`。
 
-## 依赖说明
+## 回答与引用协议
 
-| 包 | 用途 |
-|----|------|
-| `langchain-*` | RAG 管线编排 |
-| `chromadb` | 本地向量数据库（持久化到 `chroma_data/`） |
-| `sentence-transformers` | BGE 中文嵌入模型 |
-| `fastapi` + `uvicorn` | Web 服务端（含原生 SSE） |
-| `typer` + `rich` | CLI 命令行 |
-| `watchdog` | 文件系统监听 |
+`POST /api/chat`：
+
+```json
+{
+  "question": "系统支持哪些部署方式？",
+  "session_id": "demo"
+}
+```
+
+SSE 依次返回：
+
+```text
+{"event":"thinking","data":"正在检索笔记..."}
+{"event":"sources","data":[{"path":"guide.md","anchor":"部署","quote":"...","score":0.82}]}
+{"event":"token","data":"..."}
+{"event":"done","data":"..."}
+```
+
+引用可通过下面的 API 复核：
+
+```text
+GET /api/sources/guide.md?anchor=部署
+```
+
+若没有证据达到 `RETRIEVAL_SCORE_THRESHOLD`，系统不调用 LLM，固定返回：
+
+```text
+根据当前文档集，无法找到足够可靠的依据回答该问题。
+```
+
+## 配置
+
+| 环境变量 | 默认值 | 说明 |
+|---|---|---|
+| `LLM_API_KEY` | 无 | 统一网关密钥 |
+| `LLM_BASE_URL` | DeepSeek URL | OpenAI-compatible 网关地址 |
+| `LLM_MODEL` | `deepseek-chat` | 网关模型名 |
+| `OBSIDIAN_VAULT_PATH` | `./documents` | Markdown 文档目录 |
+| `CHROMA_PERSIST_DIR` | `./chroma_data` | 向量索引目录 |
+| `EMBEDDING_MODEL` | `BAAI/bge-small-zh-v1.5` | 嵌入模型 |
+| `EMBEDDING_DEVICE` | `cpu` | `cpu` 或 `cuda` |
+| `RETRIEVAL_TOP_K` | `10` | 候选证据数 |
+| `RETRIEVAL_SCORE_THRESHOLD` | `0.35` | 确定性拒答阈值 |
+
+阈值必须使用比赛公开评测集校准，不应只凭人工体验设置。
+
+## 文档
+
+- [架构与数据流](docs/architecture.md)
+- [自测报告](docs/self-test-report.md)
+- [2～3 分钟 Demo 录制脚本](docs/demo-script.md)
+- [原始设计记录](docs/superpowers/specs/2026-06-09-rag-knowledge-assistant-design.md)
+
+## 数据合规
+
+仓库不提交 `.env`、向量索引、聊天记录或比赛文档集。Prompt、日志和 Demo
+不得包含真实员工、客户、合作伙伴或内部业务数据。
+
+## License
+
+[MIT](LICENSE)

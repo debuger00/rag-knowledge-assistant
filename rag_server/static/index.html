@@ -29,8 +29,11 @@
                 <div x-html="renderMarkdown(msg.content)"></div>
                 <div class="sources" x-show="msg.sources && msg.sources.length > 0">
                     📄 来源：
-                    <template x-for="src in msg.sources">
-                        <a @click="viewSource(src)" x-text="src" style="margin-right:12px;"></a>
+                    <template x-for="src in msg.sources" :key="src.path + '#' + src.anchor">
+                        <a @click="viewSource(src)"
+                           :title="src.quote"
+                           x-text="src.path + '#' + src.anchor"
+                           style="margin-right:12px;"></a>
                     </template>
                 </div>
             </div>
@@ -179,6 +182,8 @@
                                             const t = typeof parsed.data === 'string' ? parsed.data : '';
                                             rawContent += t;
                                             if (contentDiv) contentDiv.textContent = rawContent;
+                                        } else if (parsed.event === 'sources') {
+                                            assistantMsg.sources = Array.isArray(parsed.data) ? parsed.data : [];
                                         } else if (parsed.event === 'done') {
                                             this.loading = false;
                                             assistantMsg.content = rawContent;
@@ -215,13 +220,15 @@
                 try { return marked.parse(text); } catch (e) { return text; }
             },
 
-            async viewSource(source) {
+            async viewSource(citation) {
                 try {
-                    const resp = await fetch('/api/sources/' + encodeURIComponent(source));
+                    const url = '/api/sources/' + encodeURIComponent(citation.path)
+                        + '?anchor=' + encodeURIComponent(citation.anchor);
+                    const resp = await fetch(url);
                     const data = await resp.json();
-                    alert(`[${data.source}]\n\n${data.content.substring(0, 1000)}...`);
+                    alert(`[${data.source}#${data.anchor}]\n\n${data.content.substring(0, 1000)}`);
                 } catch (e) {
-                    alert('无法加载笔记：' + e.message);
+                    alert('无法加载来源：' + e.message);
                 }
             },
 

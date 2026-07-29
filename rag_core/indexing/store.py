@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 
 import chromadb
 from langchain_core.documents import Document
+from langchain_core.embeddings import Embeddings
 from langchain_chroma import Chroma
 
 from rag_core.indexing.embedder import create_embedder
@@ -12,9 +13,13 @@ from rag_core.indexing.embedder import create_embedder
 class VectorStoreManager:
     """管理 Chroma 中的两个 Collection：rag_parents 和 rag_children。"""
 
-    def __init__(self, persist_dir: str):
+    def __init__(
+        self,
+        persist_dir: str,
+        embedder: Embeddings | None = None,
+    ):
         self.persist_dir = persist_dir
-        self._embedder = create_embedder()
+        self._embedder = embedder or create_embedder()
 
         self._client = chromadb.PersistentClient(path=persist_dir)
 
@@ -39,11 +44,7 @@ class VectorStoreManager:
             if isinstance(value, list):
                 if len(value) == 0:
                     continue  # ChromaDB rejects empty lists
-                # Flatten list to string if needed (ChromaDB only accepts str, int, float, bool)
-                if value and not isinstance(value[0], (str, int, float, bool)):
-                    cleaned[key] = [str(v) for v in value]
-                else:
-                    cleaned[key] = value
+                cleaned[key] = "|".join(str(v) for v in value)
             elif isinstance(value, dict):
                 continue  # ChromaDB rejects nested dicts
             elif isinstance(value, (str, int, float, bool, type(None))):
@@ -93,6 +94,24 @@ class VectorStoreManager:
         """在子块中进行语义搜索。"""
         return self._children_store.similarity_search(query, k=k, filter=filter_dict)
 
+    def similarity_search_with_scores(
+        self, query: str, k: int = 10, filter_dict: dict | None = None
+    ) -> list[tuple[Document, float]]:
+        """Search child chunks and return normalized relevance scores."""
+        return self._children_store.similarity_search_with_relevance_scores(
+            query, k=k, filter=filter_dict
+        )
+
+    def list_parent_sources(self) -> set[str]:
+        """Return every source currently present in the parent collection."""
+        result = self._parent_store.get(include=["metadatas"])
+        metadatas = result.get("metadatas") or []
+        return {
+            str(metadata["source"])
+            for metadata in metadatas
+            if metadata and metadata.get("source")
+        }
+
     def search_parents_by_source(self, source: str) -> list[Document]:
         """按 source 查找父文档。"""
         result = self._parent_store.get(where={"source": source})
@@ -103,6 +122,22 @@ class VectorStoreManager:
             meta = result["metadatas"][i] if result["metadatas"] else {}
             docs.append(Document(page_content=content, metadata=meta))
         return docs
+
+    def search_child_by_citation(
+        self, source: str, anchor: str
+    ) -> Document | None:
+        """Find the exact evidence chunk referenced by path and anchor."""
+        result = self._children_store.get(
+            where={"$and": [{"source": source}, {"anchor": anchor}]}
+        )
+        documents = result.get("documents") or []
+        if not documents:
+            return None
+        metadatas = result.get("metadatas") or [{}]
+        return Document(
+            page_content=documents[0],
+            metadata=metadatas[0] or {},
+        )
 
     def get_parents_by_sources(self, sources: list[str]) -> list[Document]:
         """批量按 source 获取父文档。"""

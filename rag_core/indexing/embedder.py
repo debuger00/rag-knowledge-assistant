@@ -1,5 +1,8 @@
-"""BGE-M3 Embedding 封装 — 通过 langchain-huggingface 的 HuggingFaceEmbeddings 使用。"""
-from langchain_huggingface import HuggingFaceEmbeddings
+"""Hugging Face embedding adapter."""
+try:
+    from langchain_huggingface import HuggingFaceEmbeddings
+except ImportError:  # Compatibility with the original interview environment.
+    from langchain_community.embeddings import HuggingFaceEmbeddings
 
 from config import get_config
 
@@ -14,7 +17,7 @@ def create_embedder() -> HuggingFaceEmbeddings:
         model_name=config.embedding_model,
         model_kwargs={
             "device": config.embedding_device,
-            "local_files_only": True,  # 模型已缓存，跳过 HF 网络检查
+            "local_files_only": config.embedding_local_files_only,
         },
         encode_kwargs={
             "normalize_embeddings": True,

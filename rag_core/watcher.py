@@ -139,9 +139,13 @@ class VaultWatcher:
             ignore_dirs=list(self.ignore_dirs),
         )
         current_docs = loader.load()
+        current_sources = {
+            str(doc.metadata["source"]) for doc in current_docs
+        }
 
         new_count = 0
         updated_count = 0
+        deleted_count = 0
 
         for doc in current_docs:
             source = doc.metadata["source"]
@@ -157,15 +161,21 @@ class VaultWatcher:
                     self._index_document(doc)
                     updated_count += 1
 
+        stale_sources = self.store.list_parent_sources() - current_sources
+        for source in stale_sources:
+            self.store.delete_by_source(source)
+            deleted_count += 1
+
         logger.info(
             f"同步完成: {new_count} 篇新增, {updated_count} 篇更新, "
-            f"总计 {len(current_docs)} 篇笔记"
+            f"{deleted_count} 篇删除, 总计 {len(current_docs)} 篇文档"
         )
 
         return {
             "total": len(current_docs),
             "new": new_count,
             "updated": updated_count,
+            "deleted": deleted_count,
         }
 
     def rebuild(self) -> dict:

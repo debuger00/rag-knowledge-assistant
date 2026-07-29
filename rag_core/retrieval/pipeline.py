@@ -1,21 +1,31 @@
-"""RAG Chain — LCEL 管线：检索 → 格式化 → Prompt → LLM → 解析。"""
-from typing import Any
+"""Grounded RAG pipeline with deterministic refusal and citations."""
+from typing import Any, TypedDict
 
 from langchain_core.documents import Document
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.runnables import RunnablePassthrough, RunnableLambda
 
-from rag_core.llm.deepseek import create_deepseek_llm
+from rag_core.llm.deepseek import create_llm
 from rag_core.retrieval.retriever import ParentChildRetriever
 from rag_core.indexing.store import VectorStoreManager
 from config import get_config
 
 
-SYSTEM_PROMPT = """你是个人知识库问答助手。根据用户笔记内容回答问题。
-如果笔记中没有相关信息，请明确说明，不要编造。
+REFUSAL_MESSAGE = "根据当前文档集，无法找到足够可靠的依据回答该问题。"
 
-以下是从用户 Obsidian 知识库中检索到的相关笔记：
+
+class Citation(TypedDict):
+    path: str
+    anchor: str
+    heading: str
+    quote: str
+    score: float
+
+
+SYSTEM_PROMPT = """你是技术文档问答助手。只能根据提供的证据回答问题。
+证据已经通过相关度阈值检查。不得使用训练知识补充证据中不存在的信息。
+
+以下是从文档集中检索到的证据：
 
 {context}
 
@@ -26,9 +36,9 @@ SYSTEM_PROMPT = """你是个人知识库问答助手。根据用户笔记内容�
 
 要求：
 - 用中文回答
-- 引用具体笔记时，注明来源（笔记文件名）
-- 如果涉及多个笔记的观点，请分别说明
-- 可以综合多篇笔记进行分析"""
+- 结论必须能从证据中直接推出
+- 不得编造文件、标题、数字或事实
+- 不要自行生成来源列表，系统会附加经过校验的引用"""
 
 
 def _format_docs(docs: list[Document]) -> str:
@@ -39,7 +49,11 @@ def _format_docs(docs: list[Document]) -> str:
     parts = []
     for i, doc in enumerate(docs):
         source = doc.metadata.get("source", "未知来源")
-        parts.append(f"--- 笔记 {i + 1}: {source} ---\n{doc.page_content}\n")
+        anchor = doc.metadata.get("anchor", "document-start")
+        parts.append(
+            f"--- 证据 {i + 1}: {source}#{anchor} ---\n"
+            f"{doc.page_content}\n"
+        )
     return "\n".join(parts)
 
 
@@ -72,24 +86,63 @@ class RAGPipeline:
             enable_link_expansion=self.config.enable_link_expansion,
         )
         self.prompt = ChatPromptTemplate.from_template(SYSTEM_PROMPT)
-        self.llm = create_deepseek_llm()
+        self._llm = None
 
-        self.chain = (
-            {
-                "context": RunnableLambda(func=self._retrieve_and_format),
-                "question": RunnablePassthrough(),
-                "history": RunnableLambda(func=lambda _: ""),
-            }
-            | self.prompt
-            | self.llm
-            | StrOutputParser()
-        )
+    @property
+    def llm(self):
+        """Create the gateway client only when an answer needs generation."""
+        if self._llm is None:
+            self._llm = create_llm()
+        return self._llm
 
     def _retrieve_and_format(self, query: str) -> str:
-        docs = self.retriever.invoke(query)
+        docs, _ = self.retrieve_evidence(query)
         return _format_docs(docs)
 
-    def _stream_with_inputs(self, context: str, question: str, history_str: str) -> Any:
+    def retrieve_evidence(
+        self, question: str
+    ) -> tuple[list[Document], list[Citation]]:
+        scored_docs = self.retriever.retrieve_with_scores(question)
+        docs = [doc for doc, _ in scored_docs]
+        citations = [
+            Citation(
+                path=str(doc.metadata.get("source", "未知来源")),
+                anchor=str(doc.metadata.get("anchor", "document-start")),
+                heading=str(doc.metadata.get("heading", "")),
+                quote=_citation_quote(doc.page_content),
+                score=round(float(score), 4),
+            )
+            for doc, score in scored_docs
+        ]
+        return docs, citations
+
+    def retrieve_evidence_with_filter(
+        self,
+        question: str,
+        folder: str | None = None,
+        tag: str | None = None,
+    ) -> tuple[list[Document], list[Citation]]:
+        filter_dict = None
+        if folder:
+            filter_dict = {"folder": folder}
+        if tag:
+            filter_dict = filter_dict or {}
+            filter_dict["tags"] = {"$contains": tag}
+
+        original_filter = self.retriever.filter_dict
+        self.retriever.filter_dict = filter_dict
+        try:
+            return self.retrieve_evidence(question)
+        finally:
+            self.retriever.filter_dict = original_filter
+
+    def _stream_with_inputs(
+        self,
+        context: str,
+        question: str,
+        history_str: str,
+        citations: list[Citation],
+    ) -> Any:
         """同步流式 —— CLI 使用。"""
         prompt_value = self.prompt.invoke({
             "context": context,
@@ -97,9 +150,19 @@ class RAGPipeline:
             "history": history_str,
         })
         parser = StrOutputParser()
-        return parser.transform(self.llm.stream(prompt_value))
+        def generate():
+            yield from parser.transform(self.llm.stream(prompt_value))
+            yield _citation_footer(citations)
 
-    async def _astream_with_inputs(self, context: str, question: str, history_str: str) -> Any:
+        return generate()
+
+    async def _astream_with_inputs(
+        self,
+        context: str,
+        question: str,
+        history_str: str,
+        citations: list[Citation],
+    ) -> Any:
         """异步流式 —— SSE / Web 使用。"""
         prompt_value = self.prompt.invoke({
             "context": context,
@@ -108,20 +171,48 @@ class RAGPipeline:
         })
         async for chunk in self.llm.astream(prompt_value):
             yield chunk.content
+        yield _citation_footer(citations)
 
     def ask(self, question: str, history: list[dict] | None = None) -> Any:
         """执行问答（同步），返回 LangChain stream 对象。"""
         history = history or []
-        context = self._retrieve_and_format(question)
+        docs, citations = self.retrieve_evidence(question)
+        if not docs:
+            return iter([REFUSAL_MESSAGE])
+        context = _format_docs(docs)
         history_str = _format_history(history)
-        return self._stream_with_inputs(context, question, history_str)
+        return self._stream_with_inputs(
+            context, question, history_str, citations
+        )
 
     async def aask(self, question: str, history: list[dict] | None = None) -> Any:
         """执行问答（异步），返回 async generator。"""
         history = history or []
-        context = self._retrieve_and_format(question)
+        docs, citations = self.retrieve_evidence(question)
+        if not docs:
+            return _async_single(REFUSAL_MESSAGE)
+        context = _format_docs(docs)
         history_str = _format_history(history)
-        return self._astream_with_inputs(context, question, history_str)
+        return self._astream_with_inputs(
+            context, question, history_str, citations
+        )
+
+    async def aask_with_evidence(
+        self,
+        question: str,
+        docs: list[Document],
+        citations: list[Citation],
+        history: list[dict] | None = None,
+    ) -> Any:
+        """Answer using evidence already retrieved by the API layer."""
+        if not docs:
+            return _async_single(REFUSAL_MESSAGE)
+        return self._astream_with_inputs(
+            _format_docs(docs),
+            question,
+            _format_history(history or []),
+            citations,
+        )
 
     def ask_with_filter(
         self,
@@ -132,23 +223,16 @@ class RAGPipeline:
     ) -> Any:
         """带过滤条件的问答（同步）。"""
         history = history or []
-
-        filter_dict = None
-        if folder:
-            filter_dict = filter_dict or {}
-            filter_dict["folder"] = folder
-        if tag:
-            filter_dict = filter_dict or {}
-            filter_dict["tags"] = {"$contains": tag}
-
-        original_filter = self.retriever.filter_dict
-        self.retriever.filter_dict = filter_dict
-        try:
-            context = self._retrieve_and_format(question)
-            history_str = _format_history(history)
-            return self._stream_with_inputs(context, question, history_str)
-        finally:
-            self.retriever.filter_dict = original_filter
+        docs, citations = self.retrieve_evidence_with_filter(
+            question, folder, tag
+        )
+        if not docs:
+            return iter([REFUSAL_MESSAGE])
+        context = _format_docs(docs)
+        history_str = _format_history(history)
+        return self._stream_with_inputs(
+            context, question, history_str, citations
+        )
 
     async def aask_with_filter(
         self,
@@ -159,20 +243,31 @@ class RAGPipeline:
     ) -> Any:
         """带过滤条件的问答（异步）。"""
         history = history or []
+        docs, citations = self.retrieve_evidence_with_filter(
+            question, folder, tag
+        )
+        if not docs:
+            return _async_single(REFUSAL_MESSAGE)
+        context = _format_docs(docs)
+        history_str = _format_history(history)
+        return self._astream_with_inputs(
+            context, question, history_str, citations
+        )
 
-        filter_dict = None
-        if folder:
-            filter_dict = filter_dict or {}
-            filter_dict["folder"] = folder
-        if tag:
-            filter_dict = filter_dict or {}
-            filter_dict["tags"] = {"$contains": tag}
 
-        original_filter = self.retriever.filter_dict
-        self.retriever.filter_dict = filter_dict
-        try:
-            context = self._retrieve_and_format(question)
-            history_str = _format_history(history)
-            return self._astream_with_inputs(context, question, history_str)
-        finally:
-            self.retriever.filter_dict = original_filter
+def _citation_quote(content: str, max_length: int = 180) -> str:
+    compact = " ".join(content.split())
+    return compact if len(compact) <= max_length else compact[:max_length] + "..."
+
+
+def _citation_footer(citations: list[Citation]) -> str:
+    if not citations:
+        return ""
+    unique = dict.fromkeys(
+        f"[{citation['path']}#{citation['anchor']}]" for citation in citations
+    )
+    return "\n\n来源：" + "、".join(unique)
+
+
+async def _async_single(value: str):
+    yield value

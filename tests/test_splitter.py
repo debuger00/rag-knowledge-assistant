@@ -34,6 +34,7 @@ def test_parent_has_child_id_list():
     assert len(children) >= 2
     for child in children:
         assert child.metadata["parent_id"] == "test/doc.md"
+        assert child.metadata["anchor"]
 
 
 def test_splits_on_h2_headings():
@@ -108,3 +109,26 @@ def test_child_metadata_inherits_from_parent():
         assert "python" in child.metadata["tags"]
         assert "other" in child.metadata["links"]
         assert child.metadata["source"] == "test/doc.md"
+
+
+def test_duplicate_headings_get_unique_stable_anchors():
+    docs = [
+        Document(
+            page_content=(
+                "# Title\n\n## 部署步骤\n\n第一次\n\n"
+                "## 部署步骤\n\n第二次"
+            ),
+            metadata={"source": "guide.md", "doc_type": "raw"},
+        )
+    ]
+
+    result = parent_child_split(docs)
+    children = [
+        doc for doc in result if doc.metadata["doc_type"] == "child"
+    ]
+
+    assert [doc.metadata["anchor"] for doc in children] == [
+        "document-start",
+        "部署步骤",
+        "部署步骤-2",
+    ]

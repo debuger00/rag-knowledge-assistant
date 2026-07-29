@@ -1,7 +1,13 @@
 import pytest
 from langchain_core.documents import Document
 
-from rag_core.retrieval.pipeline import _format_docs, _format_history
+from rag_core.retrieval.pipeline import (
+    REFUSAL_MESSAGE,
+    RAGPipeline,
+    _citation_footer,
+    _format_docs,
+    _format_history,
+)
 
 
 def test_format_docs():
@@ -43,3 +49,52 @@ def test_format_history_truncates_to_6_turns():
     result = _format_history(history)
     assert "问题 0" not in result
     assert "问题 19" in result
+
+
+def test_citation_footer_uses_path_and_anchor():
+    footer = _citation_footer([
+        {
+            "path": "guide/deploy.md",
+            "anchor": "docker-compose",
+            "heading": "Docker Compose",
+            "quote": "运行 docker compose up。",
+            "score": 0.91,
+        }
+    ])
+    assert "[guide/deploy.md#docker-compose]" in footer
+
+
+def test_pipeline_refuses_without_calling_llm():
+    class EmptyRetriever:
+        def retrieve_with_scores(self, question):
+            return []
+
+    pipeline = object.__new__(RAGPipeline)
+    pipeline.retriever = EmptyRetriever()
+
+    assert "".join(pipeline.ask("文档外的问题")) == REFUSAL_MESSAGE
+
+
+def test_retrieve_evidence_builds_verifiable_citation():
+    class Retriever:
+        def retrieve_with_scores(self, question):
+            return [(
+                Document(
+                    page_content="使用 Docker Compose 启动服务。",
+                    metadata={
+                        "source": "guide/deploy.md",
+                        "anchor": "启动",
+                        "heading": "启动",
+                    },
+                ),
+                0.87,
+            )]
+
+    pipeline = object.__new__(RAGPipeline)
+    pipeline.retriever = Retriever()
+    docs, citations = pipeline.retrieve_evidence("如何启动？")
+
+    assert len(docs) == 1
+    assert citations[0]["path"] == "guide/deploy.md"
+    assert citations[0]["anchor"] == "启动"
+    assert citations[0]["score"] == 0.87

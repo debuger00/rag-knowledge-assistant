@@ -1,0 +1,26 @@
+services:
+  app:
+    build: .
+    environment:
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_BASE_URL: ${LLM_BASE_URL:-https://api.deepseek.com}
+      LLM_MODEL: ${LLM_MODEL:-deepseek-chat}
+      OBSIDIAN_VAULT_PATH: /data/documents
+      CHROMA_PERSIST_DIR: /data/chroma
+      EMBEDDING_DEVICE: cpu
+    volumes:
+      - ./documents:/data/documents:ro
+      - chroma-data:/data/chroma
+      - huggingface-cache:/root/.cache/huggingface
+    ports:
+      - "8501:8501"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8501/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 120s
+
+volumes:
+  chroma-data:
+  huggingface-cache:
