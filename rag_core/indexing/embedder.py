@@ -1,8 +1,5 @@
 """Hugging Face embedding adapter."""
-try:
-    from langchain_huggingface import HuggingFaceEmbeddings
-except ImportError:  # Compatibility with the original interview environment.
-    from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 
 from config import get_config
 

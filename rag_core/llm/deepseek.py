@@ -1,7 +1,7 @@
 """OpenAI-compatible LLM gateway client.
 
-DeepSeek is used only as the development placeholder. The competition gateway
-can be selected with LLM_BASE_URL, LLM_API_KEY and LLM_MODEL.
+DeepSeek is used only as the development placeholder. The gateway URL and
+model come from config.yaml; only LLM_API_KEY comes from the environment.
 """
 from langchain_openai import ChatOpenAI
 
@@ -21,7 +21,7 @@ def create_llm(streaming: bool = True) -> ChatOpenAI:
         api_key=config.llm_api_key,
         base_url=config.llm_base_url,
         streaming=streaming,
-        temperature=0.3,
+        temperature=0.0,
     )
 
 

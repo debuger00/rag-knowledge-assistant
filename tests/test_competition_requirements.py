@@ -2,18 +2,44 @@ from config import Config
 from rag_core.watcher import VaultWatcher
 
 
-def test_gateway_and_cpu_configuration_from_environment(monkeypatch):
-    monkeypatch.setenv("LLM_BASE_URL", "https://gateway.example/v1")
-    monkeypatch.setenv("LLM_MODEL", "competition-model")
-    monkeypatch.setenv("EMBEDDING_DEVICE", "cpu")
-    monkeypatch.setenv("RETRIEVAL_SCORE_THRESHOLD", "0.42")
+def test_yaml_configuration_and_environment_secret(tmp_path, monkeypatch):
+    config_file = tmp_path / "config.yaml"
+    config_file.write_text(
+        """
+llm:
+  base_url: https://gateway.example/v1
+  model: competition-model
+embedding:
+  device: cpu
+retrieval:
+  score_threshold: 0.42
+""",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("LLM_API_KEY", "secret-from-env")
 
-    config = Config()
+    config = Config.from_yaml(config_file)
 
     assert config.llm_base_url == "https://gateway.example/v1"
     assert config.llm_model == "competition-model"
+    assert config.llm_api_key == "secret-from-env"
     assert config.embedding_device == "cpu"
     assert config.retrieval_score_threshold == 0.42
+
+
+def test_yaml_rejects_api_key(tmp_path):
+    config_file = tmp_path / "config.yaml"
+    config_file.write_text(
+        "llm:\n  api_key: must-not-be-here\n",
+        encoding="utf-8",
+    )
+
+    try:
+        Config.from_yaml(config_file)
+    except ValueError as exc:
+        assert "密钥禁止写入" in str(exc)
+    else:
+        raise AssertionError("config.yaml 中的密钥必须被拒绝")
 
 
 def test_full_sync_removes_files_deleted_while_service_was_stopped(tmp_path):

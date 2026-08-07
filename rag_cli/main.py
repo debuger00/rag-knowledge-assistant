@@ -62,7 +62,7 @@ def ask(
     config = get_config()
 
     if not config.obsidian_vault_path:
-        console.print("[red][ERROR] OBSIDIAN_VAULT_PATH not set. Check your .env file.[/red]")
+        console.print("[red][ERROR] documents.path not set. Check config.yaml.[/red]")
         raise typer.Exit(code=1)
 
     console.print(f"[dim]Vault: {config.obsidian_vault_path}[/dim]")
@@ -98,27 +98,17 @@ def ask(
         history = _load_history(session)
 
     try:
-        full_answer = ""
         if folder or tag:
-            stream = pipeline.ask_with_filter(question, history, folder=folder, tag=tag)
+            response = pipeline.ask_with_filter(
+                question, history, folder=folder, tag=tag
+            )
         else:
-            stream = pipeline.ask(question, history)
+            response = pipeline.ask(question, history)
 
-        # 用 sys.stdout 直接输出，避免 Rich 在 GBK 终端上的编码问题
-        import sys
-        for chunk in stream:
-            if chunk:
-                full_answer += chunk
-                try:
-                    sys.stdout.write(chunk)
-                    sys.stdout.flush()
-                except UnicodeEncodeError:
-                    # GBK 无法编码的字符用 ? 替代
-                    sys.stdout.write(chunk.encode("gbk", errors="replace").decode("gbk"))
-                    sys.stdout.flush()
-
-        sys.stdout.write("\n")
-        sys.stdout.flush()
+        console.print_json(data=response)
+        full_answer = " ".join(
+            item["text"] for item in response.get("answer", [])
+        ) or response.get("message", "")
 
         if not no_history:
             history.append({"role": "user", "content": question})
@@ -149,7 +139,7 @@ def index(
         return
 
     if not config.obsidian_vault_path:
-        console.print("[red][ERROR] OBSIDIAN_VAULT_PATH not set.[/red]")
+        console.print("[red][ERROR] documents.path not set in config.yaml.[/red]")
         raise typer.Exit(code=1)
 
     store = VectorStoreManager(persist_dir=config.chroma_persist_dir)
@@ -196,4 +186,3 @@ def server(
 
 if __name__ == "__main__":
     app()
-

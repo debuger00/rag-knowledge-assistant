@@ -1,97 +1,159 @@
-"""全局配置，从环境变量和 .env 文件读取。"""
+"""Application configuration loaded from YAML, with secrets from .env."""
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
+
+import yaml
 from dotenv import load_dotenv
 
+
 load_dotenv()
+
+DEFAULT_CONFIG_PATH = Path(__file__).with_name("config.yaml")
+
+_YAML_FIELDS = {
+    "documents": {
+        "path": "obsidian_vault_path",
+        "ignore_dirs": "obsidian_ignore_dirs",
+    },
+    "llm": {
+        "model": "llm_model",
+        "base_url": "llm_base_url",
+    },
+    "embedding": {
+        "model": "embedding_model",
+        "device": "embedding_device",
+        "local_files_only": "embedding_local_files_only",
+    },
+    "storage": {
+        "chroma_dir": "chroma_persist_dir",
+        "history_dir": "history_dir",
+    },
+    "retrieval": {
+        "top_k": "retrieval_top_k",
+        "score_threshold": "retrieval_score_threshold",
+        "max_citations": "rag_max_citations",
+        "max_retry": "rag_max_retry",
+        "require_citations": "rag_require_citations",
+        "enable_link_expansion": "enable_link_expansion",
+    },
+    "server": {
+        "host": "server_host",
+        "port": "server_port",
+    },
+    "chunking": {
+        "chunk_size": "child_chunk_size",
+        "chunk_overlap": "child_chunk_overlap",
+        "max_len_before_split": "child_max_len_before_split",
+    },
+}
 
 
 @dataclass
 class Config:
-    # Obsidian
-    obsidian_vault_path: str = field(
-        default_factory=lambda: os.getenv(
-            "OBSIDIAN_VAULT_PATH", "./documents"
-        )
-    )
-    obsidian_ignore_dirs: list[str] = field(
-        default_factory=lambda: [".obsidian", ".trash", ".git"]
-    )
-
-    # OpenAI-compatible LLM gateway. DeepSeek is the development placeholder.
+    # The only environment-backed application setting is the secret.
     llm_api_key: str = field(
         default_factory=lambda: os.getenv(
             "LLM_API_KEY", os.getenv("DEEPSEEK_API_KEY", "")
         )
     )
-    llm_model: str = field(
-        default_factory=lambda: os.getenv("LLM_MODEL", "deepseek-chat")
-    )
-    llm_base_url: str = field(
-        default_factory=lambda: os.getenv(
-            "LLM_BASE_URL", "https://api.deepseek.com"
-        )
-    )
 
-    # Embedding
-    embedding_model: str = field(
-        default_factory=lambda: os.getenv(
-            "EMBEDDING_MODEL", "BAAI/bge-small-zh-v1.5"
-        )
+    obsidian_vault_path: str = "./documents"
+    obsidian_ignore_dirs: list[str] = field(
+        default_factory=lambda: [".obsidian", ".trash", ".git"]
     )
-    embedding_device: str = field(
-        default_factory=lambda: os.getenv("EMBEDDING_DEVICE", "cpu")
-    )
-    embedding_local_files_only: bool = field(
-        default_factory=lambda: os.getenv(
-            "EMBEDDING_LOCAL_FILES_ONLY", "false"
-        ).lower() in {"1", "true", "yes"}
-    )
-
-    # Chroma
-    chroma_persist_dir: str = field(
-        default_factory=lambda: os.getenv("CHROMA_PERSIST_DIR", "./chroma_data")
-    )
-
-    # Retrieval
-    retrieval_top_k: int = field(
-        default_factory=lambda: int(os.getenv("RETRIEVAL_TOP_K", "10"))
-    )
-    retrieval_score_threshold: float = field(
-        default_factory=lambda: float(
-            os.getenv("RETRIEVAL_SCORE_THRESHOLD", "0.35")
-        )
-    )
-    enable_link_expansion: bool = field(
-        default_factory=lambda: os.getenv(
-            "ENABLE_LINK_EXPANSION", "false"
-        ).lower() in {"1", "true", "yes"}
-    )
-
-    # History
+    llm_model: str = "deepseek-chat"
+    llm_base_url: str = "https://api.deepseek.com"
+    embedding_model: str = "BAAI/bge-small-zh-v1.5"
+    embedding_device: str = "cpu"
+    embedding_local_files_only: bool = False
+    chroma_persist_dir: str = "./chroma_data"
+    retrieval_top_k: int = 10
+    retrieval_score_threshold: float = 0.35
+    rag_max_citations: int = 5
+    rag_max_retry: int = 1
+    rag_require_citations: bool = True
+    enable_link_expansion: bool = False
     history_dir: str = "./chat_history"
+    server_host: str = "0.0.0.0"
+    server_port: int = 8501
+    child_chunk_size: int = 800
+    child_chunk_overlap: int = 100
+    child_max_len_before_split: int = 2000
 
-    # Server
-    server_host: str = field(
-        default_factory=lambda: os.getenv("SERVER_HOST", "0.0.0.0")
-    )
-    server_port: int = field(
-        default_factory=lambda: int(os.getenv("SERVER_PORT", "8501"))
-    )
+    def __post_init__(self) -> None:
+        if self.retrieval_top_k < 1:
+            raise ValueError("retrieval.top_k 必须大于 0")
+        if not 0 <= self.retrieval_score_threshold <= 1:
+            raise ValueError("retrieval.score_threshold 必须在 0 到 1 之间")
+        if self.rag_max_citations < 1:
+            raise ValueError("retrieval.max_citations 必须大于 0")
+        if self.rag_max_retry < 0:
+            raise ValueError("retrieval.max_retry 必须大于等于 0")
+        if not 1 <= self.server_port <= 65535:
+            raise ValueError("server.port 必须在 1 到 65535 之间")
+        if self.child_chunk_size < 1:
+            raise ValueError("chunking.chunk_size 必须大于 0")
+        if not 0 <= self.child_chunk_overlap < self.child_chunk_size:
+            raise ValueError(
+                "chunking.chunk_overlap 必须大于等于 0 且小于 chunk_size"
+            )
+        if self.child_max_len_before_split < self.child_chunk_size:
+            raise ValueError(
+                "chunking.max_len_before_split 不能小于 chunk_size"
+            )
 
-    # Chunking
-    child_chunk_size: int = field(
-        default_factory=lambda: int(os.getenv("CHILD_CHUNK_SIZE", "800"))
-    )
-    child_chunk_overlap: int = field(
-        default_factory=lambda: int(os.getenv("CHILD_CHUNK_OVERLAP", "100"))
-    )
-    child_max_len_before_split: int = field(
-        default_factory=lambda: int(os.getenv("CHILD_MAX_LEN", "2000"))
-    )
+    @classmethod
+    def from_yaml(cls, path: str | Path = DEFAULT_CONFIG_PATH) -> "Config":
+        config_path = Path(path)
+        if not config_path.exists():
+            raise FileNotFoundError(f"配置文件不存在: {config_path}")
 
-    # Compatibility aliases for code using the old DeepSeek-specific names.
+        raw = yaml.safe_load(config_path.read_text(encoding="utf-8")) or {}
+        if not isinstance(raw, dict):
+            raise ValueError("config.yaml 顶层必须是对象")
+
+        values: dict[str, Any] = {}
+        unknown_sections = set(raw) - set(_YAML_FIELDS)
+        if unknown_sections:
+            names = ", ".join(sorted(unknown_sections))
+            raise ValueError(f"config.yaml 包含未知配置段: {names}")
+
+        for section, fields in _YAML_FIELDS.items():
+            section_data = raw.get(section, {})
+            if not isinstance(section_data, dict):
+                raise ValueError(f"config.yaml 的 {section} 必须是对象")
+
+            forbidden = {"api_key", "key", "secret"} & set(section_data)
+            if forbidden:
+                raise ValueError("密钥禁止写入 config.yaml，请使用 .env")
+
+            unknown_fields = set(section_data) - set(fields)
+            if unknown_fields:
+                names = ", ".join(sorted(unknown_fields))
+                raise ValueError(f"config.yaml 的 {section} 包含未知字段: {names}")
+
+            for yaml_name, value in section_data.items():
+                values[fields[yaml_name]] = value
+
+        env_overrides: dict[str, tuple[str, Any]] = {
+            "RAG_MIN_RETRIEVAL_SCORE": (
+                "retrieval_score_threshold", float
+            ),
+            "RAG_MAX_CITATIONS": ("rag_max_citations", int),
+            "RAG_MAX_RETRY": ("rag_max_retry", int),
+            "RAG_REQUIRE_CITATIONS": (
+                "rag_require_citations",
+                lambda value: value.lower() in {"1", "true", "yes", "on"},
+            ),
+        }
+        for env_name, (field_name, converter) in env_overrides.items():
+            if env_name in os.environ:
+                values[field_name] = converter(os.environ[env_name])
+
+        return cls(**values)
+
     @property
     def deepseek_api_key(self) -> str:
         return self.llm_api_key
@@ -111,7 +173,7 @@ _config: Config | None = None
 def get_config() -> Config:
     global _config
     if _config is None:
-        _config = Config()
+        _config = Config.from_yaml()
     return _config
 
 

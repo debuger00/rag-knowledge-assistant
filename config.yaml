@@ -1,0 +1,40 @@
+documents:
+  path: E:\aaa_learning_obsidian\C++_learning    #资料库路径
+  ignore_dirs:
+    - .obsidian
+    - .trash
+    - .git
+
+llm:
+  # 开发阶段使用 DeepSeek；比赛网关下发后修改这两项
+  # apikey 在 .env 文件中设置
+  model: deepseek-chat
+  base_url: https://api.deepseek.com
+
+embedding:
+  model: BAAI/bge-small-zh-v1.5
+  # 可选: cpu（通用）、cuda / cuda:0（NVIDIA GPU）、mps（Apple Silicon）
+  device: cuda
+  local_files_only: false
+
+storage:
+  # 向量库存储路径
+  chroma_dir: ./chroma_data
+  history_dir: ./chat_history
+
+retrieval:
+  top_k: 10
+  score_threshold: 0.35
+  max_citations: 5
+  max_retry: 1
+  require_citations: true
+  enable_link_expansion: false
+
+server:
+  host: 0.0.0.0
+  port: 8501
+
+chunking:
+  chunk_size: 800
+  chunk_overlap: 100
+  max_len_before_split: 2000

@@ -9,7 +9,7 @@
 - 结构化引用：`path`、`anchor`、证据摘录和相关度分数
 - 相关度阈值拒答，不依赖 LLM 自觉判断
 - 新增、修改、删除实时同步，服务重启后清理已删除文档
-- FastAPI + SSE 流式问答 Web UI
+- FastAPI + 结构化 JSON 问答 Web UI
 - OpenAI-compatible LLM 网关，开发阶段使用 DeepSeek API 占位
 - Docker Compose 一键运行和 GitHub Actions 自动测试
 
@@ -23,16 +23,15 @@
 cp .env.example .env
 ```
 
-开发阶段配置 DeepSeek：
+`.env` 只保存密钥：
 
 ```ini
 LLM_API_KEY=your-key
-LLM_BASE_URL=https://api.deepseek.com
-LLM_MODEL=deepseek-chat
 ```
 
-比赛网关下发后，只替换以上三个值，业务代码无需修改。禁止在最终比赛环境中绕过
-统一网关直接访问外部模型。
+其他参数统一在 `config.yaml` 中维护。开发阶段默认使用 DeepSeek；比赛网关下发
+后，修改 `llm.base_url` 和 `llm.model`，业务代码无需修改。禁止在最终比赛环境中
+绕过统一网关直接访问外部模型。
 
 ### 2. 启动
 
@@ -85,13 +84,25 @@ python -m pytest tests -q
 }
 ```
 
-SSE 依次返回：
+成功回答返回（只包含答案实际使用的证据）：
 
-```text
-{"event":"thinking","data":"正在检索笔记..."}
-{"event":"sources","data":[{"path":"guide.md","anchor":"部署","quote":"...","score":0.82}]}
-{"event":"token","data":"..."}
-{"event":"done","data":"..."}
+```json
+{
+  "status": "answered",
+  "answer": [
+    {"text": "使用 Docker Compose 启动服务。", "citation_ids": ["cite_1"]}
+  ],
+  "citations": [
+    {
+      "id": "cite_1",
+      "document_path": "guide.md",
+      "anchor": "部署",
+      "section_title": "部署",
+      "quote": "从检索片段直接截取的原文",
+      "score": 0.82
+    }
+  ]
+}
 ```
 
 引用可通过下面的 API 复核：
@@ -100,25 +111,46 @@ SSE 依次返回：
 GET /api/sources/guide.md?anchor=部署
 ```
 
-若没有证据达到 `RETRIEVAL_SCORE_THRESHOLD`，系统不调用 LLM，固定返回：
+若没有证据达到门槛、模型判断证据不能直接回答，或引用校验失败，返回：
 
-```text
-根据当前文档集，无法找到足够可靠的依据回答该问题。
+```json
+{
+  "status": "insufficient_evidence",
+  "answer": [],
+  "citations": [],
+  "message": "根据当前文档集，未找到能够可靠回答该问题的依据，因此无法给出答案。",
+  "reason": "没有检索到能够直接支持答案的文档片段"
+}
 ```
 
 ## 配置
 
-| 环境变量 | 默认值 | 说明 |
+密钥只通过 `.env` 或部署环境的 `LLM_API_KEY` 注入。普通参数位于
+`config.yaml`：
+
+| YAML 配置 | 默认值 | 说明 |
 |---|---|---|
-| `LLM_API_KEY` | 无 | 统一网关密钥 |
-| `LLM_BASE_URL` | DeepSeek URL | OpenAI-compatible 网关地址 |
-| `LLM_MODEL` | `deepseek-chat` | 网关模型名 |
-| `OBSIDIAN_VAULT_PATH` | `./documents` | Markdown 文档目录 |
-| `CHROMA_PERSIST_DIR` | `./chroma_data` | 向量索引目录 |
-| `EMBEDDING_MODEL` | `BAAI/bge-small-zh-v1.5` | 嵌入模型 |
-| `EMBEDDING_DEVICE` | `cpu` | `cpu` 或 `cuda` |
-| `RETRIEVAL_TOP_K` | `10` | 候选证据数 |
-| `RETRIEVAL_SCORE_THRESHOLD` | `0.35` | 确定性拒答阈值 |
+| `llm.base_url` | DeepSeek URL | OpenAI-compatible 网关地址 |
+| `llm.model` | `deepseek-chat` | 网关模型名 |
+| `documents.path` | `./documents` | Markdown 文档目录 |
+| `storage.chroma_dir` | `./chroma_data` | 向量索引目录 |
+| `embedding.model` | `BAAI/bge-small-zh-v1.5` | 嵌入模型 |
+| `embedding.device` | `cpu` | 嵌入计算设备 |
+| `retrieval.top_k` | `10` | 候选证据数 |
+| `retrieval.score_threshold` | `0.35` | 确定性拒答阈值 |
+| `retrieval.max_citations` | `5` | 最多传给模型并允许返回的证据数 |
+| `retrieval.max_retry` | `1` | 结构或引用校验失败后的重试次数 |
+| `retrieval.require_citations` | `true` | 强制每个回答结论包含引用 |
+
+上述证据约束也可分别通过 `RAG_MIN_RETRIEVAL_SCORE`、
+`RAG_MAX_CITATIONS`、`RAG_MAX_RETRY`、`RAG_REQUIRE_CITATIONS` 环境变量覆盖。
+
+`embedding.device` 常用选项：
+
+- `cpu`：通用选项，无需 GPU，评委环境默认使用此项；
+- `cuda`：使用默认 NVIDIA GPU，需要正确安装 CUDA 版 PyTorch；
+- `cuda:0`、`cuda:1`：指定某一块 NVIDIA GPU；
+- `mps`：Apple Silicon macOS 使用 Metal 加速。
 
 阈值必须使用比赛公开评测集校准，不应只凭人工体验设置。
 

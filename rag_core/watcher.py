@@ -6,7 +6,7 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
 from rag_core.indexing.loader import ObsidianLoader
-from rag_core.indexing.splitter import parent_child_split
+from rag_core.indexing.splitter import INDEX_VERSION, parent_child_split
 from rag_core.indexing.store import VectorStoreManager
 from config import get_config
 
@@ -156,7 +156,11 @@ class VaultWatcher:
                 new_count += 1
             else:
                 existing_mtime = existing[0].metadata.get("mtime", "")
-                if existing_mtime != doc.metadata.get("mtime", ""):
+                existing_version = existing[0].metadata.get("index_version")
+                if (
+                    existing_mtime != doc.metadata.get("mtime", "")
+                    or existing_version != INDEX_VERSION
+                ):
                     self.store.delete_by_source(source)
                     self._index_document(doc)
                     updated_count += 1

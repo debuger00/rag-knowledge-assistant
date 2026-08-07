@@ -25,17 +25,29 @@
         </template>
 
         <template x-for="msg in messages" :key="msg.id">
-            <div class="message" :class="msg.role">
-                <div x-html="renderMarkdown(msg.content)"></div>
-                <div class="sources" x-show="msg.sources && msg.sources.length > 0">
-                    📄 来源：
-                    <template x-for="src in msg.sources" :key="src.path + '#' + src.anchor">
-                        <a @click="viewSource(src)"
-                           :title="src.quote"
-                           x-text="src.path + '#' + src.anchor"
-                           style="margin-right:12px;"></a>
+            <div class="message" :class="msg.role"
+                 x-show="msg.role === 'user' || msg.response !== null || !!msg.error">
+                <div x-show="msg.role === 'user'" x-text="msg.content"></div>
+                <div x-show="msg.response?.status === 'answered'" class="answer-card">
+                    <h2>回答</h2>
+                    <template x-for="(item, itemIndex) in (msg.response?.answer || [])" :key="itemIndex">
+                        <p class="answer-sentence"><span x-text="item.text"></span><template x-for="citationId in item.citation_ids" :key="citationId"><button class="citation-marker" @click="jumpToCitation(msg, citationId)" x-text="'[' + citationNumber(msg, citationId) + ']'" :aria-label="'跳转到引用 ' + citationNumber(msg, citationId)"></button></template></p>
                     </template>
+                    <section class="citation-section">
+                        <h3>引用依据</h3>
+                        <template x-for="citation in (msg.response?.citations || [])" :key="citation.id">
+                            <article class="citation-card" :id="citationDomId(msg, citation.id)" :class="{ highlighted: highlightedCitation === citationDomId(msg, citation.id) }" @click="viewSource(citation)">
+                                <div class="citation-card-header"><span class="citation-index" x-text="'[' + citationNumber(msg, citation.id) + ']'">[1]</span><strong x-text="fileName(citation.document_path)"></strong><span class="citation-section-title" x-text="'› ' + citation.section_title"></span></div>
+                                <div class="citation-meta" x-text="citation.document_path"></div>
+                                <div class="citation-meta" x-text="'anchor: ' + citation.anchor"></div>
+                                <blockquote class="citation-quote" :class="{ expanded: expandedQuotes[citationDomId(msg, citation.id)] }" x-text="citation.quote"></blockquote>
+                                <div class="citation-actions"><button @click.stop="toggleQuote(msg, citation)" x-text="expandedQuotes[citationDomId(msg, citation.id)] ? '收起' : '展开原文'"></button><button @click.stop="viewSource(citation)">查看原文</button><span x-show="citation.score !== undefined" x-text="'相关度 ' + Number(citation.score).toFixed(2)"></span></div>
+                            </article>
+                        </template>
+                    </section>
                 </div>
+                <div x-show="msg.response?.status === 'insufficient_evidence'" class="refusal-card"><h2>未找到可靠答案</h2><p x-text="msg.response?.message"></p><p class="refusal-reason"><strong>原因：</strong><span x-text="msg.response?.reason"></span></p></div>
+                <div x-show="msg.error" class="error-message" x-text="msg.error"></div>
             </div>
         </template>
 
@@ -58,7 +70,7 @@
             <div class="overlay" @click="showSettings = false"></div>
             <div class="settings-panel">
                 <h2>⚙️ 设置</h2>
-                <label>Obsidian 仓库路径 <span style="color:var(--muted);font-size:12px;">（服务端 .env 配置）</span></label>
+                <label>文档目录 <span style="color:var(--muted);font-size:12px;">（服务端 config.yaml 配置）</span></label>
                 <input type="text" x-model="settings.vaultPath" disabled
                        x-bind:value="serverConfig?.vault_path || ''"
                        placeholder="E:/你的Obsidian仓库路径">
@@ -69,13 +81,17 @@
                 <div style="font-size:12px;color:var(--muted);line-height:1.8;">
                     <div>嵌入模型：<span x-text="serverConfig?.embedding_model || '-'"></span></div>
                     <div>推理设备：<span x-text="serverConfig?.embedding_device || '-'"></span></div>
-                    <div>LLM 模型：<span x-text="serverConfig?.deepseek_model || '-'"></span></div>
+                    <div>LLM 模型：<span x-text="serverConfig?.llm_model || '-'"></span></div>
                 </div>
 
                 <button @click="saveSettings()">保存设置</button>
                 <button @click="rebuildIndex()" style="background:var(--danger);margin-top:8px;">🔄 重建索引</button>
             </div>
         </div>
+    </template>
+
+    <template x-if="preview.open">
+        <div><div class="overlay" @click="closePreview()"></div><aside class="source-preview" role="dialog" aria-modal="true"><button class="preview-close" @click="closePreview()">×</button><h2 x-text="preview.title"></h2><div class="citation-meta" x-text="preview.location"></div><pre class="preview-content"><template x-for="(part, index) in preview.parts" :key="index"><mark x-show="part.highlight" x-text="part.text"></mark><span x-show="!part.highlight" x-text="part.text"></span></template></pre></aside></div>
     </template>
 
     <script>
@@ -88,6 +104,9 @@
             showSettings: false,
             sessionId: 'web_' + Date.now(),
             serverConfig: null,
+            highlightedCitation: '',
+            expandedQuotes: {},
+            preview: { open: false, title: '', location: '', parts: [] },
             settings: {
                 vaultPath: localStorage.getItem('vaultPath') || '',
                 topK: parseInt(localStorage.getItem('topK') || '10'),
@@ -135,21 +154,20 @@
                 const q = this.question.trim();
                 if (!q || this.loading) return;
 
-                const userMsg = { id: Date.now(), role: 'user', content: q, sources: [] };
+                const userMsg = { id: Date.now(), role: 'user', content: q };
                 this.messages.push(userMsg);
                 this.question = '';
                 this.loading = true;
                 this.typingText = '🔍 正在检索笔记...';
                 this.scrollToBottom();
 
-                const assistantMsg = { id: Date.now() + 1, role: 'assistant', content: '', sources: [] };
-                this.messages.push(assistantMsg);
-
-                // Wait for Alpine to render the new message DOM, then grab its content div
-                await this.$nextTick();
-                const allMsgs = this.$refs.chatContainer.querySelectorAll('.message.assistant');
-                const lastEl = allMsgs[allMsgs.length - 1];
-                const contentDiv = lastEl ? lastEl.querySelector('div') : null;
+                const assistantIndex = this.messages.length;
+                this.messages.push({
+                    id: Date.now() + 1,
+                    role: 'assistant',
+                    response: null,
+                    error: '',
+                });
 
                 try {
                     const resp = await fetch('/api/chat', {
@@ -158,50 +176,12 @@
                         body: JSON.stringify({ question: q, session_id: this.sessionId }),
                     });
 
-                    const reader = resp.body.getReader();
-                    const decoder = new TextDecoder();
-                    let buffer = '';
-                    let rawContent = '';
-
-                    while (true) {
-                        const { done, value } = await reader.read();
-                        if (done) break;
-                        buffer += decoder.decode(value, { stream: true });
-                        const lines = buffer.split('\n');
-                        buffer = lines.pop() || '';
-
-                        for (const line of lines) {
-                            if (line.startsWith('data: ')) {
-                                try {
-                                    const parsed = JSON.parse(line.slice(6));
-                                    if (parsed && typeof parsed === 'object') {
-                                        if (parsed.event === 'thinking') {
-                                            this.typingText = parsed.data || '处理中...';
-                                        } else if (parsed.event === 'token') {
-                                            this.typingText = '';
-                                            const t = typeof parsed.data === 'string' ? parsed.data : '';
-                                            rawContent += t;
-                                            if (contentDiv) contentDiv.textContent = rawContent;
-                                        } else if (parsed.event === 'sources') {
-                                            assistantMsg.sources = Array.isArray(parsed.data) ? parsed.data : [];
-                                        } else if (parsed.event === 'done') {
-                                            this.loading = false;
-                                            assistantMsg.content = rawContent;
-                                            if (contentDiv) contentDiv.innerHTML = this.renderMarkdown(rawContent);
-                                        } else if (parsed.event === 'error') {
-                                            const errMsg = parsed.data || '未知错误';
-                                            assistantMsg.content = '⚠️ 出错了：' + errMsg;
-                                            this.loading = false;
-                                        }
-                                    }
-                                } catch (e) { /* skip partial chunks */ }
-                            }
-                        }
-                        this.scrollToBottom();
-                    }
+                    const data = await resp.json();
+                    if (!resp.ok) throw new Error(data.detail || '请求失败');
+                    // 必须通过 Alpine 代理后的数组元素更新，保证 UI 被通知。
+                    this.messages[assistantIndex].response = data;
                 } catch (e) {
-                    assistantMsg.content = '⚠️ 网络错误：' + e.message;
-                    this.loading = false;
+                    this.messages[assistantIndex].error = '⚠️ 请求失败：' + e.message;
                 }
                 this.loading = false;
                 this.typingText = '';
@@ -215,27 +195,56 @@
                 });
             },
 
-            renderMarkdown(text) {
-                if (!text) return '';
-                try { return marked.parse(text); } catch (e) { return text; }
+            citationNumber(msg, citationId) {
+                return (msg.response?.citations || []).findIndex(c => c.id === citationId) + 1;
+            },
+
+            citationDomId(msg, citationId) { return `citation-${msg.id}-${citationId}`; },
+
+            fileName(path) { return (path || '').split(/[\\/]/).pop(); },
+
+            jumpToCitation(msg, citationId) {
+                const id = this.citationDomId(msg, citationId);
+                document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                this.highlightedCitation = id;
+                setTimeout(() => { if (this.highlightedCitation === id) this.highlightedCitation = ''; }, 1800);
+            },
+
+            toggleQuote(msg, citation) {
+                const id = this.citationDomId(msg, citation.id);
+                this.expandedQuotes[id] = !this.expandedQuotes[id];
             },
 
             async viewSource(citation) {
                 try {
-                    const url = '/api/sources/' + encodeURIComponent(citation.path)
+                    const url = '/api/sources/' + encodeURIComponent(citation.document_path)
                         + '?anchor=' + encodeURIComponent(citation.anchor);
                     const resp = await fetch(url);
                     const data = await resp.json();
-                    alert(`[${data.source}#${data.anchor}]\n\n${data.content.substring(0, 1000)}`);
+                    if (!resp.ok) throw new Error(data.detail || '来源不存在');
+                    const quote = citation.quote || '';
+                    const start = data.content.indexOf(quote);
+                    this.preview = {
+                        open: true,
+                        title: this.fileName(citation.document_path) + ' › ' + citation.section_title,
+                        location: citation.document_path + '#' + citation.anchor,
+                        parts: start >= 0 ? [
+                            { text: data.content.slice(0, start), highlight: false },
+                            { text: quote, highlight: true },
+                            { text: data.content.slice(start + quote.length), highlight: false },
+                        ] : [{ text: data.content, highlight: false }],
+                    };
                 } catch (e) {
                     alert('无法加载来源：' + e.message);
                 }
             },
 
+            closePreview() { this.preview.open = false; },
+
             async saveSettings() {
                 localStorage.setItem('topK', this.settings.topK);
                 this.showSettings = false;
-                alert('设置已保存（top-k 即时生效，仓库路径等请修改 .env 后重启）');
+                alert('设置已保存；服务端参数请修改 config.yaml 后重启');
             },
 
             async rebuildIndex() {

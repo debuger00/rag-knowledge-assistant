@@ -6,7 +6,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-COPY pyproject.toml README.md config.py ./
+COPY pyproject.toml README.md config.py config.yaml ./
 COPY rag_core ./rag_core
 COPY rag_server ./rag_server
 COPY rag_cli ./rag_cli

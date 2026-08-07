@@ -127,8 +127,29 @@ def test_duplicate_headings_get_unique_stable_anchors():
         doc for doc in result if doc.metadata["doc_type"] == "child"
     ]
 
-    assert [doc.metadata["anchor"] for doc in children] == [
-        "document-start",
-        "部署步骤",
-        "部署步骤-2",
+    anchors = [doc.metadata["anchor"] for doc in children]
+    assert anchors[0] == "title"
+    assert anchors[1] == "部署步骤"
+    assert anchors[2].startswith("部署步骤-")
+    assert "part-" not in " ".join(anchors)
+
+    rerun = parent_child_split(docs)
+    assert [
+        doc.metadata["anchor"]
+        for doc in rerun
+        if doc.metadata["doc_type"] == "child"
+    ] == anchors
+
+
+def test_document_without_heading_uses_readable_stable_anchor():
+    docs = [Document(
+        page_content="这是没有标题的第一段内容。\n\n后续内容。",
+        metadata={"source": "notes/plain.md", "doc_type": "raw"},
+    )]
+    children = [
+        doc for doc in parent_child_split(docs)
+        if doc.metadata["doc_type"] == "child"
     ]
+    assert children[0].metadata["anchor"].startswith("这是没有标题的第一段内容-")
+    assert children[0].metadata["section_title"] == ""
+    assert children[0].metadata["anchor"] != "document-start"

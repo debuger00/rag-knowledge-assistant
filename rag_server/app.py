@@ -1,16 +1,15 @@
 """FastAPI 应用 — RAG 知识库助手后端服务。"""
-import json
 from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Query, Request
-from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from rag_core.indexing.store import VectorStoreManager
 from rag_core.retrieval.pipeline import RAGPipeline
 from rag_core.watcher import VaultWatcher
-from rag_server.chat import chat_stream
+from rag_server.chat import chat_answer
 from config import get_config, Config
 
 _pipeline: RAGPipeline | None = None
@@ -79,21 +78,10 @@ def create_app(config: Config | None = None) -> FastAPI:
         if _pipeline is None:
             raise HTTPException(status_code=500, detail="服务未初始化")
 
-        async def sse_generator():
-            async for event_data in chat_stream(
-                _pipeline, question, session_id=session_id, folder=folder, tag=tag
-            ):
-                yield f"data: {json.dumps(event_data, ensure_ascii=False)}\n\n"
-
-        return StreamingResponse(
-            sse_generator(),
-            media_type="text/event-stream",
-            headers={
-                "Cache-Control": "no-cache",
-                "Connection": "keep-alive",
-                "X-Accel-Buffering": "no",
-            },
+        result = await chat_answer(
+            _pipeline, question, session_id=session_id, folder=folder, tag=tag
         )
+        return JSONResponse(result)
 
     @app.get("/api/status")
     async def status():
@@ -112,6 +100,9 @@ def create_app(config: Config | None = None) -> FastAPI:
                 "llm_base_url": cfg.llm_base_url,
                 "retrieval_top_k": cfg.retrieval_top_k,
                 "retrieval_score_threshold": cfg.retrieval_score_threshold,
+                "rag_max_citations": cfg.rag_max_citations,
+                "rag_max_retry": cfg.rag_max_retry,
+                "rag_require_citations": cfg.rag_require_citations,
                 "server_port": cfg.server_port,
             },
         })
