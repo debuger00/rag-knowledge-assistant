@@ -5,7 +5,23 @@ import unicodedata
 from langchain_core.documents import Document
 
 
-INDEX_VERSION = 2
+INDEX_VERSION = 4
+
+
+def _document_id(source: str) -> str:
+    return f"doc:{hashlib.sha256(source.replace('\\', '/').lower().encode('utf-8')).hexdigest()}"
+
+
+def _section_id(source: str, anchor: str) -> str:
+    payload = f"{source.replace('\\', '/').lower()}\0{anchor}".encode("utf-8")
+    return f"section:{hashlib.sha256(payload).hexdigest()}"
+
+
+def _chunk_id(source: str, anchor: str, chunk_index: int) -> str:
+    payload = (
+        f"{source.replace('\\', '/').lower()}\0{anchor}\0{chunk_index}"
+    ).encode("utf-8")
+    return f"chunk:{hashlib.sha256(payload).hexdigest()}"
 
 
 def parent_child_split(
@@ -26,6 +42,7 @@ def parent_child_split(
     result: list[Document] = []
     for doc in documents:
         source = doc.metadata.get("source", "")
+        document_id = _document_id(source)
         # 复制除 doc_type 外的元数据
         base_meta = {k: v for k, v in doc.metadata.items() if k != "doc_type"}
 
@@ -35,6 +52,7 @@ def parent_child_split(
             metadata={
                 **base_meta,
                 "doc_type": "parent",
+                "document_id": document_id,
                 "index_version": INDEX_VERSION,
             },
         )
@@ -54,12 +72,17 @@ def parent_child_split(
             )
 
             if len(section_text) <= child_max_len:
+                section_id = _section_id(source, base_anchor)
                 child = Document(
                     page_content=section_text,
                     metadata={
                         **base_meta,
                         "doc_type": "child",
                         "parent_id": source,
+                        "document_id": document_id,
+                        "parent_doc_id": document_id,
+                        "section_id": section_id,
+                        "chunk_id": _chunk_id(source, base_anchor, 0),
                         "anchor": base_anchor,
                         "heading": heading,
                         "section_title": heading,
@@ -83,6 +106,10 @@ def parent_child_split(
                             **base_meta,
                             "doc_type": "child",
                             "parent_id": source,
+                            "document_id": document_id,
+                            "parent_doc_id": document_id,
+                            "section_id": _section_id(source, base_anchor),
+                            "chunk_id": _chunk_id(source, chunk_anchor, chunk_index),
                             "anchor": chunk_anchor,
                             "heading": heading,
                             "section_title": heading,

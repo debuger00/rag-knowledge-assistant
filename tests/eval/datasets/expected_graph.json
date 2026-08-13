@@ -1,0 +1,37 @@
+{
+  "markdown_files": 27,
+  "node_count": 90,
+  "edge_count": 77,
+  "document_count": 27,
+  "unresolved_count": 2,
+  "nodes_by_type": {
+    "document": 27,
+    "section": 54,
+    "tag": 7,
+    "unresolved": 2
+  },
+  "resolved_links": [
+    ["direct/source.md", "direct/target.md"],
+    ["backlink/caller.md", "backlink/topic.md"],
+    ["twohop/start.md", "twohop/middle.md"],
+    ["twohop/middle.md", "twohop/answer.md"],
+    ["cycle/a.md", "cycle/b.md"],
+    ["cycle/b.md", "cycle/c.md"],
+    ["cycle/c.md", "cycle/a.md"],
+    ["code/source.md", "code/real.md"],
+    ["filters/allowed/entry.md", "filters/allowed/target.md"],
+    ["filters/allowed/entry.md", "filters/blocked/secret.md"],
+    ["aliases/source.md", "aliases/target.md"],
+    ["relative/folder/source.md", "relative/folder/target.md"]
+  ],
+  "unresolved_links": [
+    {"source": "duplicates/source.md", "status": "ambiguous", "target": "Guide"},
+    {"source": "broken/source.md", "status": "unresolved", "target": "Never Exists"}
+  ],
+  "sources_without_links": [
+    "attachments/source.md"
+  ],
+  "code_source_resolved_targets": [
+    "code/real.md"
+  ]
+}

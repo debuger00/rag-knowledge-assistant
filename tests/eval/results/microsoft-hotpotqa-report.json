@@ -1,0 +1,2757 @@
+{
+  "dataset": {
+    "profile": "hotpotqa",
+    "display_name": "Microsoft Filtered HotpotQA",
+    "archive": "HotPotQA Filtered Input Text.zip",
+    "questions": "HotPotQA Filtered Questions.csv",
+    "corpus_kind": "hotpot_per_question",
+    "expected_questions": 5491,
+    "recommended_mode": "local",
+    "evaluation_mode": "paired_context_recall",
+    "has_paired_source": true,
+    "document_count": 500,
+    "question_count": 100,
+    "vault": "E:\\program\\agent\\0000personal-projects\\02bankSuperpowers\\data\\eval\\microsoft_graphrag_samples\\hotpotqa\\vault",
+    "cases": "E:\\program\\agent\\0000personal-projects\\02bankSuperpowers\\data\\eval\\microsoft_graphrag_samples\\hotpotqa\\cases.jsonl",
+    "global_pipeline_status": "not_required"
+  },
+  "embedding_model": "BAAI/bge-small-zh-v1.5",
+  "top_k": 10,
+  "index": {
+    "parents": 500,
+    "children": 4287
+  },
+  "graph": {
+    "node_count": 4838,
+    "edge_count": 4373,
+    "document_count": 500,
+    "unresolved_count": 0,
+    "nodes_by_type": {
+      "document": 500,
+      "section": 4287,
+      "tag": 51
+    },
+    "schema_version": 1
+  },
+  "basic": {
+    "paired_context_recall_at_10": 0.91,
+    "mrr_at_10": 0.7883
+  },
+  "local": {
+    "paired_context_recall_at_10": 0.9,
+    "mrr_at_10": 0.6396
+  },
+  "cases": [
+    {
+      "id": "5a8b57f25542995d1e6f1371",
+      "question": "Were Scott Derrickson and Ed Wood of the same nationality?",
+      "expected_sources": [
+        "contexts/test_0.md"
+      ],
+      "basic_sources": [
+        "contexts/test_361.md",
+        "contexts/test_371.md",
+        "contexts/test_135.md",
+        "contexts/test_0.md",
+        "contexts/test_643.md",
+        "contexts/test_600.md",
+        "contexts/test_70.md",
+        "contexts/test_648.md",
+        "contexts/test_442.md"
+      ],
+      "local_sources": [
+        "contexts/test_25.md",
+        "contexts/test_361.md",
+        "contexts/test_371.md",
+        "contexts/test_135.md",
+        "contexts/test_0.md",
+        "contexts/test_643.md",
+        "contexts/test_600.md",
+        "contexts/test_70.md",
+        "contexts/test_648.md",
+        "contexts/test_442.md"
+      ]
+    },
+    {
+      "id": "5a8c7595554299585d9e36b6",
+      "question": "What government position was held by the woman who portrayed Corliss Archer in the film Kiss and Tell?",
+      "expected_sources": [
+        "contexts/test_1.md"
+      ],
+      "basic_sources": [
+        "contexts/test_1.md",
+        "contexts/test_12.md",
+        "contexts/test_18.md",
+        "contexts/test_117.md",
+        "contexts/test_531.md",
+        "contexts/test_160.md",
+        "contexts/test_443.md",
+        "contexts/test_542.md",
+        "contexts/test_184.md"
+      ],
+      "local_sources": [
+        "contexts/test_1.md",
+        "contexts/test_12.md",
+        "contexts/test_18.md",
+        "contexts/test_117.md",
+        "contexts/test_531.md",
+        "contexts/test_160.md",
+        "contexts/test_443.md",
+        "contexts/test_542.md",
+        "contexts/test_184.md"
+      ]
+    },
+    {
+      "id": "5a85ea095542994775f606a8",
+      "question": "What science fantasy young adult series, told in first person, has a set of companion books narrating the stories of enslaved worlds and alien species?",
+      "expected_sources": [
+        "contexts/test_2.md"
+      ],
+      "basic_sources": [
+        "contexts/test_2.md",
+        "contexts/test_326.md",
+        "contexts/test_166.md",
+        "contexts/test_545.md",
+        "contexts/test_261.md",
+        "contexts/test_247.md",
+        "contexts/test_406.md"
+      ],
+      "local_sources": [
+        "contexts/test_2.md",
+        "contexts/test_326.md",
+        "contexts/test_166.md",
+        "contexts/test_545.md",
+        "contexts/test_261.md",
+        "contexts/test_247.md",
+        "contexts/test_406.md"
+      ]
+    },
+    {
+      "id": "5a8e3ea95542995a26add48d",
+      "question": "The director of the romantic comedy \"Big Stone Gap\" is based in what New York city?",
+      "expected_sources": [
+        "contexts/test_4.md"
+      ],
+      "basic_sources": [
+        "contexts/test_4.md",
+        "contexts/test_327.md",
+        "contexts/test_315.md",
+        "contexts/test_661.md",
+        "contexts/test_390.md",
+        "contexts/test_294.md"
+      ],
+      "local_sources": [
+        "contexts/test_4.md",
+        "contexts/test_327.md",
+        "contexts/test_315.md",
+        "contexts/test_661.md",
+        "contexts/test_390.md",
+        "contexts/test_294.md"
+      ]
+    },
+    {
+      "id": "5abd94525542992ac4f382d2",
+      "question": "2014 S/S is the debut album of a South Korean boy group that was formed by who?",
+      "expected_sources": [
+        "contexts/test_5.md"
+      ],
+      "basic_sources": [
+        "contexts/test_5.md",
+        "contexts/test_319.md",
+        "contexts/test_639.md",
+        "contexts/test_379.md",
+        "contexts/test_433.md",
+        "contexts/test_323.md",
+        "contexts/test_101.md"
+      ],
+      "local_sources": [
+        "contexts/test_103.md",
+        "contexts/test_119.md",
+        "contexts/test_149.md",
+        "contexts/test_164.md",
+        "contexts/test_212.md",
+        "contexts/test_228.md",
+        "contexts/test_25.md",
+        "contexts/test_251.md",
+        "contexts/test_5.md",
+        "contexts/test_267.md",
+        "contexts/test_287.md",
+        "contexts/test_319.md",
+        "contexts/test_30.md",
+        "contexts/test_309.md",
+        "contexts/test_330.md",
+        "contexts/test_375.md",
+        "contexts/test_639.md",
+        "contexts/test_387.md",
+        "contexts/test_379.md",
+        "contexts/test_469.md",
+        "contexts/test_582.md",
+        "contexts/test_433.md",
+        "contexts/test_646.md",
+        "contexts/test_323.md",
+        "contexts/test_96.md",
+        "contexts/test_101.md"
+      ]
+    },
+    {
+      "id": "5a85b2d95542997b5ce40028",
+      "question": "Who was known by his stage name Aladin and helped organizations improve their performance as a consultant?",
+      "expected_sources": [
+        "contexts/test_6.md"
+      ],
+      "basic_sources": [
+        "contexts/test_6.md",
+        "contexts/test_12.md",
+        "contexts/test_443.md",
+        "contexts/test_135.md",
+        "contexts/test_81.md",
+        "contexts/test_24.md",
+        "contexts/test_493.md",
+        "contexts/test_192.md",
+        "contexts/test_273.md"
+      ],
+      "local_sources": [
+        "contexts/test_6.md",
+        "contexts/test_12.md",
+        "contexts/test_443.md",
+        "contexts/test_135.md",
+        "contexts/test_81.md",
+        "contexts/test_24.md",
+        "contexts/test_493.md",
+        "contexts/test_192.md",
+        "contexts/test_273.md"
+      ]
+    },
+    {
+      "id": "5a87ab905542996e4f3088c1",
+      "question": "The arena where the Lewiston Maineiacs played their home games can seat how many people?",
+      "expected_sources": [
+        "contexts/test_7.md"
+      ],
+      "basic_sources": [
+        "contexts/test_7.md",
+        "contexts/test_246.md",
+        "contexts/test_494.md",
+        "contexts/test_26.md",
+        "contexts/test_16.md",
+        "contexts/test_423.md"
+      ],
+      "local_sources": [
+        "contexts/test_7.md",
+        "contexts/test_246.md",
+        "contexts/test_494.md",
+        "contexts/test_26.md",
+        "contexts/test_16.md",
+        "contexts/test_423.md"
+      ]
+    },
+    {
+      "id": "5a7bbb64554299042af8f7cc",
+      "question": "Who is older, Annie Morton or Terry Richardson?",
+      "expected_sources": [
+        "contexts/test_8.md"
+      ],
+      "basic_sources": [
+        "contexts/test_8.md",
+        "contexts/test_643.md",
+        "contexts/test_474.md",
+        "contexts/test_68.md",
+        "contexts/test_124.md",
+        "contexts/test_273.md",
+        "contexts/test_153.md"
+      ],
+      "local_sources": [
+        "contexts/test_8.md",
+        "contexts/test_643.md",
+        "contexts/test_474.md",
+        "contexts/test_68.md",
+        "contexts/test_124.md",
+        "contexts/test_273.md",
+        "contexts/test_153.md"
+      ]
+    },
+    {
+      "id": "5a8db19d5542994ba4e3dd00",
+      "question": "Are Local H and For Against both from the United States?",
+      "expected_sources": [
+        "contexts/test_9.md"
+      ],
+      "basic_sources": [
+        "contexts/test_386.md",
+        "contexts/test_147.md",
+        "contexts/test_489.md",
+        "contexts/test_621.md",
+        "contexts/test_473.md",
+        "contexts/test_223.md",
+        "contexts/test_236.md",
+        "contexts/test_478.md",
+        "contexts/test_137.md",
+        "contexts/test_77.md"
+      ],
+      "local_sources": [
+        "contexts/test_386.md",
+        "contexts/test_147.md",
+        "contexts/test_489.md",
+        "contexts/test_621.md",
+        "contexts/test_473.md",
+        "contexts/test_223.md",
+        "contexts/test_236.md",
+        "contexts/test_478.md",
+        "contexts/test_137.md",
+        "contexts/test_77.md"
+      ]
+    },
+    {
+      "id": "5a7166395542994082a3e814",
+      "question": "What is the name of the fight song of the university whose main campus is in Lawrence, Kansas and whose branch campuses are in the Kansas City metropolitan area?",
+      "expected_sources": [
+        "contexts/test_10.md"
+      ],
+      "basic_sources": [
+        "contexts/test_10.md",
+        "contexts/test_618.md",
+        "contexts/test_436.md",
+        "contexts/test_100.md",
+        "contexts/test_55.md"
+      ],
+      "local_sources": [
+        "contexts/test_10.md",
+        "contexts/test_618.md",
+        "contexts/test_436.md",
+        "contexts/test_100.md",
+        "contexts/test_55.md"
+      ]
+    },
+    {
+      "id": "5a877e5d5542993e715abf7d",
+      "question": "What screenwriter with credits for \"Evolution\" co-wrote a film starring Nicolas Cage and Téa Leoni?",
+      "expected_sources": [
+        "contexts/test_11.md"
+      ],
+      "basic_sources": [
+        "contexts/test_11.md",
+        "contexts/test_150.md",
+        "contexts/test_61.md",
+        "contexts/test_601.md",
+        "contexts/test_8.md",
+        "contexts/test_566.md",
+        "contexts/test_378.md",
+        "contexts/test_448.md",
+        "contexts/test_224.md"
+      ],
+      "local_sources": [
+        "contexts/test_11.md",
+        "contexts/test_150.md",
+        "contexts/test_61.md",
+        "contexts/test_601.md",
+        "contexts/test_8.md",
+        "contexts/test_566.md",
+        "contexts/test_378.md",
+        "contexts/test_448.md",
+        "contexts/test_224.md"
+      ]
+    },
+    {
+      "id": "5ab3b0bf5542992ade7c6e39",
+      "question": "What year did Guns N Roses perform a promo for a movie starring Arnold Schwarzenegger as a former New York Police detective?",
+      "expected_sources": [
+        "contexts/test_12.md"
+      ],
+      "basic_sources": [
+        "contexts/test_12.md",
+        "contexts/test_592.md",
+        "contexts/test_531.md",
+        "contexts/test_264.md",
+        "contexts/test_288.md",
+        "contexts/test_448.md",
+        "contexts/test_552.md",
+        "contexts/test_68.md"
+      ],
+      "local_sources": [
+        "contexts/test_119.md",
+        "contexts/test_149.md",
+        "contexts/test_358.md",
+        "contexts/test_12.md",
+        "contexts/test_592.md",
+        "contexts/test_531.md",
+        "contexts/test_264.md",
+        "contexts/test_288.md",
+        "contexts/test_448.md",
+        "contexts/test_552.md",
+        "contexts/test_68.md"
+      ]
+    },
+    {
+      "id": "5a75e05c55429976ec32bc5f",
+      "question": "Brown State Fishing Lake is in a country that has a population of how many inhabitants ?",
+      "expected_sources": [
+        "contexts/test_15.md"
+      ],
+      "basic_sources": [
+        "contexts/test_15.md",
+        "contexts/test_618.md"
+      ],
+      "local_sources": [
+        "contexts/test_15.md",
+        "contexts/test_618.md"
+      ]
+    },
+    {
+      "id": "5ab3e45655429976abd1bcd4",
+      "question": "The Vermont Catamounts men's soccer team currently competes in a conference that was formerly known as what from 1988 to 1996?",
+      "expected_sources": [
+        "contexts/test_16.md"
+      ],
+      "basic_sources": [
+        "contexts/test_16.md",
+        "contexts/test_190.md",
+        "contexts/test_50.md",
+        "contexts/test_26.md"
+      ],
+      "local_sources": [
+        "contexts/test_16.md",
+        "contexts/test_190.md",
+        "contexts/test_50.md",
+        "contexts/test_26.md"
+      ]
+    },
+    {
+      "id": "5ab29c24554299449642c932",
+      "question": "Are Giuseppe Verdi and Ambroise Thomas both Opera composers ?",
+      "expected_sources": [
+        "contexts/test_17.md"
+      ],
+      "basic_sources": [
+        "contexts/test_17.md",
+        "contexts/test_353.md",
+        "contexts/test_277.md",
+        "contexts/test_572.md",
+        "contexts/test_166.md",
+        "contexts/test_584.md",
+        "contexts/test_439.md"
+      ],
+      "local_sources": [
+        "contexts/test_17.md",
+        "contexts/test_353.md",
+        "contexts/test_277.md",
+        "contexts/test_572.md",
+        "contexts/test_166.md",
+        "contexts/test_584.md",
+        "contexts/test_439.md"
+      ]
+    },
+    {
+      "id": "5ae0d4c9554299603e418468",
+      "question": "Roger O. Egeberg was Assistant Secretary for Health and Scientific Affairs during the administration of a president that served during what years?",
+      "expected_sources": [
+        "contexts/test_18.md"
+      ],
+      "basic_sources": [
+        "contexts/test_18.md",
+        "contexts/test_275.md",
+        "contexts/test_507.md",
+        "contexts/test_165.md",
+        "contexts/test_605.md",
+        "contexts/test_117.md"
+      ],
+      "local_sources": [
+        "contexts/test_18.md",
+        "contexts/test_275.md",
+        "contexts/test_507.md",
+        "contexts/test_165.md",
+        "contexts/test_605.md",
+        "contexts/test_117.md"
+      ]
+    },
+    {
+      "id": "5a8133725542995ce29dcbdb",
+      "question": "Which writer was from England, Henry Roth or Robert Erskine Childers?",
+      "expected_sources": [
+        "contexts/test_19.md"
+      ],
+      "basic_sources": [
+        "contexts/test_19.md",
+        "contexts/test_236.md",
+        "contexts/test_459.md",
+        "contexts/test_492.md",
+        "contexts/test_643.md",
+        "contexts/test_35.md"
+      ],
+      "local_sources": [
+        "contexts/test_19.md",
+        "contexts/test_236.md",
+        "contexts/test_459.md",
+        "contexts/test_492.md",
+        "contexts/test_643.md",
+        "contexts/test_35.md"
+      ]
+    },
+    {
+      "id": "5ae7a8175542993210983ed8",
+      "question": "Which other Mexican Formula One race car driver has held the podium besides the Force India driver born in 1990?",
+      "expected_sources": [
+        "contexts/test_20.md"
+      ],
+      "basic_sources": [
+        "contexts/test_20.md",
+        "contexts/test_493.md",
+        "contexts/test_286.md",
+        "contexts/test_206.md"
+      ],
+      "local_sources": [
+        "contexts/test_20.md",
+        "contexts/test_493.md",
+        "contexts/test_286.md",
+        "contexts/test_206.md"
+      ]
+    },
+    {
+      "id": "5ae6050f55429929b0807a5e",
+      "question": "This singer of A Rather Blustery Day also voiced what hedgehog?",
+      "expected_sources": [
+        "contexts/test_21.md"
+      ],
+      "basic_sources": [
+        "contexts/test_572.md",
+        "contexts/test_21.md",
+        "contexts/test_641.md",
+        "contexts/test_81.md",
+        "contexts/test_448.md",
+        "contexts/test_241.md",
+        "contexts/test_180.md",
+        "contexts/test_23.md",
+        "contexts/test_256.md"
+      ],
+      "local_sources": [
+        "contexts/test_572.md",
+        "contexts/test_21.md",
+        "contexts/test_641.md",
+        "contexts/test_81.md",
+        "contexts/test_448.md",
+        "contexts/test_241.md",
+        "contexts/test_180.md",
+        "contexts/test_23.md",
+        "contexts/test_256.md"
+      ]
+    },
+    {
+      "id": "5adddccd5542997dc7907069",
+      "question": "Aside from the Apple Remote, what other device can control the program Apple Remote was originally designed to interact with?",
+      "expected_sources": [
+        "contexts/test_22.md"
+      ],
+      "basic_sources": [
+        "contexts/test_22.md",
+        "contexts/test_571.md"
+      ],
+      "local_sources": [
+        "contexts/test_22.md",
+        "contexts/test_571.md"
+      ]
+    },
+    {
+      "id": "5ae2070a5542994d89d5b313",
+      "question": "Which performance act has a higher instrument to person ratio, Badly Drawn Boy or Wolf Alice? ",
+      "expected_sources": [
+        "contexts/test_23.md"
+      ],
+      "basic_sources": [
+        "contexts/test_668.md",
+        "contexts/test_474.md",
+        "contexts/test_305.md",
+        "contexts/test_23.md",
+        "contexts/test_448.md",
+        "contexts/test_106.md",
+        "contexts/test_414.md"
+      ],
+      "local_sources": [
+        "contexts/test_668.md",
+        "contexts/test_474.md",
+        "contexts/test_305.md",
+        "contexts/test_23.md",
+        "contexts/test_448.md",
+        "contexts/test_106.md",
+        "contexts/test_414.md"
+      ]
+    },
+    {
+      "id": "5ae22b8d554299234fd0440f",
+      "question": "What was the father of Kasper Schmeichel voted to be by the IFFHS in 1992?",
+      "expected_sources": [
+        "contexts/test_24.md"
+      ],
+      "basic_sources": [
+        "contexts/test_24.md",
+        "contexts/test_25.md",
+        "contexts/test_218.md",
+        "contexts/test_445.md",
+        "contexts/test_336.md",
+        "contexts/test_453.md",
+        "contexts/test_640.md",
+        "contexts/test_273.md"
+      ],
+      "local_sources": [
+        "contexts/test_103.md",
+        "contexts/test_119.md",
+        "contexts/test_164.md",
+        "contexts/test_212.md",
+        "contexts/test_228.md",
+        "contexts/test_251.md",
+        "contexts/test_267.md",
+        "contexts/test_287.md",
+        "contexts/test_24.md",
+        "contexts/test_30.md",
+        "contexts/test_25.md",
+        "contexts/test_309.md",
+        "contexts/test_218.md",
+        "contexts/test_330.md",
+        "contexts/test_387.md",
+        "contexts/test_469.md",
+        "contexts/test_445.md",
+        "contexts/test_533.md",
+        "contexts/test_336.md",
+        "contexts/test_582.md",
+        "contexts/test_600.md",
+        "contexts/test_639.md",
+        "contexts/test_453.md",
+        "contexts/test_646.md",
+        "contexts/test_640.md",
+        "contexts/test_96.md",
+        "contexts/test_273.md"
+      ]
+    },
+    {
+      "id": "5a722b8655429971e9dc9329",
+      "question": "Who was the writer of These Boots Are Made for Walkin' and who died in 2007?",
+      "expected_sources": [
+        "contexts/test_25.md"
+      ],
+      "basic_sources": [
+        "contexts/test_25.md",
+        "contexts/test_4.md",
+        "contexts/test_214.md",
+        "contexts/test_332.md",
+        "contexts/test_317.md",
+        "contexts/test_474.md"
+      ],
+      "local_sources": [
+        "contexts/test_103.md",
+        "contexts/test_119.md",
+        "contexts/test_164.md",
+        "contexts/test_212.md",
+        "contexts/test_228.md",
+        "contexts/test_251.md",
+        "contexts/test_267.md",
+        "contexts/test_287.md",
+        "contexts/test_25.md",
+        "contexts/test_30.md",
+        "contexts/test_4.md",
+        "contexts/test_309.md",
+        "contexts/test_214.md",
+        "contexts/test_330.md",
+        "contexts/test_387.md",
+        "contexts/test_469.md",
+        "contexts/test_332.md",
+        "contexts/test_533.md",
+        "contexts/test_317.md",
+        "contexts/test_582.md",
+        "contexts/test_600.md",
+        "contexts/test_639.md",
+        "contexts/test_646.md",
+        "contexts/test_474.md",
+        "contexts/test_96.md"
+      ]
+    },
+    {
+      "id": "5adf37a95542995ec70e8f97",
+      "question": "The 2011–12 VCU Rams men's basketball team, led by third year head coach Shaka Smart, represented Virginia Commonwealth University which was founded in what year?",
+      "expected_sources": [
+        "contexts/test_26.md"
+      ],
+      "basic_sources": [
+        "contexts/test_26.md",
+        "contexts/test_476.md"
+      ],
+      "local_sources": [
+        "contexts/test_26.md",
+        "contexts/test_476.md"
+      ]
+    },
+    {
+      "id": "5abd259d55429924427fcf1a",
+      "question": "Are both Dictyosperma, and Huernia described as a genus?",
+      "expected_sources": [
+        "contexts/test_27.md"
+      ],
+      "basic_sources": [
+        "contexts/test_27.md",
+        "contexts/test_166.md",
+        "contexts/test_525.md",
+        "contexts/test_97.md",
+        "contexts/test_389.md",
+        "contexts/test_53.md",
+        "contexts/test_170.md",
+        "contexts/test_621.md"
+      ],
+      "local_sources": [
+        "contexts/test_27.md",
+        "contexts/test_166.md",
+        "contexts/test_525.md",
+        "contexts/test_97.md",
+        "contexts/test_389.md",
+        "contexts/test_53.md",
+        "contexts/test_170.md",
+        "contexts/test_621.md"
+      ]
+    },
+    {
+      "id": "5a8a3e745542996c9b8d5e70",
+      "question": "What is the name for the adventure in \"Tunnels and Trolls\", a game designed by Ken St. Andre?",
+      "expected_sources": [
+        "contexts/test_29.md"
+      ],
+      "basic_sources": [
+        "contexts/test_76.md",
+        "contexts/test_29.md",
+        "contexts/test_584.md",
+        "contexts/test_279.md",
+        "contexts/test_190.md",
+        "contexts/test_230.md",
+        "contexts/test_361.md",
+        "contexts/test_516.md"
+      ],
+      "local_sources": [
+        "contexts/test_119.md",
+        "contexts/test_76.md",
+        "contexts/test_29.md",
+        "contexts/test_584.md",
+        "contexts/test_279.md",
+        "contexts/test_190.md",
+        "contexts/test_230.md",
+        "contexts/test_361.md",
+        "contexts/test_516.md"
+      ]
+    },
+    {
+      "id": "5ac23ff0554299636651994d",
+      "question": "When was Poison's album \"Shut Up, Make Love\" released?",
+      "expected_sources": [
+        "contexts/test_30.md"
+      ],
+      "basic_sources": [
+        "contexts/test_433.md",
+        "contexts/test_30.md",
+        "contexts/test_330.md",
+        "contexts/test_143.md",
+        "contexts/test_46.md",
+        "contexts/test_133.md",
+        "contexts/test_299.md",
+        "contexts/test_21.md",
+        "contexts/test_350.md"
+      ],
+      "local_sources": [
+        "contexts/test_102.md",
+        "contexts/test_103.md",
+        "contexts/test_119.md",
+        "contexts/test_149.md",
+        "contexts/test_164.md",
+        "contexts/test_212.md",
+        "contexts/test_228.md",
+        "contexts/test_25.md",
+        "contexts/test_433.md",
+        "contexts/test_251.md",
+        "contexts/test_30.md",
+        "contexts/test_267.md",
+        "contexts/test_330.md",
+        "contexts/test_287.md",
+        "contexts/test_309.md",
+        "contexts/test_143.md",
+        "contexts/test_375.md",
+        "contexts/test_46.md",
+        "contexts/test_387.md",
+        "contexts/test_133.md",
+        "contexts/test_469.md",
+        "contexts/test_471.md",
+        "contexts/test_481.md",
+        "contexts/test_299.md",
+        "contexts/test_582.md",
+        "contexts/test_21.md",
+        "contexts/test_620.md",
+        "contexts/test_350.md",
+        "contexts/test_639.md",
+        "contexts/test_646.md",
+        "contexts/test_96.md"
+      ]
+    },
+    {
+      "id": "5ae4a3265542995ad6573de5",
+      "question": "Hayden is a singer-songwriter from Canada, but where does Buck-Tick hail from?",
+      "expected_sources": [
+        "contexts/test_31.md"
+      ],
+      "basic_sources": [
+        "contexts/test_31.md",
+        "contexts/test_387.md",
+        "contexts/test_586.md",
+        "contexts/test_112.md",
+        "contexts/test_620.md",
+        "contexts/test_274.md",
+        "contexts/test_561.md",
+        "contexts/test_206.md"
+      ],
+      "local_sources": [
+        "contexts/test_102.md",
+        "contexts/test_103.md",
+        "contexts/test_119.md",
+        "contexts/test_164.md",
+        "contexts/test_212.md",
+        "contexts/test_228.md",
+        "contexts/test_25.md",
+        "contexts/test_251.md",
+        "contexts/test_31.md",
+        "contexts/test_267.md",
+        "contexts/test_387.md",
+        "contexts/test_287.md",
+        "contexts/test_586.md",
+        "contexts/test_30.md",
+        "contexts/test_309.md",
+        "contexts/test_330.md",
+        "contexts/test_469.md",
+        "contexts/test_112.md",
+        "contexts/test_582.md",
+        "contexts/test_620.md",
+        "contexts/test_639.md",
+        "contexts/test_646.md",
+        "contexts/test_274.md",
+        "contexts/test_96.md",
+        "contexts/test_561.md",
+        "contexts/test_206.md"
+      ]
+    },
+    {
+      "id": "5ae0361155429925eb1afc2c",
+      "question": "Which  French ace pilot and adventurer fly L'Oiseau Blanc",
+      "expected_sources": [
+        "contexts/test_32.md"
+      ],
+      "basic_sources": [
+        "contexts/test_216.md",
+        "contexts/test_32.md",
+        "contexts/test_493.md",
+        "contexts/test_20.md"
+      ],
+      "local_sources": [
+        "contexts/test_216.md",
+        "contexts/test_32.md",
+        "contexts/test_493.md",
+        "contexts/test_20.md"
+      ]
+    },
+    {
+      "id": "5abf63f15542997ec76fd3ea",
+      "question": "Alexander Kerensky was defeated and destroyed by the Bolsheviks in the course of a civil war that ended when ?",
+      "expected_sources": [
+        "contexts/test_35.md"
+      ],
+      "basic_sources": [
+        "contexts/test_35.md",
+        "contexts/test_47.md",
+        "contexts/test_467.md",
+        "contexts/test_503.md",
+        "contexts/test_603.md",
+        "contexts/test_453.md"
+      ],
+      "local_sources": [
+        "contexts/test_35.md",
+        "contexts/test_47.md",
+        "contexts/test_467.md",
+        "contexts/test_503.md",
+        "contexts/test_603.md",
+        "contexts/test_453.md"
+      ]
+    },
+    {
+      "id": "5a8ef2a75542995a26add583",
+      "question": "Seven Brief Lessons on Physics was written by an Italian physicist that has worked in France since what year?",
+      "expected_sources": [
+        "contexts/test_36.md"
+      ],
+      "basic_sources": [
+        "contexts/test_650.md",
+        "contexts/test_665.md",
+        "contexts/test_36.md",
+        "contexts/test_482.md",
+        "contexts/test_500.md",
+        "contexts/test_97.md",
+        "contexts/test_353.md"
+      ],
+      "local_sources": [
+        "contexts/test_650.md",
+        "contexts/test_665.md",
+        "contexts/test_36.md",
+        "contexts/test_482.md",
+        "contexts/test_500.md",
+        "contexts/test_97.md",
+        "contexts/test_353.md"
+      ]
+    },
+    {
+      "id": "5a7571135542992d0ec05f98",
+      "question": "Ralph Hefferline was a psychology professor at a university that is located in what city?",
+      "expected_sources": [
+        "contexts/test_39.md"
+      ],
+      "basic_sources": [
+        "contexts/test_192.md",
+        "contexts/test_603.md",
+        "contexts/test_577.md",
+        "contexts/test_518.md",
+        "contexts/test_436.md"
+      ],
+      "local_sources": [
+        "contexts/test_192.md",
+        "contexts/test_603.md",
+        "contexts/test_577.md",
+        "contexts/test_518.md",
+        "contexts/test_436.md"
+      ]
+    },
+    {
+      "id": "5a74106b55429979e288289e",
+      "question": "Where is the company that Sachin Warrier worked for as a software engineer headquartered? ",
+      "expected_sources": [
+        "contexts/test_41.md"
+      ],
+      "basic_sources": [
+        "contexts/test_41.md",
+        "contexts/test_650.md",
+        "contexts/test_4.md",
+        "contexts/test_197.md",
+        "contexts/test_44.md",
+        "contexts/test_538.md",
+        "contexts/test_594.md"
+      ],
+      "local_sources": [
+        "contexts/test_41.md",
+        "contexts/test_650.md",
+        "contexts/test_4.md",
+        "contexts/test_197.md",
+        "contexts/test_44.md",
+        "contexts/test_538.md",
+        "contexts/test_594.md"
+      ]
+    },
+    {
+      "id": "5a79311755429970f5fffe67",
+      "question": "A Japanese manga series based on a 16 year old high school student Ichitaka Seto, is written and illustrated by someone born in what year?",
+      "expected_sources": [
+        "contexts/test_42.md"
+      ],
+      "basic_sources": [
+        "contexts/test_42.md",
+        "contexts/test_311.md",
+        "contexts/test_273.md"
+      ],
+      "local_sources": [
+        "contexts/test_42.md",
+        "contexts/test_311.md",
+        "contexts/test_273.md"
+      ]
+    },
+    {
+      "id": "5ab2d3df554299194fa9352c",
+      "question": "The battle in which Giuseppe Arimondi lost his life secured what for Ethiopia?",
+      "expected_sources": [
+        "contexts/test_43.md"
+      ],
+      "basic_sources": [
+        "contexts/test_43.md",
+        "contexts/test_467.md",
+        "contexts/test_386.md",
+        "contexts/test_186.md",
+        "contexts/test_548.md",
+        "contexts/test_343.md"
+      ],
+      "local_sources": [
+        "contexts/test_43.md",
+        "contexts/test_467.md",
+        "contexts/test_386.md",
+        "contexts/test_186.md",
+        "contexts/test_548.md",
+        "contexts/test_343.md"
+      ]
+    },
+    {
+      "id": "5a760ab65542994ccc918697",
+      "question": "Alfred Balk served as the secretary of the Committee on the Employment of Minority Groups in the News Media under which United States Vice President?",
+      "expected_sources": [
+        "contexts/test_44.md"
+      ],
+      "basic_sources": [
+        "contexts/test_44.md",
+        "contexts/test_588.md",
+        "contexts/test_82.md",
+        "contexts/test_471.md",
+        "contexts/test_1.md",
+        "contexts/test_603.md",
+        "contexts/test_64.md",
+        "contexts/test_18.md",
+        "contexts/test_343.md"
+      ],
+      "local_sources": [
+        "contexts/test_30.md",
+        "contexts/test_44.md",
+        "contexts/test_588.md",
+        "contexts/test_82.md",
+        "contexts/test_471.md",
+        "contexts/test_1.md",
+        "contexts/test_603.md",
+        "contexts/test_64.md",
+        "contexts/test_18.md",
+        "contexts/test_343.md"
+      ]
+    },
+    {
+      "id": "5a7d54165542995f4f402256",
+      "question": "A medieval fortress in Dirleton, East Lothian, Scotland borders on the south side of what coastal area?",
+      "expected_sources": [
+        "contexts/test_45.md"
+      ],
+      "basic_sources": [
+        "contexts/test_45.md",
+        "contexts/test_58.md",
+        "contexts/test_588.md",
+        "contexts/test_618.md",
+        "contexts/test_383.md",
+        "contexts/test_160.md"
+      ],
+      "local_sources": [
+        "contexts/test_45.md",
+        "contexts/test_58.md",
+        "contexts/test_588.md",
+        "contexts/test_618.md",
+        "contexts/test_383.md",
+        "contexts/test_160.md"
+      ]
+    },
+    {
+      "id": "5ab859a955429934fafe6d7b",
+      "question": "Who is the writer of this song that was inspired by words on a tombstone and was the first track on the box set Back to Mono?",
+      "expected_sources": [
+        "contexts/test_46.md"
+      ],
+      "basic_sources": [
+        "contexts/test_319.md",
+        "contexts/test_264.md",
+        "contexts/test_143.md",
+        "contexts/test_350.md",
+        "contexts/test_112.md",
+        "contexts/test_620.md",
+        "contexts/test_644.md",
+        "contexts/test_173.md",
+        "contexts/test_568.md"
+      ],
+      "local_sources": [
+        "contexts/test_102.md",
+        "contexts/test_251.md",
+        "contexts/test_267.md",
+        "contexts/test_330.md",
+        "contexts/test_646.md",
+        "contexts/test_319.md",
+        "contexts/test_264.md",
+        "contexts/test_143.md",
+        "contexts/test_350.md",
+        "contexts/test_112.md",
+        "contexts/test_620.md",
+        "contexts/test_644.md",
+        "contexts/test_173.md",
+        "contexts/test_568.md"
+      ]
+    },
+    {
+      "id": "5add61d65542995b365fab21",
+      "question": "What type of forum did a former Soviet statesman initiate?",
+      "expected_sources": [
+        "contexts/test_47.md"
+      ],
+      "basic_sources": [
+        "contexts/test_616.md",
+        "contexts/test_77.md",
+        "contexts/test_168.md",
+        "contexts/test_490.md",
+        "contexts/test_189.md",
+        "contexts/test_117.md",
+        "contexts/test_489.md",
+        "contexts/test_171.md"
+      ],
+      "local_sources": [
+        "contexts/test_616.md",
+        "contexts/test_77.md",
+        "contexts/test_168.md",
+        "contexts/test_490.md",
+        "contexts/test_189.md",
+        "contexts/test_117.md",
+        "contexts/test_489.md",
+        "contexts/test_171.md"
+      ]
+    },
+    {
+      "id": "5a8e068b5542995085b37384",
+      "question": "Are Ferocactus and Silene both types of plant?",
+      "expected_sources": [
+        "contexts/test_48.md"
+      ],
+      "basic_sources": [
+        "contexts/test_48.md",
+        "contexts/test_508.md",
+        "contexts/test_665.md",
+        "contexts/test_610.md",
+        "contexts/test_27.md",
+        "contexts/test_525.md"
+      ],
+      "local_sources": [
+        "contexts/test_48.md",
+        "contexts/test_508.md",
+        "contexts/test_665.md",
+        "contexts/test_610.md",
+        "contexts/test_27.md",
+        "contexts/test_525.md"
+      ]
+    },
+    {
+      "id": "5abbf698554299114383a0b5",
+      "question": "Which British first-generation jet-powered medium bomber was used in the South West Pacific theatre of World War II?",
+      "expected_sources": [
+        "contexts/test_49.md"
+      ],
+      "basic_sources": [
+        "contexts/test_49.md",
+        "contexts/test_210.md",
+        "contexts/test_532.md",
+        "contexts/test_594.md",
+        "contexts/test_343.md"
+      ],
+      "local_sources": [
+        "contexts/test_49.md",
+        "contexts/test_210.md",
+        "contexts/test_532.md",
+        "contexts/test_594.md",
+        "contexts/test_343.md"
+      ]
+    },
+    {
+      "id": "5a8e1027554299653c1aa15f",
+      "question": "Which year and which conference was the 14th season for this conference as part of the NCAA Division that the Colorado Buffaloes played in with a record of 2-6 in conference play?",
+      "expected_sources": [
+        "contexts/test_50.md"
+      ],
+      "basic_sources": [
+        "contexts/test_50.md",
+        "contexts/test_57.md",
+        "contexts/test_190.md",
+        "contexts/test_583.md"
+      ],
+      "local_sources": [
+        "contexts/test_50.md",
+        "contexts/test_57.md",
+        "contexts/test_190.md",
+        "contexts/test_583.md"
+      ]
+    },
+    {
+      "id": "5ab84bf555429916710eb01f",
+      "question": "In 1991 Euromarché was bought by a chain that operated how any hypermarkets at the end of 2016?",
+      "expected_sources": [
+        "contexts/test_51.md"
+      ],
+      "basic_sources": [
+        "contexts/test_123.md",
+        "contexts/test_51.md",
+        "contexts/test_218.md",
+        "contexts/test_117.md",
+        "contexts/test_537.md",
+        "contexts/test_445.md",
+        "contexts/test_190.md",
+        "contexts/test_498.md",
+        "contexts/test_569.md",
+        "contexts/test_539.md"
+      ],
+      "local_sources": [
+        "contexts/test_123.md",
+        "contexts/test_51.md",
+        "contexts/test_218.md",
+        "contexts/test_117.md",
+        "contexts/test_537.md",
+        "contexts/test_445.md",
+        "contexts/test_190.md",
+        "contexts/test_498.md",
+        "contexts/test_569.md",
+        "contexts/test_539.md"
+      ]
+    },
+    {
+      "id": "5a87c13f5542996e4f30890c",
+      "question": "In what city did the \"Prince of tenors\" star in a film based on an opera by Giacomo Puccini?",
+      "expected_sources": [
+        "contexts/test_53.md"
+      ],
+      "basic_sources": [
+        "contexts/test_17.md",
+        "contexts/test_414.md",
+        "contexts/test_128.md",
+        "contexts/test_106.md",
+        "contexts/test_111.md",
+        "contexts/test_659.md",
+        "contexts/test_53.md",
+        "contexts/test_592.md"
+      ],
+      "local_sources": [
+        "contexts/test_17.md",
+        "contexts/test_414.md",
+        "contexts/test_128.md",
+        "contexts/test_106.md",
+        "contexts/test_111.md",
+        "contexts/test_659.md",
+        "contexts/test_53.md",
+        "contexts/test_592.md"
+      ]
+    },
+    {
+      "id": "5ab96ab755429970cfb8eacd",
+      "question": "Ellie Goulding worked with what other writers on her third studio album, Delirium?",
+      "expected_sources": [
+        "contexts/test_54.md"
+      ],
+      "basic_sources": [
+        "contexts/test_54.md",
+        "contexts/test_365.md",
+        "contexts/test_133.md",
+        "contexts/test_528.md"
+      ],
+      "local_sources": [
+        "contexts/test_54.md",
+        "contexts/test_365.md",
+        "contexts/test_133.md",
+        "contexts/test_528.md"
+      ]
+    },
+    {
+      "id": "5a8a43eb5542996c9b8d5e82",
+      "question": "Which Australian city founded in 1838 contains a boarding school opened by a Prime Minister of Australia and named after a school in London of the same name.",
+      "expected_sources": [
+        "contexts/test_55.md"
+      ],
+      "basic_sources": [
+        "contexts/test_55.md",
+        "contexts/test_611.md",
+        "contexts/test_518.md",
+        "contexts/test_661.md",
+        "contexts/test_356.md",
+        "contexts/test_364.md",
+        "contexts/test_540.md"
+      ],
+      "local_sources": [
+        "contexts/test_55.md",
+        "contexts/test_611.md",
+        "contexts/test_518.md",
+        "contexts/test_661.md",
+        "contexts/test_356.md",
+        "contexts/test_364.md",
+        "contexts/test_540.md"
+      ]
+    },
+    {
+      "id": "5ae73acb5542991e8301cc07",
+      "question": "D1NZ is a series based on what oversteering technique?",
+      "expected_sources": [
+        "contexts/test_56.md"
+      ],
+      "basic_sources": [
+        "contexts/test_487.md",
+        "contexts/test_326.md",
+        "contexts/test_281.md",
+        "contexts/test_132.md",
+        "contexts/test_311.md",
+        "contexts/test_56.md",
+        "contexts/test_186.md",
+        "contexts/test_70.md",
+        "contexts/test_266.md"
+      ],
+      "local_sources": [
+        "contexts/test_487.md",
+        "contexts/test_326.md",
+        "contexts/test_281.md",
+        "contexts/test_132.md",
+        "contexts/test_311.md",
+        "contexts/test_56.md",
+        "contexts/test_186.md",
+        "contexts/test_70.md",
+        "contexts/test_266.md"
+      ]
+    },
+    {
+      "id": "5a7320565542991f9a20c61d",
+      "question": "who is younger Keith Bostic or Jerry Glanville ?",
+      "expected_sources": [
+        "contexts/test_57.md"
+      ],
+      "basic_sources": [
+        "contexts/test_57.md",
+        "contexts/test_648.md",
+        "contexts/test_24.md",
+        "contexts/test_651.md",
+        "contexts/test_503.md",
+        "contexts/test_668.md",
+        "contexts/test_153.md",
+        "contexts/test_251.md",
+        "contexts/test_184.md",
+        "contexts/test_68.md"
+      ],
+      "local_sources": [
+        "contexts/test_102.md",
+        "contexts/test_103.md",
+        "contexts/test_119.md",
+        "contexts/test_164.md",
+        "contexts/test_212.md",
+        "contexts/test_228.md",
+        "contexts/test_25.md",
+        "contexts/test_267.md",
+        "contexts/test_57.md",
+        "contexts/test_287.md",
+        "contexts/test_648.md",
+        "contexts/test_30.md",
+        "contexts/test_24.md",
+        "contexts/test_309.md",
+        "contexts/test_330.md",
+        "contexts/test_651.md",
+        "contexts/test_387.md",
+        "contexts/test_503.md",
+        "contexts/test_469.md",
+        "contexts/test_668.md",
+        "contexts/test_582.md",
+        "contexts/test_153.md",
+        "contexts/test_620.md",
+        "contexts/test_639.md",
+        "contexts/test_251.md",
+        "contexts/test_646.md",
+        "contexts/test_184.md",
+        "contexts/test_96.md",
+        "contexts/test_68.md"
+      ]
+    },
+    {
+      "id": "5ae32e125542991a06ce9946",
+      "question": "According to the 2001 census, what was the population of the city in which Kirton End is located?",
+      "expected_sources": [
+        "contexts/test_58.md"
+      ],
+      "basic_sources": [
+        "contexts/test_58.md",
+        "contexts/test_4.md",
+        "contexts/test_172.md",
+        "contexts/test_345.md",
+        "contexts/test_134.md",
+        "contexts/test_306.md",
+        "contexts/test_80.md"
+      ],
+      "local_sources": [
+        "contexts/test_58.md",
+        "contexts/test_4.md",
+        "contexts/test_172.md",
+        "contexts/test_345.md",
+        "contexts/test_134.md",
+        "contexts/test_306.md",
+        "contexts/test_80.md"
+      ]
+    },
+    {
+      "id": "5a8b20335542996c9b8d5fb3",
+      "question": "What distinction is held by the former NBA player who was a member of the Charlotte Hornets during their 1992-93 season and was head coach for the WNBA team Charlotte Sting?",
+      "expected_sources": [
+        "contexts/test_60.md"
+      ],
+      "basic_sources": [
+        "contexts/test_60.md",
+        "contexts/test_418.md",
+        "contexts/test_367.md",
+        "contexts/test_290.md",
+        "contexts/test_50.md",
+        "contexts/test_476.md",
+        "contexts/test_626.md",
+        "contexts/test_662.md"
+      ],
+      "local_sources": [
+        "contexts/test_60.md",
+        "contexts/test_418.md",
+        "contexts/test_367.md",
+        "contexts/test_290.md",
+        "contexts/test_50.md",
+        "contexts/test_476.md",
+        "contexts/test_626.md",
+        "contexts/test_662.md"
+      ]
+    },
+    {
+      "id": "5a85fb085542994775f606de",
+      "question": "What is the name of the executive producer of the film that has a score composed by Jerry Goldsmith?",
+      "expected_sources": [
+        "contexts/test_61.md"
+      ],
+      "basic_sources": [
+        "contexts/test_61.md",
+        "contexts/test_531.md",
+        "contexts/test_414.md",
+        "contexts/test_544.md",
+        "contexts/test_659.md",
+        "contexts/test_359.md"
+      ],
+      "local_sources": [
+        "contexts/test_61.md",
+        "contexts/test_531.md",
+        "contexts/test_414.md",
+        "contexts/test_544.md",
+        "contexts/test_659.md",
+        "contexts/test_359.md"
+      ]
+    },
+    {
+      "id": "5a7be2595542997c3ec972ac",
+      "question": "Who was born earlier, Emma Bull or Virginia Woolf?",
+      "expected_sources": [
+        "contexts/test_62.md"
+      ],
+      "basic_sources": [
+        "contexts/test_305.md",
+        "contexts/test_503.md",
+        "contexts/test_277.md",
+        "contexts/test_153.md",
+        "contexts/test_19.md",
+        "contexts/test_542.md",
+        "contexts/test_124.md",
+        "contexts/test_62.md",
+        "contexts/test_241.md"
+      ],
+      "local_sources": [
+        "contexts/test_305.md",
+        "contexts/test_503.md",
+        "contexts/test_277.md",
+        "contexts/test_153.md",
+        "contexts/test_19.md",
+        "contexts/test_542.md",
+        "contexts/test_124.md",
+        "contexts/test_62.md",
+        "contexts/test_241.md"
+      ]
+    },
+    {
+      "id": "5a8f4c8d554299458435d5a3",
+      "question": "Scott Parkin has been a vocal critic of Exxonmobil and another corporation that has operations in how many countries ?",
+      "expected_sources": [
+        "contexts/test_64.md"
+      ],
+      "basic_sources": [
+        "contexts/test_361.md",
+        "contexts/test_371.md",
+        "contexts/test_416.md",
+        "contexts/test_64.md",
+        "contexts/test_55.md",
+        "contexts/test_70.md",
+        "contexts/test_44.md",
+        "contexts/test_489.md"
+      ],
+      "local_sources": [
+        "contexts/test_361.md",
+        "contexts/test_371.md",
+        "contexts/test_416.md",
+        "contexts/test_64.md",
+        "contexts/test_55.md",
+        "contexts/test_70.md",
+        "contexts/test_44.md",
+        "contexts/test_489.md"
+      ]
+    },
+    {
+      "id": "5a8361b65542992ef85e22a0",
+      "question": "Vince Phillips held a junior welterweight title by an organization recognized by what larger Hall of Fame?",
+      "expected_sources": [
+        "contexts/test_66.md"
+      ],
+      "basic_sources": [
+        "contexts/test_66.md",
+        "contexts/test_559.md",
+        "contexts/test_111.md",
+        "contexts/test_521.md",
+        "contexts/test_437.md",
+        "contexts/test_230.md",
+        "contexts/test_644.md",
+        "contexts/test_8.md"
+      ],
+      "local_sources": [
+        "contexts/test_66.md",
+        "contexts/test_559.md",
+        "contexts/test_111.md",
+        "contexts/test_521.md",
+        "contexts/test_437.md",
+        "contexts/test_230.md",
+        "contexts/test_644.md",
+        "contexts/test_8.md"
+      ]
+    },
+    {
+      "id": "5ac2acff55429921a00ab02b",
+      "question": "who is the younger brother of The episode guest stars of The Hard Easy ",
+      "expected_sources": [
+        "contexts/test_68.md"
+      ],
+      "basic_sources": [
+        "contexts/test_139.md",
+        "contexts/test_294.md",
+        "contexts/test_68.md",
+        "contexts/test_606.md",
+        "contexts/test_221.md",
+        "contexts/test_429.md"
+      ],
+      "local_sources": [
+        "contexts/test_139.md",
+        "contexts/test_294.md",
+        "contexts/test_68.md",
+        "contexts/test_606.md",
+        "contexts/test_221.md",
+        "contexts/test_429.md"
+      ]
+    },
+    {
+      "id": "5ae5aba0554299546bf82f17",
+      "question": "Which of Tara Strong major voice role in animated series is an American animated television series based on the DC Comics fictional superhero team, the \"Teen Titans\"?",
+      "expected_sources": [
+        "contexts/test_70.md"
+      ],
+      "basic_sources": [
+        "contexts/test_70.md",
+        "contexts/test_21.md",
+        "contexts/test_629.md",
+        "contexts/test_185.md",
+        "contexts/test_281.md"
+      ],
+      "local_sources": [
+        "contexts/test_70.md",
+        "contexts/test_21.md",
+        "contexts/test_629.md",
+        "contexts/test_185.md",
+        "contexts/test_281.md"
+      ]
+    },
+    {
+      "id": "5ae1f4cb554299234fd0436d",
+      "question": "What is the inhabitant of the city where  122nd SS-Standarte was formed in2014",
+      "expected_sources": [
+        "contexts/test_71.md"
+      ],
+      "basic_sources": [
+        "contexts/test_170.md",
+        "contexts/test_615.md",
+        "contexts/test_315.md",
+        "contexts/test_58.md",
+        "contexts/test_302.md",
+        "contexts/test_581.md",
+        "contexts/test_45.md",
+        "contexts/test_345.md",
+        "contexts/test_630.md",
+        "contexts/test_157.md"
+      ],
+      "local_sources": [
+        "contexts/test_170.md",
+        "contexts/test_615.md",
+        "contexts/test_315.md",
+        "contexts/test_58.md",
+        "contexts/test_302.md",
+        "contexts/test_581.md",
+        "contexts/test_45.md",
+        "contexts/test_345.md",
+        "contexts/test_630.md",
+        "contexts/test_157.md"
+      ]
+    },
+    {
+      "id": "5ae7e1fc55429952e35ea9cc",
+      "question": "What color clothing do people of the Netherlands wear during Oranjegekte or to celebrate the national holiday Koningsdag? ",
+      "expected_sources": [
+        "contexts/test_72.md"
+      ],
+      "basic_sources": [
+        "contexts/test_72.md",
+        "contexts/test_663.md",
+        "contexts/test_353.md",
+        "contexts/test_572.md",
+        "contexts/test_648.md"
+      ],
+      "local_sources": [
+        "contexts/test_72.md",
+        "contexts/test_663.md",
+        "contexts/test_353.md",
+        "contexts/test_572.md",
+        "contexts/test_648.md"
+      ]
+    },
+    {
+      "id": "5ae33c4d5542992f92d82262",
+      "question": "Robert Suettinger was the national intelligence officer under which former Governor of Arkansas?",
+      "expected_sources": [
+        "contexts/test_74.md"
+      ],
+      "basic_sources": [
+        "contexts/test_74.md",
+        "contexts/test_207.md",
+        "contexts/test_519.md",
+        "contexts/test_189.md",
+        "contexts/test_645.md",
+        "contexts/test_440.md",
+        "contexts/test_353.md"
+      ],
+      "local_sources": [
+        "contexts/test_74.md",
+        "contexts/test_207.md",
+        "contexts/test_519.md",
+        "contexts/test_189.md",
+        "contexts/test_645.md",
+        "contexts/test_440.md",
+        "contexts/test_353.md"
+      ]
+    },
+    {
+      "id": "5a8979f4554299669944a52e",
+      "question": "What is the middle name of the actress who plays Bobbi Bacha in Suburban Madness?",
+      "expected_sources": [
+        "contexts/test_76.md"
+      ],
+      "basic_sources": [
+        "contexts/test_76.md",
+        "contexts/test_308.md",
+        "contexts/test_641.md",
+        "contexts/test_668.md",
+        "contexts/test_526.md",
+        "contexts/test_135.md",
+        "contexts/test_112.md",
+        "contexts/test_548.md",
+        "contexts/test_542.md"
+      ],
+      "local_sources": [
+        "contexts/test_76.md",
+        "contexts/test_308.md",
+        "contexts/test_641.md",
+        "contexts/test_668.md",
+        "contexts/test_526.md",
+        "contexts/test_135.md",
+        "contexts/test_112.md",
+        "contexts/test_548.md",
+        "contexts/test_542.md"
+      ]
+    },
+    {
+      "id": "5a713ea95542994082a3e6e4",
+      "question": "Alvaro Mexia had a diplomatic mission with which tribe of indigenous people?",
+      "expected_sources": [
+        "contexts/test_77.md"
+      ],
+      "basic_sources": [
+        "contexts/test_35.md",
+        "contexts/test_621.md",
+        "contexts/test_616.md",
+        "contexts/test_77.md",
+        "contexts/test_82.md",
+        "contexts/test_189.md",
+        "contexts/test_599.md",
+        "contexts/test_198.md",
+        "contexts/test_100.md"
+      ],
+      "local_sources": [
+        "contexts/test_35.md",
+        "contexts/test_621.md",
+        "contexts/test_616.md",
+        "contexts/test_77.md",
+        "contexts/test_82.md",
+        "contexts/test_189.md",
+        "contexts/test_599.md",
+        "contexts/test_198.md",
+        "contexts/test_100.md"
+      ]
+    },
+    {
+      "id": "5a78bd9b554299078472774a",
+      "question": "What nationality were social anthropologists Alfred Gell and Edmund Leach?",
+      "expected_sources": [
+        "contexts/test_78.md"
+      ],
+      "basic_sources": [
+        "contexts/test_78.md",
+        "contexts/test_64.md",
+        "contexts/test_142.md",
+        "contexts/test_631.md",
+        "contexts/test_43.md",
+        "contexts/test_616.md"
+      ],
+      "local_sources": [
+        "contexts/test_78.md",
+        "contexts/test_64.md",
+        "contexts/test_142.md",
+        "contexts/test_631.md",
+        "contexts/test_43.md",
+        "contexts/test_616.md"
+      ]
+    },
+    {
+      "id": "5a7625e8554299109176e66a",
+      "question": "In which year was the King who made the 1925 Birthday Honours born?",
+      "expected_sources": [
+        "contexts/test_79.md"
+      ],
+      "basic_sources": [
+        "contexts/test_79.md",
+        "contexts/test_518.md",
+        "contexts/test_343.md",
+        "contexts/test_72.md",
+        "contexts/test_531.md",
+        "contexts/test_503.md"
+      ],
+      "local_sources": [
+        "contexts/test_79.md",
+        "contexts/test_518.md",
+        "contexts/test_343.md",
+        "contexts/test_72.md",
+        "contexts/test_531.md",
+        "contexts/test_503.md"
+      ]
+    },
+    {
+      "id": "5ae2dd2055429928c423950d",
+      "question": "What is the county seat of the county where East Lempster, New Hampshire is located?",
+      "expected_sources": [
+        "contexts/test_80.md"
+      ],
+      "basic_sources": [
+        "contexts/test_80.md",
+        "contexts/test_316.md",
+        "contexts/test_317.md",
+        "contexts/test_455.md",
+        "contexts/test_4.md"
+      ],
+      "local_sources": [
+        "contexts/test_80.md",
+        "contexts/test_316.md",
+        "contexts/test_317.md",
+        "contexts/test_455.md",
+        "contexts/test_4.md"
+      ]
+    },
+    {
+      "id": "5abdf12255429976d4830a2f",
+      "question": "The Album Against the Wind was the 11th Album of a Rock singer Robert C Seger born may 6 1945. What was the Rock singers stage name ?",
+      "expected_sources": [
+        "contexts/test_81.md"
+      ],
+      "basic_sources": [
+        "contexts/test_81.md",
+        "contexts/test_402.md",
+        "contexts/test_143.md",
+        "contexts/test_586.md",
+        "contexts/test_323.md",
+        "contexts/test_299.md"
+      ],
+      "local_sources": [
+        "contexts/test_81.md",
+        "contexts/test_402.md",
+        "contexts/test_143.md",
+        "contexts/test_586.md",
+        "contexts/test_323.md",
+        "contexts/test_299.md"
+      ]
+    },
+    {
+      "id": "5a88658955429938390d3f47",
+      "question": "Rostker v. Goldberg held that the practice of what way of filling armed forces vacancies was consitutional?",
+      "expected_sources": [
+        "contexts/test_82.md"
+      ],
+      "basic_sources": [
+        "contexts/test_82.md",
+        "contexts/test_553.md",
+        "contexts/test_659.md",
+        "contexts/test_47.md",
+        "contexts/test_361.md",
+        "contexts/test_35.md",
+        "contexts/test_453.md"
+      ],
+      "local_sources": [
+        "contexts/test_82.md",
+        "contexts/test_553.md",
+        "contexts/test_659.md",
+        "contexts/test_47.md",
+        "contexts/test_361.md",
+        "contexts/test_35.md",
+        "contexts/test_453.md"
+      ]
+    },
+    {
+      "id": "5a86ebac55429960ec39b6d6",
+      "question": "Handi-Snacks are a snack food product line sold by what American multinational confectionery, food, and beverage company that is based in Illinois?",
+      "expected_sources": [
+        "contexts/test_83.md"
+      ],
+      "basic_sources": [
+        "contexts/test_83.md",
+        "contexts/test_205.md",
+        "contexts/test_590.md",
+        "contexts/test_495.md"
+      ],
+      "local_sources": [
+        "contexts/test_83.md",
+        "contexts/test_205.md",
+        "contexts/test_590.md",
+        "contexts/test_495.md"
+      ]
+    },
+    {
+      "id": "5ae5736e5542990ba0bbb2b3",
+      "question": "When was the American lawyer, lobbyist and political consultant who was a senior member of the presidential campaign of Donald Trump born?",
+      "expected_sources": [
+        "contexts/test_85.md"
+      ],
+      "basic_sources": [
+        "contexts/test_85.md",
+        "contexts/test_440.md"
+      ],
+      "local_sources": [
+        "contexts/test_85.md",
+        "contexts/test_440.md"
+      ]
+    },
+    {
+      "id": "5ae005b555429942ec259bec",
+      "question": "In what year was the novel that Lourenço Mutarelli based \"Nina\" on based first published?",
+      "expected_sources": [
+        "contexts/test_86.md"
+      ],
+      "basic_sources": [
+        "contexts/test_311.md",
+        "contexts/test_613.md",
+        "contexts/test_650.md",
+        "contexts/test_640.md",
+        "contexts/test_86.md",
+        "contexts/test_634.md",
+        "contexts/test_326.md"
+      ],
+      "local_sources": [
+        "contexts/test_311.md",
+        "contexts/test_613.md",
+        "contexts/test_650.md",
+        "contexts/test_640.md",
+        "contexts/test_86.md",
+        "contexts/test_634.md",
+        "contexts/test_326.md"
+      ]
+    },
+    {
+      "id": "5a7759fc5542993569682d60",
+      "question": "Where are Teide National Park and Garajonay National Park located?",
+      "expected_sources": [
+        "contexts/test_87.md"
+      ],
+      "basic_sources": [
+        "contexts/test_87.md",
+        "contexts/test_661.md",
+        "contexts/test_329.md",
+        "contexts/test_408.md",
+        "contexts/test_498.md",
+        "contexts/test_496.md"
+      ],
+      "local_sources": [
+        "contexts/test_87.md",
+        "contexts/test_661.md",
+        "contexts/test_329.md",
+        "contexts/test_408.md",
+        "contexts/test_498.md",
+        "contexts/test_496.md"
+      ]
+    },
+    {
+      "id": "5a835478554299123d8c20ed",
+      "question": "How many copies of Roald Dahl's variation on a popular anecdote sold?",
+      "expected_sources": [
+        "contexts/test_88.md"
+      ],
+      "basic_sources": [
+        "contexts/test_88.md",
+        "contexts/test_672.md",
+        "contexts/test_206.md",
+        "contexts/test_53.md",
+        "contexts/test_97.md",
+        "contexts/test_501.md"
+      ],
+      "local_sources": [
+        "contexts/test_88.md",
+        "contexts/test_672.md",
+        "contexts/test_206.md",
+        "contexts/test_53.md",
+        "contexts/test_97.md",
+        "contexts/test_501.md"
+      ]
+    },
+    {
+      "id": "5ae53b545542990ba0bbb23c",
+      "question": "Where does the hotel and casino located in which Bill Cosby's third album was recorded?",
+      "expected_sources": [
+        "contexts/test_92.md"
+      ],
+      "basic_sources": [
+        "contexts/test_92.md",
+        "contexts/test_149.md",
+        "contexts/test_51.md",
+        "contexts/test_375.md",
+        "contexts/test_327.md",
+        "contexts/test_54.md"
+      ],
+      "local_sources": [
+        "contexts/test_119.md",
+        "contexts/test_358.md",
+        "contexts/test_433.md",
+        "contexts/test_552.md",
+        "contexts/test_92.md",
+        "contexts/test_149.md",
+        "contexts/test_51.md",
+        "contexts/test_375.md",
+        "contexts/test_327.md",
+        "contexts/test_54.md"
+      ]
+    },
+    {
+      "id": "5ae2b770554299495565db0f",
+      "question": "In what month is the annual documentary film festival, that is presented by the fortnightly published British journal of literary essays, held? ",
+      "expected_sources": [
+        "contexts/test_94.md"
+      ],
+      "basic_sources": [
+        "contexts/test_94.md",
+        "contexts/test_224.md",
+        "contexts/test_8.md",
+        "contexts/test_599.md",
+        "contexts/test_672.md",
+        "contexts/test_606.md",
+        "contexts/test_601.md"
+      ],
+      "local_sources": [
+        "contexts/test_94.md",
+        "contexts/test_224.md",
+        "contexts/test_8.md",
+        "contexts/test_599.md",
+        "contexts/test_672.md",
+        "contexts/test_606.md",
+        "contexts/test_601.md"
+      ]
+    },
+    {
+      "id": "5a8e0a005542995085b373a1",
+      "question": "Bordan Tkachuk was the CEO of a company that provides what sort of products?",
+      "expected_sources": [
+        "contexts/test_96.md"
+      ],
+      "basic_sources": [
+        "contexts/test_96.md",
+        "contexts/test_670.md",
+        "contexts/test_44.md",
+        "contexts/test_510.md",
+        "contexts/test_541.md",
+        "contexts/test_64.md",
+        "contexts/test_184.md",
+        "contexts/test_439.md",
+        "contexts/test_123.md"
+      ],
+      "local_sources": [
+        "contexts/test_103.md",
+        "contexts/test_119.md",
+        "contexts/test_164.md",
+        "contexts/test_212.md",
+        "contexts/test_228.md",
+        "contexts/test_25.md",
+        "contexts/test_251.md",
+        "contexts/test_267.md",
+        "contexts/test_96.md",
+        "contexts/test_287.md",
+        "contexts/test_670.md",
+        "contexts/test_30.md",
+        "contexts/test_44.md",
+        "contexts/test_309.md",
+        "contexts/test_330.md",
+        "contexts/test_510.md",
+        "contexts/test_387.md",
+        "contexts/test_541.md",
+        "contexts/test_469.md",
+        "contexts/test_64.md",
+        "contexts/test_582.md",
+        "contexts/test_184.md",
+        "contexts/test_639.md",
+        "contexts/test_646.md",
+        "contexts/test_439.md",
+        "contexts/test_123.md"
+      ]
+    },
+    {
+      "id": "5ac1b8ee5542994d76dccedc",
+      "question": "Which filmmaker was known for animation, Lev Yilmaz or Pamela B. Green?",
+      "expected_sources": [
+        "contexts/test_97.md"
+      ],
+      "basic_sources": [
+        "contexts/test_359.md",
+        "contexts/test_658.md",
+        "contexts/test_12.md",
+        "contexts/test_389.md",
+        "contexts/test_97.md",
+        "contexts/test_414.md",
+        "contexts/test_403.md",
+        "contexts/test_305.md",
+        "contexts/test_542.md"
+      ],
+      "local_sources": [
+        "contexts/test_359.md",
+        "contexts/test_658.md",
+        "contexts/test_12.md",
+        "contexts/test_389.md",
+        "contexts/test_97.md",
+        "contexts/test_414.md",
+        "contexts/test_403.md",
+        "contexts/test_305.md",
+        "contexts/test_542.md"
+      ]
+    },
+    {
+      "id": "5a85eed75542996432c5713b",
+      "question": "Where did the descendants of the group of black Indians associated with the Seminole people settle?",
+      "expected_sources": [
+        "contexts/test_100.md"
+      ],
+      "basic_sources": [
+        "contexts/test_100.md",
+        "contexts/test_621.md",
+        "contexts/test_64.md",
+        "contexts/test_225.md",
+        "contexts/test_603.md",
+        "contexts/test_569.md"
+      ],
+      "local_sources": [
+        "contexts/test_100.md",
+        "contexts/test_621.md",
+        "contexts/test_64.md",
+        "contexts/test_225.md",
+        "contexts/test_603.md",
+        "contexts/test_569.md"
+      ]
+    },
+    {
+      "id": "5a774e9c55429972597f14f3",
+      "question": "David Huntsinger has worked with this gospel singer born in the month of July?",
+      "expected_sources": [
+        "contexts/test_101.md"
+      ],
+      "basic_sources": [
+        "contexts/test_24.md",
+        "contexts/test_127.md",
+        "contexts/test_492.md",
+        "contexts/test_327.md",
+        "contexts/test_671.md",
+        "contexts/test_476.md",
+        "contexts/test_388.md",
+        "contexts/test_106.md",
+        "contexts/test_81.md",
+        "contexts/test_670.md"
+      ],
+      "local_sources": [
+        "contexts/test_24.md",
+        "contexts/test_127.md",
+        "contexts/test_492.md",
+        "contexts/test_327.md",
+        "contexts/test_671.md",
+        "contexts/test_476.md",
+        "contexts/test_388.md",
+        "contexts/test_106.md",
+        "contexts/test_81.md",
+        "contexts/test_670.md"
+      ]
+    },
+    {
+      "id": "5ae738f75542991bbc9761c4",
+      "question": "What year was the brother of this first round draft pick by the Washington Redskins drafted?",
+      "expected_sources": [
+        "contexts/test_102.md"
+      ],
+      "basic_sources": [
+        "contexts/test_102.md",
+        "contexts/test_494.md",
+        "contexts/test_367.md",
+        "contexts/test_1.md"
+      ],
+      "local_sources": [
+        "contexts/test_251.md",
+        "contexts/test_267.md",
+        "contexts/test_330.md",
+        "contexts/test_620.md",
+        "contexts/test_646.md",
+        "contexts/test_102.md",
+        "contexts/test_494.md",
+        "contexts/test_367.md",
+        "contexts/test_1.md"
+      ]
+    },
+    {
+      "id": "5ac32b565542995ef918c154",
+      "question": "Where is the stadium at which 1964 Georgia Tech Yellow Jackets football team played their home game located? ",
+      "expected_sources": [
+        "contexts/test_103.md"
+      ],
+      "basic_sources": [
+        "contexts/test_103.md",
+        "contexts/test_339.md",
+        "contexts/test_290.md",
+        "contexts/test_190.md"
+      ],
+      "local_sources": [
+        "contexts/test_119.md",
+        "contexts/test_164.md",
+        "contexts/test_212.md",
+        "contexts/test_228.md",
+        "contexts/test_25.md",
+        "contexts/test_251.md",
+        "contexts/test_267.md",
+        "contexts/test_287.md",
+        "contexts/test_103.md",
+        "contexts/test_30.md",
+        "contexts/test_309.md",
+        "contexts/test_330.md",
+        "contexts/test_387.md",
+        "contexts/test_469.md",
+        "contexts/test_582.md",
+        "contexts/test_639.md",
+        "contexts/test_339.md",
+        "contexts/test_646.md",
+        "contexts/test_96.md",
+        "contexts/test_290.md",
+        "contexts/test_190.md"
+      ]
+    },
+    {
+      "id": "5ab659e355429954757d324e",
+      "question": "hree Men on a Horse is a play by a playwright born in which year ?",
+      "expected_sources": [
+        "contexts/test_106.md"
+      ],
+      "basic_sources": [
+        "contexts/test_563.md",
+        "contexts/test_16.md",
+        "contexts/test_26.md",
+        "contexts/test_476.md",
+        "contexts/test_662.md",
+        "contexts/test_246.md",
+        "contexts/test_60.md",
+        "contexts/test_583.md",
+        "contexts/test_626.md"
+      ],
+      "local_sources": [
+        "contexts/test_563.md",
+        "contexts/test_16.md",
+        "contexts/test_26.md",
+        "contexts/test_476.md",
+        "contexts/test_662.md",
+        "contexts/test_246.md",
+        "contexts/test_60.md",
+        "contexts/test_583.md",
+        "contexts/test_626.md"
+      ]
+    },
+    {
+      "id": "5a8b8b3155429949d91db5d7",
+      "question": "What type of activity does Owner earnings and Warren Buffett have in common?",
+      "expected_sources": [
+        "contexts/test_107.md"
+      ],
+      "basic_sources": [
+        "contexts/test_236.md",
+        "contexts/test_107.md",
+        "contexts/test_263.md",
+        "contexts/test_78.md",
+        "contexts/test_244.md",
+        "contexts/test_590.md",
+        "contexts/test_254.md",
+        "contexts/test_279.md"
+      ],
+      "local_sources": [
+        "contexts/test_236.md",
+        "contexts/test_107.md",
+        "contexts/test_263.md",
+        "contexts/test_78.md",
+        "contexts/test_244.md",
+        "contexts/test_590.md",
+        "contexts/test_254.md",
+        "contexts/test_279.md"
+      ]
+    },
+    {
+      "id": "5ae7eaf65542994a481bbe1d",
+      "question": "When was the  former Indian cricketer who made his ODI debuts during the 2000 ICC KnockOut Trophy born? ",
+      "expected_sources": [
+        "contexts/test_108.md"
+      ],
+      "basic_sources": [
+        "contexts/test_108.md",
+        "contexts/test_64.md",
+        "contexts/test_336.md",
+        "contexts/test_516.md",
+        "contexts/test_217.md",
+        "contexts/test_428.md",
+        "contexts/test_328.md",
+        "contexts/test_361.md",
+        "contexts/test_19.md"
+      ],
+      "local_sources": [
+        "contexts/test_119.md",
+        "contexts/test_108.md",
+        "contexts/test_64.md",
+        "contexts/test_336.md",
+        "contexts/test_516.md",
+        "contexts/test_217.md",
+        "contexts/test_428.md",
+        "contexts/test_328.md",
+        "contexts/test_361.md",
+        "contexts/test_19.md"
+      ]
+    },
+    {
+      "id": "5a8c4c625542995e66a475a1",
+      "question": "Which airplane was this Major test-flying after whom the base, that 514th Flight Test Squadron is stated at, is named?",
+      "expected_sources": [
+        "contexts/test_109.md"
+      ],
+      "basic_sources": [
+        "contexts/test_109.md",
+        "contexts/test_602.md",
+        "contexts/test_502.md",
+        "contexts/test_282.md",
+        "contexts/test_666.md",
+        "contexts/test_216.md"
+      ],
+      "local_sources": [
+        "contexts/test_109.md",
+        "contexts/test_602.md",
+        "contexts/test_502.md",
+        "contexts/test_282.md",
+        "contexts/test_666.md",
+        "contexts/test_216.md"
+      ]
+    },
+    {
+      "id": "5ab978855542996be2020512",
+      "question": "Over how many centuries were the \"dwelling place of the dead\" built?",
+      "expected_sources": [
+        "contexts/test_111.md"
+      ],
+      "basic_sources": [
+        "contexts/test_111.md",
+        "contexts/test_302.md",
+        "contexts/test_644.md",
+        "contexts/test_230.md",
+        "contexts/test_47.md",
+        "contexts/test_282.md",
+        "contexts/test_32.md",
+        "contexts/test_388.md",
+        "contexts/test_293.md"
+      ],
+      "local_sources": [
+        "contexts/test_111.md",
+        "contexts/test_302.md",
+        "contexts/test_644.md",
+        "contexts/test_230.md",
+        "contexts/test_47.md",
+        "contexts/test_282.md",
+        "contexts/test_32.md",
+        "contexts/test_388.md",
+        "contexts/test_293.md"
+      ]
+    },
+    {
+      "id": "5ae63dad55429929b0807afe",
+      "question": "When was the British author who wrote the novel on which \"Here We Go Round the Mulberry Bush\" was based born? ",
+      "expected_sources": [
+        "contexts/test_112.md"
+      ],
+      "basic_sources": [
+        "contexts/test_112.md",
+        "contexts/test_302.md",
+        "contexts/test_86.md",
+        "contexts/test_406.md",
+        "contexts/test_170.md",
+        "contexts/test_311.md",
+        "contexts/test_581.md",
+        "contexts/test_516.md",
+        "contexts/test_35.md"
+      ],
+      "local_sources": [
+        "contexts/test_119.md",
+        "contexts/test_112.md",
+        "contexts/test_302.md",
+        "contexts/test_86.md",
+        "contexts/test_406.md",
+        "contexts/test_170.md",
+        "contexts/test_311.md",
+        "contexts/test_581.md",
+        "contexts/test_516.md",
+        "contexts/test_35.md"
+      ]
+    },
+    {
+      "id": "5a7dcc775542990b8f503ab5",
+      "question": "Which component of shellite has the formula (ON)CHOH?",
+      "expected_sources": [
+        "contexts/test_114.md"
+      ],
+      "basic_sources": [
+        "contexts/test_114.md",
+        "contexts/test_544.md",
+        "contexts/test_77.md",
+        "contexts/test_199.md",
+        "contexts/test_616.md",
+        "contexts/test_47.md",
+        "contexts/test_619.md",
+        "contexts/test_591.md",
+        "contexts/test_501.md"
+      ],
+      "local_sources": [
+        "contexts/test_114.md",
+        "contexts/test_544.md",
+        "contexts/test_77.md",
+        "contexts/test_199.md",
+        "contexts/test_616.md",
+        "contexts/test_47.md",
+        "contexts/test_619.md",
+        "contexts/test_591.md",
+        "contexts/test_501.md"
+      ]
+    },
+    {
+      "id": "5a887bc0554299206df2b2b6",
+      "question": "The Argentine PGA Championship record holder has won how many tournaments worldwide?",
+      "expected_sources": [
+        "contexts/test_115.md"
+      ],
+      "basic_sources": [
+        "contexts/test_115.md",
+        "contexts/test_395.md",
+        "contexts/test_286.md",
+        "contexts/test_493.md",
+        "contexts/test_108.md"
+      ],
+      "local_sources": [
+        "contexts/test_115.md",
+        "contexts/test_395.md",
+        "contexts/test_286.md",
+        "contexts/test_493.md",
+        "contexts/test_108.md"
+      ]
+    },
+    {
+      "id": "5a879adb5542996e4f30887f",
+      "question": "What other political position did the person who introduced the DISCLOSE Act hold?",
+      "expected_sources": [
+        "contexts/test_117.md"
+      ],
+      "basic_sources": [
+        "contexts/test_117.md",
+        "contexts/test_189.md",
+        "contexts/test_168.md",
+        "contexts/test_12.md",
+        "contexts/test_440.md",
+        "contexts/test_44.md",
+        "contexts/test_342.md",
+        "contexts/test_519.md"
+      ],
+      "local_sources": [
+        "contexts/test_117.md",
+        "contexts/test_189.md",
+        "contexts/test_168.md",
+        "contexts/test_12.md",
+        "contexts/test_440.md",
+        "contexts/test_44.md",
+        "contexts/test_342.md",
+        "contexts/test_519.md"
+      ]
+    },
+    {
+      "id": "5a8c5569554299240d9c2126",
+      "question": "Are Daryl Hall and Gerry Marsden both musicians?",
+      "expected_sources": [
+        "contexts/test_119.md"
+      ],
+      "basic_sources": [
+        "contexts/test_119.md",
+        "contexts/test_53.md",
+        "contexts/test_101.md",
+        "contexts/test_159.md",
+        "contexts/test_533.md",
+        "contexts/test_568.md"
+      ],
+      "local_sources": [
+        "contexts/test_103.md",
+        "contexts/test_149.md",
+        "contexts/test_164.md",
+        "contexts/test_212.md",
+        "contexts/test_228.md",
+        "contexts/test_25.md",
+        "contexts/test_251.md",
+        "contexts/test_267.md",
+        "contexts/test_119.md",
+        "contexts/test_287.md",
+        "contexts/test_30.md",
+        "contexts/test_309.md",
+        "contexts/test_330.md",
+        "contexts/test_358.md",
+        "contexts/test_53.md",
+        "contexts/test_387.md",
+        "contexts/test_101.md",
+        "contexts/test_469.md",
+        "contexts/test_159.md",
+        "contexts/test_516.md",
+        "contexts/test_552.md",
+        "contexts/test_533.md",
+        "contexts/test_582.md",
+        "contexts/test_639.md",
+        "contexts/test_568.md",
+        "contexts/test_646.md",
+        "contexts/test_664.md",
+        "contexts/test_96.md"
+      ]
+    },
+    {
+      "id": "5a75f0ea5542994ccc91866c",
+      "question": "What major truck road is located in Backford Cross?",
+      "expected_sources": [
+        "contexts/test_120.md"
+      ],
+      "basic_sources": [
+        "contexts/test_120.md",
+        "contexts/test_251.md",
+        "contexts/test_661.md"
+      ],
+      "local_sources": [
+        "contexts/test_102.md",
+        "contexts/test_103.md",
+        "contexts/test_119.md",
+        "contexts/test_164.md",
+        "contexts/test_212.md",
+        "contexts/test_228.md",
+        "contexts/test_25.md",
+        "contexts/test_267.md",
+        "contexts/test_120.md",
+        "contexts/test_287.md",
+        "contexts/test_30.md",
+        "contexts/test_251.md",
+        "contexts/test_309.md",
+        "contexts/test_330.md",
+        "contexts/test_387.md",
+        "contexts/test_469.md",
+        "contexts/test_582.md",
+        "contexts/test_620.md",
+        "contexts/test_639.md",
+        "contexts/test_646.md",
+        "contexts/test_661.md",
+        "contexts/test_96.md"
+      ]
+    },
+    {
+      "id": "5a89f5815542993b751ca9c5",
+      "question": "In which role did Caroline Carver played in a 1999 Hallmark Entertainment made-for-TV fantasy movie?",
+      "expected_sources": [
+        "contexts/test_121.md"
+      ],
+      "basic_sources": [
+        "contexts/test_121.md",
+        "contexts/test_592.md",
+        "contexts/test_414.md",
+        "contexts/test_256.md",
+        "contexts/test_281.md",
+        "contexts/test_658.md",
+        "contexts/test_359.md",
+        "contexts/test_448.md"
+      ],
+      "local_sources": [
+        "contexts/test_121.md",
+        "contexts/test_592.md",
+        "contexts/test_414.md",
+        "contexts/test_256.md",
+        "contexts/test_281.md",
+        "contexts/test_658.md",
+        "contexts/test_359.md",
+        "contexts/test_448.md"
+      ]
+    },
+    {
+      "id": "5ac120c55542992a796dedfc",
+      "question": "Maxeda has been owned since 2004 by which American multinational equity firm?",
+      "expected_sources": [
+        "contexts/test_123.md"
+      ],
+      "basic_sources": [
+        "contexts/test_446.md",
+        "contexts/test_395.md",
+        "contexts/test_615.md",
+        "contexts/test_391.md",
+        "contexts/test_399.md",
+        "contexts/test_353.md",
+        "contexts/test_117.md"
+      ],
+      "local_sources": [
+        "contexts/test_446.md",
+        "contexts/test_395.md",
+        "contexts/test_615.md",
+        "contexts/test_391.md",
+        "contexts/test_399.md",
+        "contexts/test_353.md",
+        "contexts/test_117.md"
+      ]
+    },
+    {
+      "id": "5ab7c1a955429928e1fe38c8",
+      "question": "The youngest daughter of Lady Mary-Gaye Curzon stars with Douglas Smith and Lucien Laviscount  in what 2017 film?",
+      "expected_sources": [
+        "contexts/test_124.md"
+      ],
+      "basic_sources": [
+        "contexts/test_124.md",
+        "contexts/test_469.md",
+        "contexts/test_448.md",
+        "contexts/test_375.md",
+        "contexts/test_439.md",
+        "contexts/test_432.md",
+        "contexts/test_606.md"
+      ],
+      "local_sources": [
+        "contexts/test_103.md",
+        "contexts/test_119.md",
+        "contexts/test_164.md",
+        "contexts/test_212.md",
+        "contexts/test_228.md",
+        "contexts/test_25.md",
+        "contexts/test_251.md",
+        "contexts/test_267.md",
+        "contexts/test_124.md",
+        "contexts/test_287.md",
+        "contexts/test_469.md",
+        "contexts/test_30.md",
+        "contexts/test_448.md",
+        "contexts/test_309.md",
+        "contexts/test_330.md",
+        "contexts/test_387.md",
+        "contexts/test_375.md",
+        "contexts/test_433.md",
+        "contexts/test_439.md",
+        "contexts/test_582.md",
+        "contexts/test_432.md",
+        "contexts/test_639.md",
+        "contexts/test_646.md",
+        "contexts/test_96.md",
+        "contexts/test_606.md"
+      ]
+    },
+    {
+      "id": "5abd01205542992ac4f3819b",
+      "question": "Mummulgum is a stop on the Bruxner Highway before reaching the town on the banks of which river?",
+      "expected_sources": [
+        "contexts/test_125.md"
+      ],
+      "basic_sources": [
+        "contexts/test_435.md",
+        "contexts/test_356.md",
+        "contexts/test_618.md",
+        "contexts/test_346.md",
+        "contexts/test_654.md",
+        "contexts/test_467.md",
+        "contexts/test_431.md"
+      ],
+      "local_sources": [
+        "contexts/test_435.md",
+        "contexts/test_356.md",
+        "contexts/test_618.md",
+        "contexts/test_346.md",
+        "contexts/test_654.md",
+        "contexts/test_467.md",
+        "contexts/test_431.md"
+      ]
+    },
+    {
+      "id": "5a7b12a355429927d897bf2a",
+      "question": "When was the palace founded at which Columba de Dunbar died in 1435?",
+      "expected_sources": [
+        "contexts/test_127.md"
+      ],
+      "basic_sources": [
+        "contexts/test_127.md",
+        "contexts/test_293.md",
+        "contexts/test_207.md",
+        "contexts/test_302.md",
+        "contexts/test_600.md",
+        "contexts/test_343.md",
+        "contexts/test_540.md"
+      ],
+      "local_sources": [
+        "contexts/test_25.md",
+        "contexts/test_127.md",
+        "contexts/test_293.md",
+        "contexts/test_207.md",
+        "contexts/test_302.md",
+        "contexts/test_600.md",
+        "contexts/test_343.md",
+        "contexts/test_540.md"
+      ]
+    },
+    {
+      "id": "5ae0006755429925eb1afbd3",
+      "question": "Where is the Bubblegum Alley, that is similar to Gum Wall, located in California?",
+      "expected_sources": [
+        "contexts/test_128.md"
+      ],
+      "basic_sources": [
+        "contexts/test_128.md",
+        "contexts/test_358.md",
+        "contexts/test_174.md",
+        "contexts/test_142.md",
+        "contexts/test_431.md",
+        "contexts/test_559.md",
+        "contexts/test_364.md",
+        "contexts/test_329.md"
+      ],
+      "local_sources": [
+        "contexts/test_119.md",
+        "contexts/test_149.md",
+        "contexts/test_552.md",
+        "contexts/test_128.md",
+        "contexts/test_358.md",
+        "contexts/test_174.md",
+        "contexts/test_142.md",
+        "contexts/test_431.md",
+        "contexts/test_559.md",
+        "contexts/test_364.md",
+        "contexts/test_329.md"
+      ]
+    },
+    {
+      "id": "5a8574945542997b5ce3fffb",
+      "question": "Which film was Oscar nominated, LaLee's Kin: The Legacy of Cotton or Gimme Shelter, the 1970 Rolling Stones documentary?",
+      "expected_sources": [
+        "contexts/test_130.md"
+      ],
+      "basic_sources": [
+        "contexts/test_130.md",
+        "contexts/test_544.md",
+        "contexts/test_605.md",
+        "contexts/test_134.md",
+        "contexts/test_432.md",
+        "contexts/test_492.md",
+        "contexts/test_359.md",
+        "contexts/test_61.md",
+        "contexts/test_0.md",
+        "contexts/test_658.md"
+      ],
+      "local_sources": [
+        "contexts/test_130.md",
+        "contexts/test_544.md",
+        "contexts/test_605.md",
+        "contexts/test_134.md",
+        "contexts/test_432.md",
+        "contexts/test_492.md",
+        "contexts/test_359.md",
+        "contexts/test_61.md",
+        "contexts/test_0.md",
+        "contexts/test_658.md"
+      ]
+    },
+    {
+      "id": "5a80071f5542992bc0c4a684",
+      "question": "Alice David is the voice of Lara Croft in a video game developed by which company ?",
+      "expected_sources": [
+        "contexts/test_132.md"
+      ],
+      "basic_sources": [
+        "contexts/test_132.md",
+        "contexts/test_70.md",
+        "contexts/test_529.md",
+        "contexts/test_448.md",
+        "contexts/test_443.md",
+        "contexts/test_641.md",
+        "contexts/test_391.md"
+      ],
+      "local_sources": [
+        "contexts/test_132.md",
+        "contexts/test_70.md",
+        "contexts/test_529.md",
+        "contexts/test_448.md",
+        "contexts/test_443.md",
+        "contexts/test_641.md",
+        "contexts/test_391.md"
+      ]
+    },
+    {
+      "id": "5ae73c065542991e8301cc18",
+      "question": "Which Eminem album included vocals from a singer who had an album titled \"Unapologetic\"?",
+      "expected_sources": [
+        "contexts/test_133.md"
+      ],
+      "basic_sources": [
+        "contexts/test_92.md",
+        "contexts/test_314.md",
+        "contexts/test_133.md",
+        "contexts/test_143.md",
+        "contexts/test_323.md",
+        "contexts/test_433.md",
+        "contexts/test_81.md",
+        "contexts/test_409.md",
+        "contexts/test_350.md"
+      ],
+      "local_sources": [
+        "contexts/test_149.md",
+        "contexts/test_375.md",
+        "contexts/test_92.md",
+        "contexts/test_314.md",
+        "contexts/test_133.md",
+        "contexts/test_143.md",
+        "contexts/test_323.md",
+        "contexts/test_433.md",
+        "contexts/test_81.md",
+        "contexts/test_409.md",
+        "contexts/test_350.md"
+      ]
+    },
+    {
+      "id": "5a87d8215542994775f60800",
+      "question": "This American crime film set in South Los Angeles was written and directed by the same director and writer of screenwriter of \"Street Kings\", \"End of Watch\", \"Sabotage\", \"Fury\" and what other film? ",
+      "expected_sources": [
+        "contexts/test_134.md"
+      ],
+      "basic_sources": [
+        "contexts/test_134.md",
+        "contexts/test_414.md",
+        "contexts/test_359.md",
+        "contexts/test_394.md",
+        "contexts/test_170.md",
+        "contexts/test_132.md",
+        "contexts/test_12.md",
+        "contexts/test_288.md"
+      ],
+      "local_sources": [
+        "contexts/test_134.md",
+        "contexts/test_414.md",
+        "contexts/test_359.md",
+        "contexts/test_394.md",
+        "contexts/test_170.md",
+        "contexts/test_132.md",
+        "contexts/test_12.md",
+        "contexts/test_288.md"
+      ]
+    }
+  ]
+}

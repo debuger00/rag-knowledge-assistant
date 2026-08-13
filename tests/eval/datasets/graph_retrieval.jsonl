@@ -1,0 +1,14 @@
+{"id":"direct_1hop","category":"direct_link","question":"蓝色控制杆的启动说明在哪里？","seed_sources":["direct/source.md"],"gold_sources":["direct/target.md"],"forbidden_sources":[],"filters":{}}
+{"id":"backlink_1hop","category":"backlink","question":"银色信标每七秒闪烁时需要更换什么？","seed_sources":["backlink/topic.md"],"gold_sources":["backlink/caller.md"],"forbidden_sources":[],"filters":{}}
+{"id":"shared_tag_2hop","category":"shared_tag","question":"共享图标签下的白色电池应在什么温度以上充电？","seed_sources":["tags/alpha.md"],"gold_sources":["tags/beta.md"],"forbidden_sources":["tags/gamma.md"],"filters":{}}
+{"id":"two_wikilinks","category":"two_hop","question":"紫色泵压力异常的根因是什么？","seed_sources":["twohop/start.md"],"gold_sources":["twohop/answer.md"],"forbidden_sources":[],"filters":{},"diagnostic_hops":4}
+{"id":"cycle_bounded","category":"cycle","question":"循环检查进入 B 后会记录什么？","seed_sources":["cycle/a.md"],"gold_sources":["cycle/b.md"],"forbidden_sources":[],"filters":{}}
+{"id":"ambiguous_safe","category":"ambiguous","question":"同名指南应该使用哪个按钮？","seed_sources":["duplicates/source.md"],"gold_sources":[],"forbidden_sources":["duplicates/a/Guide.md","duplicates/b/Guide.md"],"filters":{}}
+{"id":"unresolved_safe","category":"unresolved","question":"不存在的目标写了什么？","seed_sources":["broken/source.md"],"gold_sources":[],"forbidden_sources":[],"filters":{}}
+{"id":"attachment_safe","category":"attachment","question":"附件文档给出了什么结论？","seed_sources":["attachments/source.md"],"gold_sources":[],"forbidden_sources":[],"filters":{}}
+{"id":"code_false_positive","category":"code_block","question":"真实代码目标要求检查什么？","seed_sources":["code/source.md"],"gold_sources":["code/real.md"],"forbidden_sources":[],"filters":{}}
+{"id":"folder_filter","category":"folder_filter","question":"允许目录中的校验码是什么？","seed_sources":["filters/allowed/entry.md"],"gold_sources":["filters/allowed/target.md"],"forbidden_sources":["filters/blocked/secret.md"],"filters":{"folder":"filters/allowed"}}
+{"id":"tag_filter","category":"tag_filter","question":"共享标签中的白色电池如何充电？","seed_sources":["tags/alpha.md"],"gold_sources":["tags/beta.md"],"forbidden_sources":["tags/gamma.md"],"filters":{"__tag__":"graph-shared"}}
+{"id":"alias_resolution","category":"alias","question":"缓存手册要求先清除什么？","seed_sources":["aliases/source.md"],"gold_sources":["aliases/target.md"],"forbidden_sources":[],"filters":{}}
+{"id":"relative_resolution","category":"relative_path","question":"当前目录目标的确认口令是什么？","seed_sources":["relative/folder/source.md"],"gold_sources":["relative/folder/target.md"],"forbidden_sources":[],"filters":{}}
+{"id":"basic_safe","category":"basic_safe","question":"兰花协议启动前需要检查什么？","seed_sources":["direct/target.md"],"gold_sources":["direct/target.md"],"forbidden_sources":[],"filters":{}}

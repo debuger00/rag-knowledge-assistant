@@ -18,14 +18,20 @@ async def chat_answer(
     session_id: str = "default",
     folder: str | None = None,
     tag: str | None = None,
+    mode: str = "auto",
+    debug_retrieval: bool = False,
 ) -> AnswerResponse:
     history = get_history(session_id)
     if folder or tag:
         response = await pipeline.aask_with_filter(
-            question, history, folder=folder, tag=tag
+            question, history, folder=folder, tag=tag, mode=mode
         )
     else:
-        response = await pipeline.aask(question, history)
+        response = await pipeline.aask(question, history, mode=mode)
+
+    response["mode"] = pipeline.last_retrieval_mode
+    if debug_retrieval:
+        response["retrieval_trace"] = pipeline.get_retrieval_trace()
 
     answer_text = " ".join(
         item["text"] for item in response.get("answer", [])

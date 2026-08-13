@@ -153,3 +153,21 @@ def test_document_without_heading_uses_readable_stable_anchor():
     assert children[0].metadata["anchor"].startswith("这是没有标题的第一段内容-")
     assert children[0].metadata["section_title"] == ""
     assert children[0].metadata["anchor"] != "document-start"
+
+
+def test_splitter_generates_stable_graph_ids():
+    docs = [Document(
+        page_content="# Title\n\ncontent",
+        metadata={"source": "notes/id.md", "doc_type": "raw"},
+    )]
+
+    first = parent_child_split(docs)
+    second = parent_child_split(docs)
+
+    assert [item.metadata.get("chunk_id") for item in first] == [
+        item.metadata.get("chunk_id") for item in second
+    ]
+    child = next(item for item in first if item.metadata["doc_type"] == "child")
+    assert child.metadata["document_id"].startswith("doc:")
+    assert child.metadata["section_id"].startswith("section:")
+    assert child.metadata["chunk_id"].startswith("chunk:")

@@ -17,3 +17,10 @@ note/
 data/
 docs/
 .codegraph/
+tools/
+graph_data/
+
+# Keep the GraphRAG implementation plan versioned while other generated docs stay ignored.
+!docs/
+docs/*
+!docs/graphrag-modification-plan.md

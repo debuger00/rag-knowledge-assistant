@@ -1,5 +1,6 @@
 from config import Config
 from rag_core.watcher import VaultWatcher
+from rag_server.app import create_app
 
 
 def test_yaml_configuration_and_environment_secret(tmp_path, monkeypatch):
@@ -60,3 +61,35 @@ def test_full_sync_removes_files_deleted_while_service_was_stopped(tmp_path):
 
     assert store.deleted == ["removed.md"]
     assert result["deleted"] == 1
+
+
+def test_graph_yaml_configuration(tmp_path):
+    config_file = tmp_path / "config.yaml"
+    config_file.write_text(
+        """
+graph:
+  enabled: true
+  db_path: ./custom-graph.sqlite3
+  max_hops: 3
+  max_seed_nodes: 12
+  max_neighbors: 40
+  graph_weight: 0.3
+""",
+        encoding="utf-8",
+    )
+
+    config = Config.from_yaml(config_file)
+
+    assert config.graph_enabled is True
+    assert config.graph_db_path == "./custom-graph.sqlite3"
+    assert config.graph_max_hops == 3
+    assert config.graph_weight == 0.3
+
+
+def test_graph_api_routes_are_registered():
+    app = create_app(Config(graph_enabled=False))
+    paths = {route.path for route in app.routes}
+
+    assert "/api/graph/status" in paths
+    assert "/api/graph/neighbors/{node_id:path}" in paths
+    assert "/api/graph/subgraph" in paths

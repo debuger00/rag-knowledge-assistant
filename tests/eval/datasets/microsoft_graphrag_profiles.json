@@ -1,0 +1,42 @@
+{
+  "hotpotqa": {
+    "display_name": "Microsoft Filtered HotpotQA",
+    "archive": "HotPotQA Filtered Input Text.zip",
+    "questions": "HotPotQA Filtered Questions.csv",
+    "corpus_kind": "hotpot_per_question",
+    "expected_questions": 5491,
+    "recommended_mode": "local",
+    "evaluation_mode": "paired_context_recall",
+    "has_paired_source": true
+  },
+  "kevin_scott": {
+    "display_name": "Kevin Scott Behind the Tech Podcasts",
+    "archive": "Kevin Scott Podcast Transcripts Input Text.zip",
+    "questions": "Kevin Scott Questions.csv",
+    "corpus_kind": "podcast_parts",
+    "expected_questions": 125,
+    "recommended_mode": "global",
+    "evaluation_mode": "retrieval_diagnostic",
+    "has_paired_source": false
+  },
+  "msft_single": {
+    "display_name": "Microsoft Earnings Single-Transcript Questions",
+    "archive": "MSFT Input Text.zip",
+    "questions": "MSFT Single Transcript Questions.csv",
+    "corpus_kind": "documents",
+    "expected_questions": 21,
+    "recommended_mode": "local",
+    "evaluation_mode": "retrieval_diagnostic",
+    "has_paired_source": false
+  },
+  "msft_multi": {
+    "display_name": "Microsoft Earnings Multi-Transcript Questions",
+    "archive": "MSFT Input Text.zip",
+    "questions": "MSFT Multi Transcript Questions.csv",
+    "corpus_kind": "documents",
+    "expected_questions": 20,
+    "recommended_mode": "global",
+    "evaluation_mode": "retrieval_diagnostic",
+    "has_paired_source": false
+  }
+}

@@ -7,6 +7,9 @@ from typing import Optional
 import typer
 from rich.console import Console
 
+from rag_core.graph.builder import rebuild_structure_graph
+from rag_core.graph.store import GraphStore
+from rag_core.indexing.loader import ObsidianLoader
 from rag_core.indexing.store import VectorStoreManager
 from rag_core.retrieval.pipeline import RAGPipeline
 from rag_core.watcher import VaultWatcher
@@ -57,6 +60,7 @@ def ask(
     folder: Optional[str] = typer.Option(None, "--folder", help="Filter by folder"),
     tag: Optional[str] = typer.Option(None, "--tag", help="Filter by tag"),
     clear: bool = typer.Option(False, "--clear", help="Clear history for this session"),
+    mode: str = typer.Option("auto", "--mode", help="Retrieval mode: auto, basic, local"),
 ):
     """Ask your knowledge base a question (streaming output)."""
     config = get_config()
@@ -70,12 +74,14 @@ def ask(
         console.print(f"[dim]Session: {session}[/dim]")
 
     store = VectorStoreManager(persist_dir=config.chroma_persist_dir)
-    pipeline = RAGPipeline(store=store)
+    graph_store = GraphStore(config.graph_db_path) if config.graph_enabled else None
+    pipeline = RAGPipeline(store=store, graph_store=graph_store)
 
     watcher = VaultWatcher(
         store=store,
         vault_path=config.obsidian_vault_path,
         ignore_dirs=list(config.obsidian_ignore_dirs),
+        graph_store=graph_store,
     )
     try:
         result = watcher.full_sync()
@@ -100,10 +106,10 @@ def ask(
     try:
         if folder or tag:
             response = pipeline.ask_with_filter(
-                question, history, folder=folder, tag=tag
+                question, history, folder=folder, tag=tag, mode=mode
             )
         else:
-            response = pipeline.ask(question, history)
+            response = pipeline.ask(question, history, mode=mode)
 
         console.print_json(data=response)
         full_answer = " ".join(
@@ -125,6 +131,9 @@ def index(
     rebuild: bool = typer.Option(False, "--rebuild", help="Full rebuild of index"),
     sync: bool = typer.Option(False, "--sync", help="Incremental sync"),
     status: bool = typer.Option(False, "--status", help="Show index status"),
+    graph_only: bool = typer.Option(
+        False, "--graph-only", help="Rebuild only the structural graph"
+    ),
 ):
     """Manage knowledge base index."""
     config = get_config()
@@ -136,17 +145,49 @@ def index(
         console.print(f"   Parents: {stats['parent_count']}")
         console.print(f"   Children: {stats['child_count']}")
         console.print(f"   Last sync: {stats['last_sync']}")
+        if config.graph_enabled:
+            graph_store = GraphStore(config.graph_db_path)
+            graph_stats = graph_store.get_stats()
+            console.print(f"   Graph nodes: {graph_stats['node_count']}")
+            console.print(f"   Graph edges: {graph_stats['edge_count']}")
+            graph_store.close()
         return
 
     if not config.obsidian_vault_path:
         console.print("[red][ERROR] documents.path not set in config.yaml.[/red]")
         raise typer.Exit(code=1)
 
+    if graph_only:
+        if not config.graph_enabled:
+            console.print("[red][ERROR] graph.enabled is false.[/red]")
+            raise typer.Exit(code=1)
+        console.print("Rebuilding structural graph...")
+        graph_store = GraphStore(config.graph_db_path)
+        docs = ObsidianLoader(
+            config.obsidian_vault_path,
+            list(config.obsidian_ignore_dirs),
+        ).load()
+        result = rebuild_structure_graph(
+            graph_store,
+            docs,
+            child_chunk_size=config.child_chunk_size,
+            child_chunk_overlap=config.child_chunk_overlap,
+            child_max_len=config.child_max_len_before_split,
+        )
+        graph_store.close()
+        console.print(
+            f"[green]Done: {result['node_count']} nodes, "
+            f"{result['edge_count']} edges[/green]"
+        )
+        return
+
     store = VectorStoreManager(persist_dir=config.chroma_persist_dir)
+    graph_store = GraphStore(config.graph_db_path) if config.graph_enabled else None
     watcher = VaultWatcher(
         store=store,
         vault_path=config.obsidian_vault_path,
         ignore_dirs=list(config.obsidian_ignore_dirs),
+        graph_store=graph_store,
     )
 
     if rebuild:

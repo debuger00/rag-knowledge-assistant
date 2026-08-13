@@ -94,3 +94,25 @@ def test_lazy_load_yields_documents(temp_vault):
     )
     docs = list(loader.lazy_load())
     assert len(docs) == 2
+
+
+def test_loader_extracts_frontmatter_aliases(tmp_path):
+    note = tmp_path / "note.md"
+    note.write_text(
+        "---\naliases:\n  - Short Name\n  - 中文别名\n---\n# Note\n",
+        encoding="utf-8",
+    )
+
+    doc = ObsidianLoader(str(tmp_path)).load()[0]
+
+    assert doc.metadata["aliases"] == ["Short Name", "中文别名"]
+
+
+def test_loader_normalizes_nested_folder_to_posix_path(tmp_path):
+    nested = tmp_path / "one" / "two"
+    nested.mkdir(parents=True)
+    (nested / "note.md").write_text("# Note\n", encoding="utf-8")
+
+    doc = ObsidianLoader(str(tmp_path)).load()[0]
+
+    assert doc.metadata["folder"] == "one/two"

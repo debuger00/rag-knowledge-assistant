@@ -1,0 +1,585 @@
+{
+  "dataset": {
+    "fixture_root": "tests\\eval\\fixtures\\graph_vault",
+    "query_file": "tests\\eval\\datasets\\graph_retrieval.jsonl"
+  },
+  "index": {
+    "node_count": 90,
+    "edge_count": 77,
+    "document_count": 27,
+    "unresolved_count": 2,
+    "nodes_by_type": {
+      "document": 27,
+      "section": 54,
+      "tag": 7,
+      "unresolved": 2
+    },
+    "schema_version": 1,
+    "build_ms": 20.331,
+    "markdown_files": 27
+  },
+  "structure": {
+    "passed": true,
+    "errors": [],
+    "expected_stats": {
+      "markdown_files": 27,
+      "node_count": 90,
+      "edge_count": 77,
+      "document_count": 27,
+      "unresolved_count": 2,
+      "nodes_by_type": {
+        "document": 27,
+        "section": 54,
+        "tag": 7,
+        "unresolved": 2
+      }
+    },
+    "actual_stats": {
+      "markdown_files": 27,
+      "node_count": 90,
+      "edge_count": 77,
+      "document_count": 27,
+      "unresolved_count": 2,
+      "nodes_by_type": {
+        "document": 27,
+        "section": 54,
+        "tag": 7,
+        "unresolved": 2
+      }
+    },
+    "resolved_link_precision": 1.0,
+    "resolved_link_recall": 1.0,
+    "unresolved_exact": true
+  },
+  "retrieval": {
+    "query_count": 14,
+    "answerable_count": 11,
+    "safe_negative_count": 3,
+    "basic_source_recall_at_5": 0.0909,
+    "local_source_recall_at_5": 1.0,
+    "recall_delta": 0.9091,
+    "local_mrr": 0.9091,
+    "graph_win_count": 10,
+    "graph_harm_count": 0,
+    "graph_harm_rate": 0.0,
+    "safe_negative_pass_rate": 1.0,
+    "forbidden_leak_count": 0,
+    "cases": [
+      {
+        "id": "direct_1hop",
+        "category": "direct_link",
+        "basic_sources": [
+          "direct/source.md"
+        ],
+        "local_sources": [
+          "direct/target.md",
+          "direct/source.md"
+        ],
+        "expanded_sources": [
+          {
+            "source": "direct/target.md",
+            "score": 0.85,
+            "path": [
+              "section:0d5d5fe6a7059932bfff70fde273e7c2f15a731864d371cd185609c6a16f07c3",
+              "doc:13a9cc360c3db4559d2da596aba7e3a3b35916719daf7201d9b25168be4a517f"
+            ]
+          }
+        ],
+        "gold_sources": [
+          "direct/target.md"
+        ],
+        "basic_hit_at_5": false,
+        "local_hit_at_5": true,
+        "basic_rank": null,
+        "local_rank": 1,
+        "forbidden_in_local": [],
+        "safe_no_expansion": false,
+        "trace": {
+          "vector_hits": 1,
+          "seed_nodes": 1,
+          "expanded_sources": 1,
+          "graph_candidates": 1,
+          "selected_evidence": 2
+        }
+      },
+      {
+        "id": "backlink_1hop",
+        "category": "backlink",
+        "basic_sources": [
+          "backlink/topic.md"
+        ],
+        "local_sources": [
+          "backlink/caller.md",
+          "backlink/topic.md"
+        ],
+        "expanded_sources": [
+          {
+            "source": "backlink/caller.md",
+            "score": 0.85,
+            "path": [
+              "doc:a36b07fbaf6712883744654ae6c103e6b6726e84c212d06a4ab7ce4ee9f0bb87",
+              "section:8d9ee8d8ebd19ef389c1a8b67c687bbb2c0e28b2e55d2517eebbde6682998ccf"
+            ]
+          }
+        ],
+        "gold_sources": [
+          "backlink/caller.md"
+        ],
+        "basic_hit_at_5": false,
+        "local_hit_at_5": true,
+        "basic_rank": null,
+        "local_rank": 1,
+        "forbidden_in_local": [],
+        "safe_no_expansion": false,
+        "trace": {
+          "vector_hits": 1,
+          "seed_nodes": 1,
+          "expanded_sources": 1,
+          "graph_candidates": 1,
+          "selected_evidence": 2
+        }
+      },
+      {
+        "id": "shared_tag_2hop",
+        "category": "shared_tag",
+        "basic_sources": [
+          "tags/alpha.md"
+        ],
+        "local_sources": [
+          "tags/beta.md",
+          "tags/alpha.md"
+        ],
+        "expanded_sources": [
+          {
+            "source": "tags/beta.md",
+            "score": 0.08850625,
+            "path": [
+              "doc:bfc2e026625987764d53392516bc72b19a86a07a1d1f7c6ab09e0202680f232b",
+              "tag:bdc837140291ad98c6f98cd35de0489cbab2236ca8843337b8131478c6298b56",
+              "doc:e3117e3d2544765bea2d0f7b3b89ba19615e7cebd00d68690893af5b0f350214"
+            ]
+          }
+        ],
+        "gold_sources": [
+          "tags/beta.md"
+        ],
+        "basic_hit_at_5": false,
+        "local_hit_at_5": true,
+        "basic_rank": null,
+        "local_rank": 1,
+        "forbidden_in_local": [],
+        "safe_no_expansion": false,
+        "trace": {
+          "vector_hits": 1,
+          "seed_nodes": 1,
+          "expanded_sources": 1,
+          "graph_candidates": 1,
+          "selected_evidence": 2
+        }
+      },
+      {
+        "id": "two_wikilinks",
+        "category": "two_hop",
+        "basic_sources": [
+          "twohop/start.md"
+        ],
+        "local_sources": [
+          "twohop/middle.md",
+          "twohop/answer.md",
+          "twohop/start.md"
+        ],
+        "expanded_sources": [
+          {
+            "source": "twohop/middle.md",
+            "score": 0.85,
+            "path": [
+              "section:d5cd19209e2a2eff88530c1996b2381d11477a24b21aacb9125798864005fbe0",
+              "doc:95930d7eb6c452ca8fbec018cf7ed7b9cd4fb7d7167f7eb461294452469ee878"
+            ]
+          },
+          {
+            "source": "twohop/answer.md",
+            "score": 0.12282500000000002,
+            "path": [
+              "section:d5cd19209e2a2eff88530c1996b2381d11477a24b21aacb9125798864005fbe0",
+              "doc:95930d7eb6c452ca8fbec018cf7ed7b9cd4fb7d7167f7eb461294452469ee878",
+              "section:535cb3e7f6d716822a7852dde7843b6fc8fa3fac88704e9e01521df3dd6577b1",
+              "doc:4d96219862be0834ad7c649dbb1f4ededc0cc5d069a0af1a77960005476629e4"
+            ]
+          }
+        ],
+        "gold_sources": [
+          "twohop/answer.md"
+        ],
+        "basic_hit_at_5": false,
+        "local_hit_at_5": true,
+        "basic_rank": null,
+        "local_rank": 2,
+        "forbidden_in_local": [],
+        "safe_no_expansion": false,
+        "trace": {
+          "vector_hits": 1,
+          "seed_nodes": 1,
+          "expanded_sources": 2,
+          "graph_candidates": 2,
+          "selected_evidence": 3
+        }
+      },
+      {
+        "id": "cycle_bounded",
+        "category": "cycle",
+        "basic_sources": [
+          "cycle/a.md"
+        ],
+        "local_sources": [
+          "cycle/b.md",
+          "cycle/c.md",
+          "cycle/a.md"
+        ],
+        "expanded_sources": [
+          {
+            "source": "cycle/b.md",
+            "score": 0.85,
+            "path": [
+              "section:364e2432752dea2939837b25e33a56b1d37a198407ba220236709980d9157ec3",
+              "doc:1a26fb8e8569bea1b4ad2226d7fe49d29170b14cb2479c61273cfb9364dbd8f6"
+            ]
+          },
+          {
+            "source": "cycle/c.md",
+            "score": 0.85,
+            "path": [
+              "doc:7939c8323b7dd39364e42f9a42324e1e365f5e6f61812d7cfa1e1f4c15bc31fd",
+              "section:30c54394a886345609f2720999fb40682150ee3ddc2bca20fc65ac13ed7643ec"
+            ]
+          }
+        ],
+        "gold_sources": [
+          "cycle/b.md"
+        ],
+        "basic_hit_at_5": false,
+        "local_hit_at_5": true,
+        "basic_rank": null,
+        "local_rank": 1,
+        "forbidden_in_local": [],
+        "safe_no_expansion": false,
+        "trace": {
+          "vector_hits": 1,
+          "seed_nodes": 1,
+          "expanded_sources": 2,
+          "graph_candidates": 2,
+          "selected_evidence": 3
+        }
+      },
+      {
+        "id": "ambiguous_safe",
+        "category": "ambiguous",
+        "basic_sources": [
+          "duplicates/source.md"
+        ],
+        "local_sources": [
+          "duplicates/source.md"
+        ],
+        "expanded_sources": [],
+        "gold_sources": [],
+        "basic_hit_at_5": false,
+        "local_hit_at_5": false,
+        "basic_rank": null,
+        "local_rank": null,
+        "forbidden_in_local": [],
+        "safe_no_expansion": true,
+        "trace": {
+          "vector_hits": 1,
+          "seed_nodes": 1,
+          "expanded_sources": 0,
+          "graph_candidates": 0,
+          "selected_evidence": 1
+        }
+      },
+      {
+        "id": "unresolved_safe",
+        "category": "unresolved",
+        "basic_sources": [
+          "broken/source.md"
+        ],
+        "local_sources": [
+          "broken/source.md"
+        ],
+        "expanded_sources": [],
+        "gold_sources": [],
+        "basic_hit_at_5": false,
+        "local_hit_at_5": false,
+        "basic_rank": null,
+        "local_rank": null,
+        "forbidden_in_local": [],
+        "safe_no_expansion": true,
+        "trace": {
+          "vector_hits": 1,
+          "seed_nodes": 1,
+          "expanded_sources": 0,
+          "graph_candidates": 0,
+          "selected_evidence": 1
+        }
+      },
+      {
+        "id": "attachment_safe",
+        "category": "attachment",
+        "basic_sources": [
+          "attachments/source.md"
+        ],
+        "local_sources": [
+          "attachments/source.md"
+        ],
+        "expanded_sources": [],
+        "gold_sources": [],
+        "basic_hit_at_5": false,
+        "local_hit_at_5": false,
+        "basic_rank": null,
+        "local_rank": null,
+        "forbidden_in_local": [],
+        "safe_no_expansion": true,
+        "trace": {
+          "vector_hits": 1,
+          "seed_nodes": 1,
+          "expanded_sources": 0,
+          "graph_candidates": 0,
+          "selected_evidence": 1
+        }
+      },
+      {
+        "id": "code_false_positive",
+        "category": "code_block",
+        "basic_sources": [
+          "code/source.md"
+        ],
+        "local_sources": [
+          "code/real.md",
+          "code/source.md"
+        ],
+        "expanded_sources": [
+          {
+            "source": "code/real.md",
+            "score": 0.85,
+            "path": [
+              "section:a42331813b193b8b9690b20b55b36cd58284ac234a88c8abd97af2039ad21437",
+              "doc:205f2dda732ccd4ca0c0aec71abf5a61d0cdfba34caed32cbb47034df358d74f"
+            ]
+          }
+        ],
+        "gold_sources": [
+          "code/real.md"
+        ],
+        "basic_hit_at_5": false,
+        "local_hit_at_5": true,
+        "basic_rank": null,
+        "local_rank": 1,
+        "forbidden_in_local": [],
+        "safe_no_expansion": false,
+        "trace": {
+          "vector_hits": 1,
+          "seed_nodes": 1,
+          "expanded_sources": 1,
+          "graph_candidates": 1,
+          "selected_evidence": 2
+        }
+      },
+      {
+        "id": "folder_filter",
+        "category": "folder_filter",
+        "basic_sources": [
+          "filters/allowed/entry.md"
+        ],
+        "local_sources": [
+          "filters/allowed/target.md",
+          "filters/allowed/entry.md"
+        ],
+        "expanded_sources": [
+          {
+            "source": "filters/allowed/target.md",
+            "score": 0.14450000000000002,
+            "path": [
+              "doc:04f1a0b607e957276592a814c01e0b4f0086307586e580d076564a2033572b26",
+              "section:a610c9641e3b51172f6e1e7ef3b5e2e23b31f1b57d6a97d3197b05eff7f71249",
+              "doc:82acb7c81553ee04f87d9adb0bc4156310e5231838e34315690587537deb75ce"
+            ]
+          },
+          {
+            "source": "filters/blocked/secret.md",
+            "score": 0.14450000000000002,
+            "path": [
+              "doc:04f1a0b607e957276592a814c01e0b4f0086307586e580d076564a2033572b26",
+              "section:a610c9641e3b51172f6e1e7ef3b5e2e23b31f1b57d6a97d3197b05eff7f71249",
+              "doc:76733293b4e7a6b62954abd4ae86c13ecd3981dfb6e067b2538e1c96471ab1e5"
+            ]
+          }
+        ],
+        "gold_sources": [
+          "filters/allowed/target.md"
+        ],
+        "basic_hit_at_5": false,
+        "local_hit_at_5": true,
+        "basic_rank": null,
+        "local_rank": 1,
+        "forbidden_in_local": [],
+        "safe_no_expansion": false,
+        "trace": {
+          "vector_hits": 1,
+          "seed_nodes": 1,
+          "expanded_sources": 2,
+          "graph_candidates": 1,
+          "selected_evidence": 2
+        }
+      },
+      {
+        "id": "tag_filter",
+        "category": "tag_filter",
+        "basic_sources": [
+          "tags/alpha.md"
+        ],
+        "local_sources": [
+          "tags/beta.md",
+          "tags/alpha.md"
+        ],
+        "expanded_sources": [
+          {
+            "source": "tags/beta.md",
+            "score": 0.08850625,
+            "path": [
+              "doc:bfc2e026625987764d53392516bc72b19a86a07a1d1f7c6ab09e0202680f232b",
+              "tag:bdc837140291ad98c6f98cd35de0489cbab2236ca8843337b8131478c6298b56",
+              "doc:e3117e3d2544765bea2d0f7b3b89ba19615e7cebd00d68690893af5b0f350214"
+            ]
+          }
+        ],
+        "gold_sources": [
+          "tags/beta.md"
+        ],
+        "basic_hit_at_5": false,
+        "local_hit_at_5": true,
+        "basic_rank": null,
+        "local_rank": 1,
+        "forbidden_in_local": [],
+        "safe_no_expansion": false,
+        "trace": {
+          "vector_hits": 1,
+          "seed_nodes": 1,
+          "expanded_sources": 1,
+          "graph_candidates": 1,
+          "selected_evidence": 2
+        }
+      },
+      {
+        "id": "alias_resolution",
+        "category": "alias",
+        "basic_sources": [
+          "aliases/source.md"
+        ],
+        "local_sources": [
+          "aliases/target.md",
+          "aliases/source.md"
+        ],
+        "expanded_sources": [
+          {
+            "source": "aliases/target.md",
+            "score": 0.14450000000000002,
+            "path": [
+              "doc:dedec4dd896286fad3cf8a4efa4bd4edb4e278912a3f55dc549fd49589c5ab5e",
+              "section:8d96b02315b5ac1b92795701c6ec783812d3a2d919fafac7991b39145d3c85f4",
+              "doc:e94aae6bbc0ef6f8f0c1e63c8a1dd966df789360a92c6677ee703ce4a135041a"
+            ]
+          }
+        ],
+        "gold_sources": [
+          "aliases/target.md"
+        ],
+        "basic_hit_at_5": false,
+        "local_hit_at_5": true,
+        "basic_rank": null,
+        "local_rank": 1,
+        "forbidden_in_local": [],
+        "safe_no_expansion": false,
+        "trace": {
+          "vector_hits": 1,
+          "seed_nodes": 1,
+          "expanded_sources": 1,
+          "graph_candidates": 1,
+          "selected_evidence": 2
+        }
+      },
+      {
+        "id": "relative_resolution",
+        "category": "relative_path",
+        "basic_sources": [
+          "relative/folder/source.md"
+        ],
+        "local_sources": [
+          "relative/folder/target.md",
+          "relative/folder/source.md"
+        ],
+        "expanded_sources": [
+          {
+            "source": "relative/folder/target.md",
+            "score": 0.85,
+            "path": [
+              "section:270f3083e4c52c768f6aafa636ea0dabaaf6f33ad6c21e800d0278087f3ed23c",
+              "doc:47defd3e0aea43c3c835d273cba8b7301946a317985900c369ad82727a20128a"
+            ]
+          }
+        ],
+        "gold_sources": [
+          "relative/folder/target.md"
+        ],
+        "basic_hit_at_5": false,
+        "local_hit_at_5": true,
+        "basic_rank": null,
+        "local_rank": 1,
+        "forbidden_in_local": [],
+        "safe_no_expansion": false,
+        "trace": {
+          "vector_hits": 1,
+          "seed_nodes": 1,
+          "expanded_sources": 1,
+          "graph_candidates": 1,
+          "selected_evidence": 2
+        }
+      },
+      {
+        "id": "basic_safe",
+        "category": "basic_safe",
+        "basic_sources": [
+          "direct/target.md"
+        ],
+        "local_sources": [
+          "direct/source.md",
+          "direct/target.md"
+        ],
+        "expanded_sources": [
+          {
+            "source": "direct/source.md",
+            "score": 0.85,
+            "path": [
+              "doc:13a9cc360c3db4559d2da596aba7e3a3b35916719daf7201d9b25168be4a517f",
+              "section:0d5d5fe6a7059932bfff70fde273e7c2f15a731864d371cd185609c6a16f07c3"
+            ]
+          }
+        ],
+        "gold_sources": [
+          "direct/target.md"
+        ],
+        "basic_hit_at_5": true,
+        "local_hit_at_5": true,
+        "basic_rank": 1,
+        "local_rank": 2,
+        "forbidden_in_local": [],
+        "safe_no_expansion": false,
+        "trace": {
+          "vector_hits": 1,
+          "seed_nodes": 1,
+          "expanded_sources": 1,
+          "graph_candidates": 1,
+          "selected_evidence": 2
+        }
+      }
+    ]
+  }
+}

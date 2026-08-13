@@ -38,3 +38,14 @@ chunking:
   chunk_size: 800
   chunk_overlap: 100
   max_len_before_split: 2000
+
+graph:
+  enabled: true
+  db_path: ./graph_data/graph.sqlite3
+  max_hops: 2
+  max_seed_nodes: 10
+  max_neighbors: 30
+  graph_weight: 0.25
+  entity_extraction: false
+  community_detection: false
+  community_reports: false

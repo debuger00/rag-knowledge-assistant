@@ -5,6 +5,8 @@ from pathlib import Path
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
+from rag_core.graph.builder import rebuild_structure_graph
+from rag_core.graph.store import GraphStore
 from rag_core.indexing.loader import ObsidianLoader
 from rag_core.indexing.splitter import INDEX_VERSION, parent_child_split
 from rag_core.indexing.store import VectorStoreManager
@@ -16,10 +18,17 @@ logger = logging.getLogger(__name__)
 class VaultSyncHandler(FileSystemEventHandler):
     """处理 Obsidian 仓库文件变更事件，增量更新 Chroma。"""
 
-    def __init__(self, store: VectorStoreManager, vault_path: str, ignore_dirs: list[str]):
+    def __init__(
+        self,
+        store: VectorStoreManager,
+        vault_path: str,
+        ignore_dirs: list[str],
+        graph_store: GraphStore | None = None,
+    ):
         self.store = store
         self.vault_path = vault_path
         self.ignore_dirs = ignore_dirs
+        self.graph_store = graph_store
         self._pending: dict[str, str] = {}
         self._debounce_seconds = 2.0
         self._last_event_time = 0.0
@@ -109,6 +118,19 @@ class VaultSyncHandler(FileSystemEventHandler):
             self.store.add_children(children)
             logger.info(f"已更新索引: {source}")
 
+        if self.graph_store is not None:
+            loader = ObsidianLoader(
+                vault_path=self.vault_path,
+                ignore_dirs=list(self.ignore_dirs),
+            )
+            rebuild_structure_graph(
+                self.graph_store,
+                loader.load(),
+                child_chunk_size=self.config.child_chunk_size,
+                child_chunk_overlap=self.config.child_chunk_overlap,
+                child_max_len=self.config.child_max_len_before_split,
+            )
+
 
 class VaultWatcher:
     """Obsidian 仓库文件监听器。
@@ -121,10 +143,12 @@ class VaultWatcher:
         store: VectorStoreManager,
         vault_path: str,
         ignore_dirs: list[str] | None = None,
+        graph_store: GraphStore | None = None,
     ):
         self.store = store
         self.vault_path = vault_path
         self.ignore_dirs = ignore_dirs or [".obsidian", ".trash", ".git"]
+        self.graph_store = graph_store
         self.config = get_config()
         self._observer: Observer | None = None
 
@@ -170,19 +194,24 @@ class VaultWatcher:
             self.store.delete_by_source(source)
             deleted_count += 1
 
+        graph_stats = self._rebuild_graph(current_docs)
+
         logger.info(
             f"同步完成: {new_count} 篇新增, {updated_count} 篇更新, "
             f"{deleted_count} 篇删除, 总计 {len(current_docs)} 篇文档"
         )
 
-        return {
+        result = {
             "total": len(current_docs),
             "new": new_count,
             "updated": updated_count,
             "deleted": deleted_count,
         }
+        if graph_stats is not None:
+            result["graph"] = graph_stats
+        return result
 
-    def rebuild(self) -> dict:
+    def rebuild(self, include_graph: bool = True) -> dict:
         """全量重建索引。"""
         vault = Path(self.vault_path)
         if not vault.exists():
@@ -216,12 +245,37 @@ class VaultWatcher:
 
         self.store.rebuild(parents, children)
 
+        graph_stats = self._rebuild_graph(docs) if include_graph else None
+
         logger.info(f"全量重建完成: {len(parents)} 篇父文档, {len(children)} 个子块")
 
-        return {
+        result = {
             "total_parents": len(parents),
             "total_children": len(children),
         }
+        if graph_stats is not None:
+            result["graph"] = graph_stats
+        return result
+
+    def rebuild_graph(self) -> dict:
+        """Rebuild only the lightweight structural graph."""
+        loader = ObsidianLoader(
+            vault_path=self.vault_path,
+            ignore_dirs=list(self.ignore_dirs),
+        )
+        docs = loader.load()
+        return self._rebuild_graph(docs) or {}
+
+    def _rebuild_graph(self, docs: list) -> dict | None:
+        if self.graph_store is None:
+            return None
+        return rebuild_structure_graph(
+            self.graph_store,
+            docs,
+            child_chunk_size=self.config.child_chunk_size,
+            child_chunk_overlap=self.config.child_chunk_overlap,
+            child_max_len=self.config.child_max_len_before_split,
+        )
 
     def start_watching(self):
         """启动文件监听（后台线程）。"""
@@ -229,6 +283,7 @@ class VaultWatcher:
             store=self.store,
             vault_path=self.vault_path,
             ignore_dirs=list(self.ignore_dirs),
+            graph_store=self.graph_store,
         )
         self._observer = Observer()
         self._observer.schedule(event_handler, self.vault_path, recursive=True)

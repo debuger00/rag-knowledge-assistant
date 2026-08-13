@@ -61,13 +61,18 @@ class ObsidianLoader:
         # 提取标签
         tags = list(self._extract_frontmatter_tags(frontmatter))
         tags.extend(self._extract_inline_tags(content))
+        aliases = list(self._extract_frontmatter_aliases(frontmatter))
 
         # 提取链接
         links = list(self._extract_wikilinks(content))
 
         # 相对路径
         rel_path = filepath.relative_to(self.vault_path)
-        folder = str(rel_path.parent) if str(rel_path.parent) != "." else ""
+        folder = (
+            str(rel_path.parent).replace("\\", "/")
+            if str(rel_path.parent) != "."
+            else ""
+        )
 
         mtime = datetime.fromtimestamp(
             filepath.stat().st_mtime, tz=timezone.utc
@@ -83,6 +88,8 @@ class ObsidianLoader:
         # ChromaDB rejects empty lists — only include when non-empty
         if tags:
             metadata["tags"] = tags
+        if aliases:
+            metadata["aliases"] = aliases
         if links:
             metadata["links"] = links
 
@@ -110,6 +117,14 @@ class ObsidianLoader:
             yield from (str(t).strip() for t in tags_val)
         elif isinstance(tags_val, str):
             yield from (t.strip() for t in tags_val.split(","))
+
+    def _extract_frontmatter_aliases(self, fm: dict) -> Iterator[str]:
+        """Extract Obsidian aliases from YAML frontmatter."""
+        aliases = fm.get("aliases", fm.get("alias"))
+        if isinstance(aliases, list):
+            yield from (str(value).strip() for value in aliases if str(value).strip())
+        elif isinstance(aliases, str) and aliases.strip():
+            yield aliases.strip()
 
     def _extract_inline_tags(self, content: str) -> Iterator[str]:
         """从正文中提取 #tag 格式的标签。"""

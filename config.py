@@ -47,6 +47,17 @@ _YAML_FIELDS = {
         "chunk_overlap": "child_chunk_overlap",
         "max_len_before_split": "child_max_len_before_split",
     },
+    "graph": {
+        "enabled": "graph_enabled",
+        "db_path": "graph_db_path",
+        "max_hops": "graph_max_hops",
+        "max_seed_nodes": "graph_max_seed_nodes",
+        "max_neighbors": "graph_max_neighbors",
+        "graph_weight": "graph_weight",
+        "entity_extraction": "graph_entity_extraction",
+        "community_detection": "graph_community_detection",
+        "community_reports": "graph_community_reports",
+    },
 }
 
 
@@ -81,6 +92,15 @@ class Config:
     child_chunk_size: int = 800
     child_chunk_overlap: int = 100
     child_max_len_before_split: int = 2000
+    graph_enabled: bool = True
+    graph_db_path: str = "./graph_data/graph.sqlite3"
+    graph_max_hops: int = 2
+    graph_max_seed_nodes: int = 10
+    graph_max_neighbors: int = 30
+    graph_weight: float = 0.25
+    graph_entity_extraction: bool = False
+    graph_community_detection: bool = False
+    graph_community_reports: bool = False
 
     def __post_init__(self) -> None:
         if self.retrieval_top_k < 1:
@@ -103,6 +123,14 @@ class Config:
             raise ValueError(
                 "chunking.max_len_before_split 不能小于 chunk_size"
             )
+        if self.graph_max_hops < 1:
+            raise ValueError("graph.max_hops 必须大于 0")
+        if self.graph_max_seed_nodes < 1:
+            raise ValueError("graph.max_seed_nodes 必须大于 0")
+        if self.graph_max_neighbors < 1:
+            raise ValueError("graph.max_neighbors 必须大于 0")
+        if not 0 <= self.graph_weight <= 1:
+            raise ValueError("graph.graph_weight 必须在 0 到 1 之间")
 
     @classmethod
     def from_yaml(cls, path: str | Path = DEFAULT_CONFIG_PATH) -> "Config":

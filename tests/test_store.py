@@ -124,3 +124,29 @@ def test_find_child_by_path_and_anchor(store_manager):
 
     assert result is not None
     assert result.page_content == child.page_content
+
+
+def test_similarity_by_sources_filters_flattened_tags(store_manager):
+    children = [
+        Document(
+            page_content="Python async",
+            metadata={
+                "source": "a.md", "anchor": "a", "doc_type": "child",
+                "parent_id": "a.md", "tags": ["python", "async"],
+            },
+        ),
+        Document(
+            page_content="Python sync",
+            metadata={
+                "source": "b.md", "anchor": "b", "doc_type": "child",
+                "parent_id": "b.md", "tags": ["python"],
+            },
+        ),
+    ]
+    store_manager.add_children(children)
+
+    results = store_manager.similarity_search_by_sources(
+        "Python", ["a.md", "b.md"], filter_dict={"__tag__": "async"}
+    )
+
+    assert [doc.metadata["source"] for doc, _ in results] == ["a.md"]

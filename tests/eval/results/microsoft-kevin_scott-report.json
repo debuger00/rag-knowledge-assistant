@@ -1,0 +1,573 @@
+{
+  "dataset": {
+    "profile": "kevin_scott",
+    "display_name": "Kevin Scott Behind the Tech Podcasts",
+    "archive": "Kevin Scott Podcast Transcripts Input Text.zip",
+    "questions": "Kevin Scott Questions.csv",
+    "corpus_kind": "podcast_parts",
+    "expected_questions": 125,
+    "recommended_mode": "global",
+    "evaluation_mode": "retrieval_diagnostic",
+    "has_paired_source": false,
+    "document_count": 60,
+    "question_count": 20,
+    "vault": "E:\\program\\agent\\0000personal-projects\\02bankSuperpowers\\data\\eval\\microsoft_graphrag\\kevin_scott\\vault",
+    "cases": "E:\\program\\agent\\0000personal-projects\\02bankSuperpowers\\data\\eval\\microsoft_graphrag\\kevin_scott\\cases.jsonl",
+    "global_pipeline_status": "required_not_implemented"
+  },
+  "embedding_model": "BAAI/bge-small-zh-v1.5",
+  "top_k": 10,
+  "index": {
+    "parents": 60,
+    "children": 6657
+  },
+  "graph": {
+    "node_count": 6717,
+    "edge_count": 6657,
+    "document_count": 60,
+    "unresolved_count": 0,
+    "nodes_by_type": {
+      "document": 60,
+      "section": 6657
+    },
+    "schema_version": 1
+  },
+  "basic": {
+    "nonempty_query_rate": 1.0,
+    "average_sources_per_query": 8.65,
+    "corpus_source_coverage": 0.9
+  },
+  "local": {
+    "nonempty_query_rate": 1.0,
+    "average_sources_per_query": 8.65,
+    "corpus_source_coverage": 0.9
+  },
+  "cases": [
+    {
+      "id": "524c1c36-e8d8-41f9-a6f6-2e8ff30d3e1d",
+      "question": "What recurring topics do tech leaders emphasize in their discussions?",
+      "expected_sources": [],
+      "basic_sources": [
+        "episodes/028-EP-22_-Behind_the_Tech_Kevin_Drew-Endy_Bioengineering-pioneer-7d00f714.md",
+        "episodes/015-EP-07_-Behind_the_Tech_Kevin-Scott_Podcast_with_Dio_Gonzalez_TRANSCRIPT-a7ed3b4a.md",
+        "episodes/010-Behind-the-Tech_EP39_2021_Year-in-Review_Transcript-2a616108.md",
+        "episodes/036-EP-42_Behind_the_Tech_Irma-Olguin_Transcript-382976b9.md",
+        "episodes/007-Behind-the-Tech_Episode-36_PeterLee_Transcript-49604e7b.md",
+        "episodes/033-EP-27_-Behind_the_Tech_2020-Year-In-Review-5c550fd7.md",
+        "episodes/001-Behind-the-Tech_Episode-30_Collier_Bloomberg_Transcript-5dbbb317.md",
+        "episodes/025-EP-19_-Behind_the_Tech_Kevin_Scott_Podcast_PercyLiang-1ae8676e.md",
+        "episodes/032-EP-26_-Behind_the_Tech_OrenEtzioni_CEO-AllenInstitute-0f57a538.md"
+      ],
+      "local_sources": [
+        "episodes/028-EP-22_-Behind_the_Tech_Kevin_Drew-Endy_Bioengineering-pioneer-7d00f714.md",
+        "episodes/015-EP-07_-Behind_the_Tech_Kevin-Scott_Podcast_with_Dio_Gonzalez_TRANSCRIPT-a7ed3b4a.md",
+        "episodes/010-Behind-the-Tech_EP39_2021_Year-in-Review_Transcript-2a616108.md",
+        "episodes/036-EP-42_Behind_the_Tech_Irma-Olguin_Transcript-382976b9.md",
+        "episodes/007-Behind-the-Tech_Episode-36_PeterLee_Transcript-49604e7b.md",
+        "episodes/033-EP-27_-Behind_the_Tech_2020-Year-In-Review-5c550fd7.md",
+        "episodes/001-Behind-the-Tech_Episode-30_Collier_Bloomberg_Transcript-5dbbb317.md",
+        "episodes/025-EP-19_-Behind_the_Tech_Kevin_Scott_Podcast_PercyLiang-1ae8676e.md",
+        "episodes/032-EP-26_-Behind_the_Tech_OrenEtzioni_CEO-AllenInstitute-0f57a538.md"
+      ]
+    },
+    {
+      "id": "b28acd84-784d-4025-acc0-cec65db63d6b",
+      "question": "How frequently do discussions about artificial intelligence arise compared to other topics?",
+      "expected_sources": [],
+      "basic_sources": [
+        "episodes/050-Ep-53_Behind_the_Tech_Kevin_Scott_Podcast_with_Adrian_Tchaikovsky-e6d48292.md",
+        "episodes/033-EP-27_-Behind_the_Tech_2020-Year-In-Review-5c550fd7.md",
+        "episodes/026-EP-20_-Behind_the_Tech_Kevin_Scott_Podcast_ReprogrammingTheDream-58f0400f.md",
+        "episodes/027-EP-21_-Behind_the_Tech_Kevin_Eric-Horvitz_Chief-Scientific-Officer_Microsoft-6eda88b6.md",
+        "episodes/002-Behind-the-Tech_Episode-31_AshleyLlorens_Transcript-357996df.md",
+        "episodes/011-EP-03_-Behind_the_Tech_Kevin-Scott_Podcast_with_Andrew-Ng-a3226cc7.md",
+        "episodes/025-EP-19_-Behind_the_Tech_Kevin_Scott_Podcast_PercyLiang-1ae8676e.md",
+        "episodes/018-EP-11_-Behind_the_Tech_Kevin-Scott_Podcast_with_Fei-Fei-Li-fa607629.md"
+      ],
+      "local_sources": [
+        "episodes/050-Ep-53_Behind_the_Tech_Kevin_Scott_Podcast_with_Adrian_Tchaikovsky-e6d48292.md",
+        "episodes/033-EP-27_-Behind_the_Tech_2020-Year-In-Review-5c550fd7.md",
+        "episodes/026-EP-20_-Behind_the_Tech_Kevin_Scott_Podcast_ReprogrammingTheDream-58f0400f.md",
+        "episodes/027-EP-21_-Behind_the_Tech_Kevin_Eric-Horvitz_Chief-Scientific-Officer_Microsoft-6eda88b6.md",
+        "episodes/002-Behind-the-Tech_Episode-31_AshleyLlorens_Transcript-357996df.md",
+        "episodes/011-EP-03_-Behind_the_Tech_Kevin-Scott_Podcast_with_Andrew-Ng-a3226cc7.md",
+        "episodes/025-EP-19_-Behind_the_Tech_Kevin_Scott_Podcast_PercyLiang-1ae8676e.md",
+        "episodes/018-EP-11_-Behind_the_Tech_Kevin-Scott_Podcast_with_Fei-Fei-Li-fa607629.md"
+      ]
+    },
+    {
+      "id": "fe258971-60a0-4284-a653-cf92115dab67",
+      "question": "What are the most frequently mentioned challenges in the tech industry?",
+      "expected_sources": [],
+      "basic_sources": [
+        "episodes/019-EP-13_-Behind_the_Tech_Kevin_Scott_Podcast_with_Sam-Altman-59c694dd.md",
+        "episodes/024-EP-18_-Behind_the_Tech_Kevin_Scott_Podcast_ChrisUrmson-3b0950b4.md",
+        "episodes/054-Ep-57_Behind_the_Tech_Kevin_Scott_Podcast_with_Kevin_Roose-ab944fdd.md",
+        "episodes/043-Ep-12-0155a40d.md",
+        "episodes/036-EP-42_Behind_the_Tech_Irma-Olguin_Transcript-382976b9.md",
+        "episodes/020-EP-14_-Behind_the_Tech_Kevin_Scott_Podcast_with_Neha_Narkhede-5b6a8d4f.md",
+        "episodes/028-EP-22_-Behind_the_Tech_Kevin_Drew-Endy_Bioengineering-pioneer-7d00f714.md"
+      ],
+      "local_sources": [
+        "episodes/019-EP-13_-Behind_the_Tech_Kevin_Scott_Podcast_with_Sam-Altman-59c694dd.md",
+        "episodes/024-EP-18_-Behind_the_Tech_Kevin_Scott_Podcast_ChrisUrmson-3b0950b4.md",
+        "episodes/054-Ep-57_Behind_the_Tech_Kevin_Scott_Podcast_with_Kevin_Roose-ab944fdd.md",
+        "episodes/043-Ep-12-0155a40d.md",
+        "episodes/036-EP-42_Behind_the_Tech_Irma-Olguin_Transcript-382976b9.md",
+        "episodes/020-EP-14_-Behind_the_Tech_Kevin_Scott_Podcast_with_Neha_Narkhede-5b6a8d4f.md",
+        "episodes/028-EP-22_-Behind_the_Tech_Kevin_Drew-Endy_Bioengineering-pioneer-7d00f714.md"
+      ]
+    },
+    {
+      "id": "93589f99-188a-43f0-8803-7aa467181d49",
+      "question": "Are there specific episodes where the discussion was focused on future tech predictions?",
+      "expected_sources": [],
+      "basic_sources": [
+        "episodes/001-Behind-the-Tech_Episode-30_Collier_Bloomberg_Transcript-5dbbb317.md",
+        "episodes/006-Behind-the-Tech_Episode-35_StevenBathiche_Transcript-5066d73c.md",
+        "episodes/002-Behind-the-Tech_Episode-31_AshleyLlorens_Transcript-357996df.md",
+        "episodes/000-Behind-the-Tech_Episode-29_Collier_Bloomberg_Transcript-18ff7c82.md",
+        "episodes/023-EP-17_-Behind_the_Tech_Kevin_Scott_Podcast_2019-Year_In_Review-7a776da2.md",
+        "episodes/007-Behind-the-Tech_Episode-36_PeterLee_Transcript-49604e7b.md",
+        "episodes/033-EP-27_-Behind_the_Tech_2020-Year-In-Review-5c550fd7.md"
+      ],
+      "local_sources": [
+        "episodes/001-Behind-the-Tech_Episode-30_Collier_Bloomberg_Transcript-5dbbb317.md",
+        "episodes/006-Behind-the-Tech_Episode-35_StevenBathiche_Transcript-5066d73c.md",
+        "episodes/002-Behind-the-Tech_Episode-31_AshleyLlorens_Transcript-357996df.md",
+        "episodes/000-Behind-the-Tech_Episode-29_Collier_Bloomberg_Transcript-18ff7c82.md",
+        "episodes/023-EP-17_-Behind_the_Tech_Kevin_Scott_Podcast_2019-Year_In_Review-7a776da2.md",
+        "episodes/007-Behind-the-Tech_Episode-36_PeterLee_Transcript-49604e7b.md",
+        "episodes/033-EP-27_-Behind_the_Tech_2020-Year-In-Review-5c550fd7.md"
+      ]
+    },
+    {
+      "id": "aca5253c-8c0b-4ba5-859d-67af367aebb8",
+      "question": "Which areas of technology development are frequently highlighted as key growth sectors?",
+      "expected_sources": [],
+      "basic_sources": [
+        "episodes/009-Behind-the-Tech_EP-38_StevenPinker_Transcript-bb0edc7e.md",
+        "episodes/024-EP-18_-Behind_the_Tech_Kevin_Scott_Podcast_ChrisUrmson-3b0950b4.md",
+        "episodes/023-EP-17_-Behind_the_Tech_Kevin_Scott_Podcast_2019-Year_In_Review-7a776da2.md",
+        "episodes/014-EP-06_-Behind_the_Tech_Kevin-Scott_Podcast_with_Wences_Casares_TRANSCRIPT-b7461a84.md",
+        "episodes/027-EP-21_-Behind_the_Tech_Kevin_Eric-Horvitz_Chief-Scientific-Officer_Microsoft-6eda88b6.md",
+        "episodes/006-Behind-the-Tech_Episode-35_StevenBathiche_Transcript-5066d73c.md",
+        "episodes/013-EP-05_-Behind_the_Tech_Kevin-Scott_Podcast_with_Danielle-Feinberg-7ebb8303.md",
+        "episodes/042-EP-9_-Behind_the_Tech_Kevin-Scott_Podcast_with_Reid_Hoffman-55d16a56.md",
+        "episodes/054-Ep-57_Behind_the_Tech_Kevin_Scott_Podcast_with_Kevin_Roose-ab944fdd.md",
+        "episodes/032-EP-26_-Behind_the_Tech_OrenEtzioni_CEO-AllenInstitute-0f57a538.md"
+      ],
+      "local_sources": [
+        "episodes/009-Behind-the-Tech_EP-38_StevenPinker_Transcript-bb0edc7e.md",
+        "episodes/024-EP-18_-Behind_the_Tech_Kevin_Scott_Podcast_ChrisUrmson-3b0950b4.md",
+        "episodes/023-EP-17_-Behind_the_Tech_Kevin_Scott_Podcast_2019-Year_In_Review-7a776da2.md",
+        "episodes/014-EP-06_-Behind_the_Tech_Kevin-Scott_Podcast_with_Wences_Casares_TRANSCRIPT-b7461a84.md",
+        "episodes/027-EP-21_-Behind_the_Tech_Kevin_Eric-Horvitz_Chief-Scientific-Officer_Microsoft-6eda88b6.md",
+        "episodes/006-Behind-the-Tech_Episode-35_StevenBathiche_Transcript-5066d73c.md",
+        "episodes/013-EP-05_-Behind_the_Tech_Kevin-Scott_Podcast_with_Danielle-Feinberg-7ebb8303.md",
+        "episodes/042-EP-9_-Behind_the_Tech_Kevin-Scott_Podcast_with_Reid_Hoffman-55d16a56.md",
+        "episodes/054-Ep-57_Behind_the_Tech_Kevin_Scott_Podcast_with_Kevin_Roose-ab944fdd.md",
+        "episodes/032-EP-26_-Behind_the_Tech_OrenEtzioni_CEO-AllenInstitute-0f57a538.md"
+      ]
+    },
+    {
+      "id": "0a3ed827-e745-4eb4-b86f-99d873ae4959",
+      "question": "Which guests speak the most about educational technology?",
+      "expected_sources": [],
+      "basic_sources": [
+        "episodes/003-Behind-the-Tech_Episode-32_KimberlyBryant_Transcript-fbaa39eb.md",
+        "episodes/043-Ep-12-0155a40d.md",
+        "episodes/049-Ep-52_Behind_the_Tech_Kevin_Scott_Podcast_with_Bill_Gates-qc-042db844.md",
+        "episodes/037-EP-43_-Behind_the_Tech_Kevin_Scott_Podcast_with_Alexis_Ohanian-4eb2f78e.md",
+        "episodes/009-Behind-the-Tech_EP-38_StevenPinker_Transcript-bb0edc7e.md",
+        "episodes/015-EP-07_-Behind_the_Tech_Kevin-Scott_Podcast_with_Dio_Gonzalez_TRANSCRIPT-a7ed3b4a.md",
+        "episodes/044-Ep-41-Behind_The_Tech-Neal_Stephenson-FINAL_2-eff557b0.md"
+      ],
+      "local_sources": [
+        "episodes/003-Behind-the-Tech_Episode-32_KimberlyBryant_Transcript-fbaa39eb.md",
+        "episodes/043-Ep-12-0155a40d.md",
+        "episodes/049-Ep-52_Behind_the_Tech_Kevin_Scott_Podcast_with_Bill_Gates-qc-042db844.md",
+        "episodes/037-EP-43_-Behind_the_Tech_Kevin_Scott_Podcast_with_Alexis_Ohanian-4eb2f78e.md",
+        "episodes/009-Behind-the-Tech_EP-38_StevenPinker_Transcript-bb0edc7e.md",
+        "episodes/015-EP-07_-Behind_the_Tech_Kevin-Scott_Podcast_with_Dio_Gonzalez_TRANSCRIPT-a7ed3b4a.md",
+        "episodes/044-Ep-41-Behind_The_Tech-Neal_Stephenson-FINAL_2-eff557b0.md"
+      ]
+    },
+    {
+      "id": "d3ffac40-3f9a-4d72-b6ea-0138afeb4f78",
+      "question": "Do any guests frequently mention specific companies or startups during their interviews?",
+      "expected_sources": [],
+      "basic_sources": [
+        "episodes/045-Ep-44_Behind_the_Tech_Kevin-Scott_Podcast_with_David_Baszucki-cce8710a.md",
+        "episodes/059-Ep-62_Behind_the_Tech_Kevin_Scott_Podcast_with_Xyla_Foxlin-4d71a23d.md",
+        "episodes/048-Ep-47_Behind_the_Tech_Kevin_Scott_Podcast_with_Sam_Schillace-dcdf324b.md",
+        "episodes/028-EP-22_-Behind_the_Tech_Kevin_Drew-Endy_Bioengineering-pioneer-7d00f714.md",
+        "episodes/012-EP-04_-Behind_the_Tech_Kevin-Scott_Podcast_with_Judy-Estrin-56e57785.md",
+        "episodes/043-Ep-12-0155a40d.md",
+        "episodes/033-EP-27_-Behind_the_Tech_2020-Year-In-Review-5c550fd7.md",
+        "episodes/004-Behind-the-Tech_Episode-33_DavidBaker_Transcript-f5baf5f0.md",
+        "episodes/042-EP-9_-Behind_the_Tech_Kevin-Scott_Podcast_with_Reid_Hoffman-55d16a56.md",
+        "episodes/003-Behind-the-Tech_Episode-32_KimberlyBryant_Transcript-fbaa39eb.md"
+      ],
+      "local_sources": [
+        "episodes/045-Ep-44_Behind_the_Tech_Kevin-Scott_Podcast_with_David_Baszucki-cce8710a.md",
+        "episodes/059-Ep-62_Behind_the_Tech_Kevin_Scott_Podcast_with_Xyla_Foxlin-4d71a23d.md",
+        "episodes/048-Ep-47_Behind_the_Tech_Kevin_Scott_Podcast_with_Sam_Schillace-dcdf324b.md",
+        "episodes/028-EP-22_-Behind_the_Tech_Kevin_Drew-Endy_Bioengineering-pioneer-7d00f714.md",
+        "episodes/012-EP-04_-Behind_the_Tech_Kevin-Scott_Podcast_with_Judy-Estrin-56e57785.md",
+        "episodes/043-Ep-12-0155a40d.md",
+        "episodes/033-EP-27_-Behind_the_Tech_2020-Year-In-Review-5c550fd7.md",
+        "episodes/004-Behind-the-Tech_Episode-33_DavidBaker_Transcript-f5baf5f0.md",
+        "episodes/042-EP-9_-Behind_the_Tech_Kevin-Scott_Podcast_with_Reid_Hoffman-55d16a56.md",
+        "episodes/003-Behind-the-Tech_Episode-32_KimberlyBryant_Transcript-fbaa39eb.md"
+      ]
+    },
+    {
+      "id": "8b4d81c9-8e54-4b49-bea8-db07e7c196c7",
+      "question": "Are there any common educational or career paths among the guests?",
+      "expected_sources": [],
+      "basic_sources": [
+        "episodes/003-Behind-the-Tech_Episode-32_KimberlyBryant_Transcript-fbaa39eb.md",
+        "episodes/032-EP-26_-Behind_the_Tech_OrenEtzioni_CEO-AllenInstitute-0f57a538.md",
+        "episodes/034-EP-28_Behind_the_Tech_Mae-Jemison-e34d2301.md",
+        "episodes/040-EP-50_Behind_the_Tech_Kevin_Scott_Podcast_with_Tobi_Lutke-ec41bb51.md",
+        "episodes/029-EP-23_-Behind_the_Tech_Kevin_Tom-Daniel_Neuroscientist_and_bioengineer-110d3b1b.md",
+        "episodes/053-Ep-56_Behind_the_Tech_Kevin_Scott_Podcast_with_will.i-9df3cba6.md",
+        "episodes/002-Behind-the-Tech_Episode-31_AshleyLlorens_Transcript-357996df.md",
+        "episodes/049-Ep-52_Behind_the_Tech_Kevin_Scott_Podcast_with_Bill_Gates-qc-042db844.md",
+        "episodes/043-Ep-12-0155a40d.md"
+      ],
+      "local_sources": [
+        "episodes/003-Behind-the-Tech_Episode-32_KimberlyBryant_Transcript-fbaa39eb.md",
+        "episodes/032-EP-26_-Behind_the_Tech_OrenEtzioni_CEO-AllenInstitute-0f57a538.md",
+        "episodes/034-EP-28_Behind_the_Tech_Mae-Jemison-e34d2301.md",
+        "episodes/040-EP-50_Behind_the_Tech_Kevin_Scott_Podcast_with_Tobi_Lutke-ec41bb51.md",
+        "episodes/029-EP-23_-Behind_the_Tech_Kevin_Tom-Daniel_Neuroscientist_and_bioengineer-110d3b1b.md",
+        "episodes/053-Ep-56_Behind_the_Tech_Kevin_Scott_Podcast_with_will.i-9df3cba6.md",
+        "episodes/002-Behind-the-Tech_Episode-31_AshleyLlorens_Transcript-357996df.md",
+        "episodes/049-Ep-52_Behind_the_Tech_Kevin_Scott_Podcast_with_Bill_Gates-qc-042db844.md",
+        "episodes/043-Ep-12-0155a40d.md"
+      ]
+    },
+    {
+      "id": "4c1f6b63-f1b9-4536-b5a6-fdf2abda0aa8",
+      "question": "Which guests discuss the topic of diversity and inclusion in tech?",
+      "expected_sources": [],
+      "basic_sources": [
+        "episodes/035-EP-40_Behind_the_Tech_DanielaRus_Transcript-1-34cd545c.md",
+        "episodes/055-Ep-58_Behind_the_Tech_Kevin_Scott_Podcast_with_William_A_Adams-4df1864a.md",
+        "episodes/036-EP-42_Behind_the_Tech_Irma-Olguin_Transcript-382976b9.md",
+        "episodes/023-EP-17_-Behind_the_Tech_Kevin_Scott_Podcast_2019-Year_In_Review-7a776da2.md",
+        "episodes/003-Behind-the-Tech_Episode-32_KimberlyBryant_Transcript-fbaa39eb.md",
+        "episodes/004-Behind-the-Tech_Episode-33_DavidBaker_Transcript-f5baf5f0.md",
+        "episodes/029-EP-23_-Behind_the_Tech_Kevin_Tom-Daniel_Neuroscientist_and_bioengineer-110d3b1b.md",
+        "episodes/005-Behind-the-Tech_Episode-34_ChaseJarvis_Transcript-01f0450d.md",
+        "episodes/000-Behind-the-Tech_Episode-29_Collier_Bloomberg_Transcript-18ff7c82.md",
+        "episodes/016-EP-08_-Behind_the_Tech_Kevin-Scott_Podcast_with_Jason_Lanier_TRANSCRIPT-4fd0da0a.md"
+      ],
+      "local_sources": [
+        "episodes/035-EP-40_Behind_the_Tech_DanielaRus_Transcript-1-34cd545c.md",
+        "episodes/055-Ep-58_Behind_the_Tech_Kevin_Scott_Podcast_with_William_A_Adams-4df1864a.md",
+        "episodes/036-EP-42_Behind_the_Tech_Irma-Olguin_Transcript-382976b9.md",
+        "episodes/023-EP-17_-Behind_the_Tech_Kevin_Scott_Podcast_2019-Year_In_Review-7a776da2.md",
+        "episodes/003-Behind-the-Tech_Episode-32_KimberlyBryant_Transcript-fbaa39eb.md",
+        "episodes/004-Behind-the-Tech_Episode-33_DavidBaker_Transcript-f5baf5f0.md",
+        "episodes/029-EP-23_-Behind_the_Tech_Kevin_Tom-Daniel_Neuroscientist_and_bioengineer-110d3b1b.md",
+        "episodes/005-Behind-the-Tech_Episode-34_ChaseJarvis_Transcript-01f0450d.md",
+        "episodes/000-Behind-the-Tech_Episode-29_Collier_Bloomberg_Transcript-18ff7c82.md",
+        "episodes/016-EP-08_-Behind_the_Tech_Kevin-Scott_Podcast_with_Jason_Lanier_TRANSCRIPT-4fd0da0a.md"
+      ]
+    },
+    {
+      "id": "840f127c-edda-423d-8193-503ddaef7331",
+      "question": "What personal anecdotes or stories do tech leaders often share?",
+      "expected_sources": [],
+      "basic_sources": [
+        "episodes/015-EP-07_-Behind_the_Tech_Kevin-Scott_Podcast_with_Dio_Gonzalez_TRANSCRIPT-a7ed3b4a.md",
+        "episodes/036-EP-42_Behind_the_Tech_Irma-Olguin_Transcript-382976b9.md",
+        "episodes/028-EP-22_-Behind_the_Tech_Kevin_Drew-Endy_Bioengineering-pioneer-7d00f714.md",
+        "episodes/012-EP-04_-Behind_the_Tech_Kevin-Scott_Podcast_with_Judy-Estrin-56e57785.md",
+        "episodes/043-Ep-12-0155a40d.md",
+        "episodes/057-Ep-60_Behind_the_Tech_Kevin_Scott_Podcast_2023_Year_in_Review-c5f640b4.md",
+        "episodes/047-Ep-46_Behind_the_Tech_Kevin_Scott_Podcast_with_Simone-Giertz-e660d3ee.md",
+        "episodes/054-Ep-57_Behind_the_Tech_Kevin_Scott_Podcast_with_Kevin_Roose-ab944fdd.md"
+      ],
+      "local_sources": [
+        "episodes/015-EP-07_-Behind_the_Tech_Kevin-Scott_Podcast_with_Dio_Gonzalez_TRANSCRIPT-a7ed3b4a.md",
+        "episodes/036-EP-42_Behind_the_Tech_Irma-Olguin_Transcript-382976b9.md",
+        "episodes/028-EP-22_-Behind_the_Tech_Kevin_Drew-Endy_Bioengineering-pioneer-7d00f714.md",
+        "episodes/012-EP-04_-Behind_the_Tech_Kevin-Scott_Podcast_with_Judy-Estrin-56e57785.md",
+        "episodes/043-Ep-12-0155a40d.md",
+        "episodes/057-Ep-60_Behind_the_Tech_Kevin_Scott_Podcast_2023_Year_in_Review-c5f640b4.md",
+        "episodes/047-Ep-46_Behind_the_Tech_Kevin_Scott_Podcast_with_Simone-Giertz-e660d3ee.md",
+        "episodes/054-Ep-57_Behind_the_Tech_Kevin_Scott_Podcast_with_Kevin_Roose-ab944fdd.md"
+      ]
+    },
+    {
+      "id": "bafdda84-b10b-4466-92de-ac713996f77b",
+      "question": "What are some standout quotes about innovation from the guests?",
+      "expected_sources": [],
+      "basic_sources": [
+        "episodes/025-EP-19_-Behind_the_Tech_Kevin_Scott_Podcast_PercyLiang-1ae8676e.md",
+        "episodes/029-EP-23_-Behind_the_Tech_Kevin_Tom-Daniel_Neuroscientist_and_bioengineer-110d3b1b.md",
+        "episodes/032-EP-26_-Behind_the_Tech_OrenEtzioni_CEO-AllenInstitute-0f57a538.md",
+        "episodes/002-Behind-the-Tech_Episode-31_AshleyLlorens_Transcript-357996df.md",
+        "episodes/021-EP-15_-Behind_the_Tech_Kevin_Scott_Podcast_with_danah_boyd-7878db41.md",
+        "episodes/054-Ep-57_Behind_the_Tech_Kevin_Scott_Podcast_with_Kevin_Roose-ab944fdd.md",
+        "episodes/035-EP-40_Behind_the_Tech_DanielaRus_Transcript-1-34cd545c.md",
+        "episodes/007-Behind-the-Tech_Episode-36_PeterLee_Transcript-49604e7b.md",
+        "episodes/011-EP-03_-Behind_the_Tech_Kevin-Scott_Podcast_with_Andrew-Ng-a3226cc7.md",
+        "episodes/006-Behind-the-Tech_Episode-35_StevenBathiche_Transcript-5066d73c.md"
+      ],
+      "local_sources": [
+        "episodes/025-EP-19_-Behind_the_Tech_Kevin_Scott_Podcast_PercyLiang-1ae8676e.md",
+        "episodes/029-EP-23_-Behind_the_Tech_Kevin_Tom-Daniel_Neuroscientist_and_bioengineer-110d3b1b.md",
+        "episodes/032-EP-26_-Behind_the_Tech_OrenEtzioni_CEO-AllenInstitute-0f57a538.md",
+        "episodes/002-Behind-the-Tech_Episode-31_AshleyLlorens_Transcript-357996df.md",
+        "episodes/021-EP-15_-Behind_the_Tech_Kevin_Scott_Podcast_with_danah_boyd-7878db41.md",
+        "episodes/054-Ep-57_Behind_the_Tech_Kevin_Scott_Podcast_with_Kevin_Roose-ab944fdd.md",
+        "episodes/035-EP-40_Behind_the_Tech_DanielaRus_Transcript-1-34cd545c.md",
+        "episodes/007-Behind-the-Tech_Episode-36_PeterLee_Transcript-49604e7b.md",
+        "episodes/011-EP-03_-Behind_the_Tech_Kevin-Scott_Podcast_with_Andrew-Ng-a3226cc7.md",
+        "episodes/006-Behind-the-Tech_Episode-35_StevenBathiche_Transcript-5066d73c.md"
+      ]
+    },
+    {
+      "id": "08ca0196-d5e0-46ff-b57d-ea9f134816d6",
+      "question": "Can you find any discussions that highlight the role of failure in innovation?",
+      "expected_sources": [],
+      "basic_sources": [
+        "episodes/021-EP-15_-Behind_the_Tech_Kevin_Scott_Podcast_with_danah_boyd-7878db41.md",
+        "episodes/053-Ep-56_Behind_the_Tech_Kevin_Scott_Podcast_with_will.i-9df3cba6.md",
+        "episodes/028-EP-22_-Behind_the_Tech_Kevin_Drew-Endy_Bioengineering-pioneer-7d00f714.md",
+        "episodes/035-EP-40_Behind_the_Tech_DanielaRus_Transcript-1-34cd545c.md",
+        "episodes/012-EP-04_-Behind_the_Tech_Kevin-Scott_Podcast_with_Judy-Estrin-56e57785.md",
+        "episodes/043-Ep-12-0155a40d.md",
+        "episodes/020-EP-14_-Behind_the_Tech_Kevin_Scott_Podcast_with_Neha_Narkhede-5b6a8d4f.md",
+        "episodes/023-EP-17_-Behind_the_Tech_Kevin_Scott_Podcast_2019-Year_In_Review-7a776da2.md",
+        "episodes/006-Behind-the-Tech_Episode-35_StevenBathiche_Transcript-5066d73c.md",
+        "episodes/056-Ep-59_Behind_the_Tech_Kevin_Scott_Podcast_with_David_Kirtley-502071d4.md"
+      ],
+      "local_sources": [
+        "episodes/021-EP-15_-Behind_the_Tech_Kevin_Scott_Podcast_with_danah_boyd-7878db41.md",
+        "episodes/053-Ep-56_Behind_the_Tech_Kevin_Scott_Podcast_with_will.i-9df3cba6.md",
+        "episodes/028-EP-22_-Behind_the_Tech_Kevin_Drew-Endy_Bioengineering-pioneer-7d00f714.md",
+        "episodes/035-EP-40_Behind_the_Tech_DanielaRus_Transcript-1-34cd545c.md",
+        "episodes/012-EP-04_-Behind_the_Tech_Kevin-Scott_Podcast_with_Judy-Estrin-56e57785.md",
+        "episodes/043-Ep-12-0155a40d.md",
+        "episodes/020-EP-14_-Behind_the_Tech_Kevin_Scott_Podcast_with_Neha_Narkhede-5b6a8d4f.md",
+        "episodes/023-EP-17_-Behind_the_Tech_Kevin_Scott_Podcast_2019-Year_In_Review-7a776da2.md",
+        "episodes/006-Behind-the-Tech_Episode-35_StevenBathiche_Transcript-5066d73c.md",
+        "episodes/056-Ep-59_Behind_the_Tech_Kevin_Scott_Podcast_with_David_Kirtley-502071d4.md"
+      ]
+    },
+    {
+      "id": "3244f551-4486-4a5c-8370-26d08136756d",
+      "question": "Which episodes contain optimistic views about the future of technology?",
+      "expected_sources": [],
+      "basic_sources": [
+        "episodes/023-EP-17_-Behind_the_Tech_Kevin_Scott_Podcast_2019-Year_In_Review-7a776da2.md",
+        "episodes/042-EP-9_-Behind_the_Tech_Kevin-Scott_Podcast_with_Reid_Hoffman-55d16a56.md",
+        "episodes/004-Behind-the-Tech_Episode-33_DavidBaker_Transcript-f5baf5f0.md",
+        "episodes/006-Behind-the-Tech_Episode-35_StevenBathiche_Transcript-5066d73c.md",
+        "episodes/030-EP-24_-Behind_the_Tech_Kevin_Daphne-Koller_CEO_insitro-40e3ef91.md",
+        "episodes/001-Behind-the-Tech_Episode-30_Collier_Bloomberg_Transcript-5dbbb317.md",
+        "episodes/054-Ep-57_Behind_the_Tech_Kevin_Scott_Podcast_with_Kevin_Roose-ab944fdd.md",
+        "episodes/002-Behind-the-Tech_Episode-31_AshleyLlorens_Transcript-357996df.md",
+        "episodes/033-EP-27_-Behind_the_Tech_2020-Year-In-Review-5c550fd7.md"
+      ],
+      "local_sources": [
+        "episodes/023-EP-17_-Behind_the_Tech_Kevin_Scott_Podcast_2019-Year_In_Review-7a776da2.md",
+        "episodes/042-EP-9_-Behind_the_Tech_Kevin-Scott_Podcast_with_Reid_Hoffman-55d16a56.md",
+        "episodes/004-Behind-the-Tech_Episode-33_DavidBaker_Transcript-f5baf5f0.md",
+        "episodes/006-Behind-the-Tech_Episode-35_StevenBathiche_Transcript-5066d73c.md",
+        "episodes/030-EP-24_-Behind_the_Tech_Kevin_Daphne-Koller_CEO_insitro-40e3ef91.md",
+        "episodes/001-Behind-the-Tech_Episode-30_Collier_Bloomberg_Transcript-5dbbb317.md",
+        "episodes/054-Ep-57_Behind_the_Tech_Kevin_Scott_Podcast_with_Kevin_Roose-ab944fdd.md",
+        "episodes/002-Behind-the-Tech_Episode-31_AshleyLlorens_Transcript-357996df.md",
+        "episodes/033-EP-27_-Behind_the_Tech_2020-Year-In-Review-5c550fd7.md"
+      ]
+    },
+    {
+      "id": "a404de13-c919-47e6-b6f8-b4c5271d2161",
+      "question": "Are there any controversial opinions expressed about the direction of tech?",
+      "expected_sources": [],
+      "basic_sources": [
+        "episodes/012-EP-04_-Behind_the_Tech_Kevin-Scott_Podcast_with_Judy-Estrin-56e57785.md",
+        "episodes/054-Ep-57_Behind_the_Tech_Kevin_Scott_Podcast_with_Kevin_Roose-ab944fdd.md",
+        "episodes/053-Ep-56_Behind_the_Tech_Kevin_Scott_Podcast_with_will.i-9df3cba6.md",
+        "episodes/021-EP-15_-Behind_the_Tech_Kevin_Scott_Podcast_with_danah_boyd-7878db41.md",
+        "episodes/009-Behind-the-Tech_EP-38_StevenPinker_Transcript-bb0edc7e.md",
+        "episodes/028-EP-22_-Behind_the_Tech_Kevin_Drew-Endy_Bioengineering-pioneer-7d00f714.md",
+        "episodes/002-Behind-the-Tech_Episode-31_AshleyLlorens_Transcript-357996df.md",
+        "episodes/032-EP-26_-Behind_the_Tech_OrenEtzioni_CEO-AllenInstitute-0f57a538.md"
+      ],
+      "local_sources": [
+        "episodes/012-EP-04_-Behind_the_Tech_Kevin-Scott_Podcast_with_Judy-Estrin-56e57785.md",
+        "episodes/054-Ep-57_Behind_the_Tech_Kevin_Scott_Podcast_with_Kevin_Roose-ab944fdd.md",
+        "episodes/053-Ep-56_Behind_the_Tech_Kevin_Scott_Podcast_with_will.i-9df3cba6.md",
+        "episodes/021-EP-15_-Behind_the_Tech_Kevin_Scott_Podcast_with_danah_boyd-7878db41.md",
+        "episodes/009-Behind-the-Tech_EP-38_StevenPinker_Transcript-bb0edc7e.md",
+        "episodes/028-EP-22_-Behind_the_Tech_Kevin_Drew-Endy_Bioengineering-pioneer-7d00f714.md",
+        "episodes/002-Behind-the-Tech_Episode-31_AshleyLlorens_Transcript-357996df.md",
+        "episodes/032-EP-26_-Behind_the_Tech_OrenEtzioni_CEO-AllenInstitute-0f57a538.md"
+      ]
+    },
+    {
+      "id": "269bbb44-b4c1-43fd-9d41-e65eff4b25a5",
+      "question": "What do guests typically cite as their inspirations for innovation?",
+      "expected_sources": [],
+      "basic_sources": [
+        "episodes/006-Behind-the-Tech_Episode-35_StevenBathiche_Transcript-5066d73c.md",
+        "episodes/003-Behind-the-Tech_Episode-32_KimberlyBryant_Transcript-fbaa39eb.md",
+        "episodes/002-Behind-the-Tech_Episode-31_AshleyLlorens_Transcript-357996df.md",
+        "episodes/047-Ep-46_Behind_the_Tech_Kevin_Scott_Podcast_with_Simone-Giertz-e660d3ee.md",
+        "episodes/004-Behind-the-Tech_Episode-33_DavidBaker_Transcript-f5baf5f0.md",
+        "episodes/049-Ep-52_Behind_the_Tech_Kevin_Scott_Podcast_with_Bill_Gates-qc-042db844.md",
+        "episodes/039-EP-49_Behind_the_Tech_Kevin_Scott_Podcast_2022YearinReview-bc7ed5d0.md",
+        "episodes/037-EP-43_-Behind_the_Tech_Kevin_Scott_Podcast_with_Alexis_Ohanian-4eb2f78e.md",
+        "episodes/058-Ep-61_Behind_the_Tech_Kevin_Scott_Podcast_with_Lisa_Su-8a0e87d3.md",
+        "episodes/055-Ep-58_Behind_the_Tech_Kevin_Scott_Podcast_with_William_A_Adams-4df1864a.md"
+      ],
+      "local_sources": [
+        "episodes/006-Behind-the-Tech_Episode-35_StevenBathiche_Transcript-5066d73c.md",
+        "episodes/003-Behind-the-Tech_Episode-32_KimberlyBryant_Transcript-fbaa39eb.md",
+        "episodes/002-Behind-the-Tech_Episode-31_AshleyLlorens_Transcript-357996df.md",
+        "episodes/047-Ep-46_Behind_the_Tech_Kevin_Scott_Podcast_with_Simone-Giertz-e660d3ee.md",
+        "episodes/004-Behind-the-Tech_Episode-33_DavidBaker_Transcript-f5baf5f0.md",
+        "episodes/049-Ep-52_Behind_the_Tech_Kevin_Scott_Podcast_with_Bill_Gates-qc-042db844.md",
+        "episodes/039-EP-49_Behind_the_Tech_Kevin_Scott_Podcast_2022YearinReview-bc7ed5d0.md",
+        "episodes/037-EP-43_-Behind_the_Tech_Kevin_Scott_Podcast_with_Alexis_Ohanian-4eb2f78e.md",
+        "episodes/058-Ep-61_Behind_the_Tech_Kevin_Scott_Podcast_with_Lisa_Su-8a0e87d3.md",
+        "episodes/055-Ep-58_Behind_the_Tech_Kevin_Scott_Podcast_with_William_A_Adams-4df1864a.md"
+      ]
+    },
+    {
+      "id": "d33e7518-3f04-4b00-81ee-40a40cf28159",
+      "question": "Which episodes deal primarily with tech policy and government regulation?",
+      "expected_sources": [],
+      "basic_sources": [
+        "episodes/023-EP-17_-Behind_the_Tech_Kevin_Scott_Podcast_2019-Year_In_Review-7a776da2.md",
+        "episodes/018-EP-11_-Behind_the_Tech_Kevin-Scott_Podcast_with_Fei-Fei-Li-fa607629.md",
+        "episodes/017-EP-10_-Behind_the_Tech_Kevin-Scott_Podcast_with_Surya_Ganguli-2ca05e35.md",
+        "episodes/056-Ep-59_Behind_the_Tech_Kevin_Scott_Podcast_with_David_Kirtley-502071d4.md",
+        "episodes/043-Ep-12-0155a40d.md",
+        "episodes/001-Behind-the-Tech_Episode-30_Collier_Bloomberg_Transcript-5dbbb317.md",
+        "episodes/021-EP-15_-Behind_the_Tech_Kevin_Scott_Podcast_with_danah_boyd-7878db41.md",
+        "episodes/033-EP-27_-Behind_the_Tech_2020-Year-In-Review-5c550fd7.md"
+      ],
+      "local_sources": [
+        "episodes/023-EP-17_-Behind_the_Tech_Kevin_Scott_Podcast_2019-Year_In_Review-7a776da2.md",
+        "episodes/018-EP-11_-Behind_the_Tech_Kevin-Scott_Podcast_with_Fei-Fei-Li-fa607629.md",
+        "episodes/017-EP-10_-Behind_the_Tech_Kevin-Scott_Podcast_with_Surya_Ganguli-2ca05e35.md",
+        "episodes/056-Ep-59_Behind_the_Tech_Kevin_Scott_Podcast_with_David_Kirtley-502071d4.md",
+        "episodes/043-Ep-12-0155a40d.md",
+        "episodes/001-Behind-the-Tech_Episode-30_Collier_Bloomberg_Transcript-5dbbb317.md",
+        "episodes/021-EP-15_-Behind_the_Tech_Kevin_Scott_Podcast_with_danah_boyd-7878db41.md",
+        "episodes/033-EP-27_-Behind_the_Tech_2020-Year-In-Review-5c550fd7.md"
+      ]
+    },
+    {
+      "id": "b84ad48c-099e-47c3-a255-e0a9aff274a0",
+      "question": "How do guests generally perceive the impact of privacy laws on technology development?",
+      "expected_sources": [],
+      "basic_sources": [
+        "episodes/021-EP-15_-Behind_the_Tech_Kevin_Scott_Podcast_with_danah_boyd-7878db41.md",
+        "episodes/035-EP-40_Behind_the_Tech_DanielaRus_Transcript-1-34cd545c.md",
+        "episodes/032-EP-26_-Behind_the_Tech_OrenEtzioni_CEO-AllenInstitute-0f57a538.md",
+        "episodes/004-Behind-the-Tech_Episode-33_DavidBaker_Transcript-f5baf5f0.md",
+        "episodes/049-Ep-52_Behind_the_Tech_Kevin_Scott_Podcast_with_Bill_Gates-qc-042db844.md",
+        "episodes/023-EP-17_-Behind_the_Tech_Kevin_Scott_Podcast_2019-Year_In_Review-7a776da2.md",
+        "episodes/031-EP-25_-Behind_the_Tech_CharlieStross_Sci-fi_author-e3510f0e.md"
+      ],
+      "local_sources": [
+        "episodes/021-EP-15_-Behind_the_Tech_Kevin_Scott_Podcast_with_danah_boyd-7878db41.md",
+        "episodes/035-EP-40_Behind_the_Tech_DanielaRus_Transcript-1-34cd545c.md",
+        "episodes/032-EP-26_-Behind_the_Tech_OrenEtzioni_CEO-AllenInstitute-0f57a538.md",
+        "episodes/004-Behind-the-Tech_Episode-33_DavidBaker_Transcript-f5baf5f0.md",
+        "episodes/049-Ep-52_Behind_the_Tech_Kevin_Scott_Podcast_with_Bill_Gates-qc-042db844.md",
+        "episodes/023-EP-17_-Behind_the_Tech_Kevin_Scott_Podcast_2019-Year_In_Review-7a776da2.md",
+        "episodes/031-EP-25_-Behind_the_Tech_CharlieStross_Sci-fi_author-e3510f0e.md"
+      ]
+    },
+    {
+      "id": "da4f31d5-bc8f-4559-ae25-1d07b81a3ebc",
+      "question": "Do any tech leaders discuss the balance between innovation and ethical considerations?",
+      "expected_sources": [],
+      "basic_sources": [
+        "episodes/012-EP-04_-Behind_the_Tech_Kevin-Scott_Podcast_with_Judy-Estrin-56e57785.md",
+        "episodes/042-EP-9_-Behind_the_Tech_Kevin-Scott_Podcast_with_Reid_Hoffman-55d16a56.md",
+        "episodes/023-EP-17_-Behind_the_Tech_Kevin_Scott_Podcast_2019-Year_In_Review-7a776da2.md",
+        "episodes/028-EP-22_-Behind_the_Tech_Kevin_Drew-Endy_Bioengineering-pioneer-7d00f714.md",
+        "episodes/015-EP-07_-Behind_the_Tech_Kevin-Scott_Podcast_with_Dio_Gonzalez_TRANSCRIPT-a7ed3b4a.md",
+        "episodes/054-Ep-57_Behind_the_Tech_Kevin_Scott_Podcast_with_Kevin_Roose-ab944fdd.md",
+        "episodes/036-EP-42_Behind_the_Tech_Irma-Olguin_Transcript-382976b9.md",
+        "episodes/027-EP-21_-Behind_the_Tech_Kevin_Eric-Horvitz_Chief-Scientific-Officer_Microsoft-6eda88b6.md",
+        "episodes/053-Ep-56_Behind_the_Tech_Kevin_Scott_Podcast_with_will.i-9df3cba6.md"
+      ],
+      "local_sources": [
+        "episodes/012-EP-04_-Behind_the_Tech_Kevin-Scott_Podcast_with_Judy-Estrin-56e57785.md",
+        "episodes/042-EP-9_-Behind_the_Tech_Kevin-Scott_Podcast_with_Reid_Hoffman-55d16a56.md",
+        "episodes/023-EP-17_-Behind_the_Tech_Kevin_Scott_Podcast_2019-Year_In_Review-7a776da2.md",
+        "episodes/028-EP-22_-Behind_the_Tech_Kevin_Drew-Endy_Bioengineering-pioneer-7d00f714.md",
+        "episodes/015-EP-07_-Behind_the_Tech_Kevin-Scott_Podcast_with_Dio_Gonzalez_TRANSCRIPT-a7ed3b4a.md",
+        "episodes/054-Ep-57_Behind_the_Tech_Kevin_Scott_Podcast_with_Kevin_Roose-ab944fdd.md",
+        "episodes/036-EP-42_Behind_the_Tech_Irma-Olguin_Transcript-382976b9.md",
+        "episodes/027-EP-21_-Behind_the_Tech_Kevin_Eric-Horvitz_Chief-Scientific-Officer_Microsoft-6eda88b6.md",
+        "episodes/053-Ep-56_Behind_the_Tech_Kevin_Scott_Podcast_with_will.i-9df3cba6.md"
+      ]
+    },
+    {
+      "id": "c696ae43-e82f-49ce-b4b3-84d9400efb6f",
+      "question": "What are the suggested changes to current policies mentioned by the guests?",
+      "expected_sources": [],
+      "basic_sources": [
+        "episodes/031-EP-25_-Behind_the_Tech_CharlieStross_Sci-fi_author-e3510f0e.md",
+        "episodes/033-EP-27_-Behind_the_Tech_2020-Year-In-Review-5c550fd7.md",
+        "episodes/007-Behind-the-Tech_Episode-36_PeterLee_Transcript-49604e7b.md",
+        "episodes/055-Ep-58_Behind_the_Tech_Kevin_Scott_Podcast_with_William_A_Adams-4df1864a.md",
+        "episodes/039-EP-49_Behind_the_Tech_Kevin_Scott_Podcast_2022YearinReview-bc7ed5d0.md",
+        "episodes/040-EP-50_Behind_the_Tech_Kevin_Scott_Podcast_with_Tobi_Lutke-ec41bb51.md",
+        "episodes/051-Ep-54_Behind_the_Tech_Kevin_Scott_Podcast_with_Neil_deGrasse_Tyson_V2-54e41a8d.md",
+        "episodes/005-Behind-the-Tech_Episode-34_ChaseJarvis_Transcript-01f0450d.md",
+        "episodes/004-Behind-the-Tech_Episode-33_DavidBaker_Transcript-f5baf5f0.md",
+        "episodes/013-EP-05_-Behind_the_Tech_Kevin-Scott_Podcast_with_Danielle-Feinberg-7ebb8303.md"
+      ],
+      "local_sources": [
+        "episodes/031-EP-25_-Behind_the_Tech_CharlieStross_Sci-fi_author-e3510f0e.md",
+        "episodes/033-EP-27_-Behind_the_Tech_2020-Year-In-Review-5c550fd7.md",
+        "episodes/007-Behind-the-Tech_Episode-36_PeterLee_Transcript-49604e7b.md",
+        "episodes/055-Ep-58_Behind_the_Tech_Kevin_Scott_Podcast_with_William_A_Adams-4df1864a.md",
+        "episodes/039-EP-49_Behind_the_Tech_Kevin_Scott_Podcast_2022YearinReview-bc7ed5d0.md",
+        "episodes/040-EP-50_Behind_the_Tech_Kevin_Scott_Podcast_with_Tobi_Lutke-ec41bb51.md",
+        "episodes/051-Ep-54_Behind_the_Tech_Kevin_Scott_Podcast_with_Neil_deGrasse_Tyson_V2-54e41a8d.md",
+        "episodes/005-Behind-the-Tech_Episode-34_ChaseJarvis_Transcript-01f0450d.md",
+        "episodes/004-Behind-the-Tech_Episode-33_DavidBaker_Transcript-f5baf5f0.md",
+        "episodes/013-EP-05_-Behind_the_Tech_Kevin-Scott_Podcast_with_Danielle-Feinberg-7ebb8303.md"
+      ]
+    },
+    {
+      "id": "13d52d3f-1cb6-460b-adf0-325396fb866a",
+      "question": "Are collaborations between tech companies and governments discussed and in what context?",
+      "expected_sources": [],
+      "basic_sources": [
+        "episodes/018-EP-11_-Behind_the_Tech_Kevin-Scott_Podcast_with_Fei-Fei-Li-fa607629.md",
+        "episodes/012-EP-04_-Behind_the_Tech_Kevin-Scott_Podcast_with_Judy-Estrin-56e57785.md",
+        "episodes/024-EP-18_-Behind_the_Tech_Kevin_Scott_Podcast_ChrisUrmson-3b0950b4.md",
+        "episodes/023-EP-17_-Behind_the_Tech_Kevin_Scott_Podcast_2019-Year_In_Review-7a776da2.md",
+        "episodes/021-EP-15_-Behind_the_Tech_Kevin_Scott_Podcast_with_danah_boyd-7878db41.md",
+        "episodes/036-EP-42_Behind_the_Tech_Irma-Olguin_Transcript-382976b9.md",
+        "episodes/027-EP-21_-Behind_the_Tech_Kevin_Eric-Horvitz_Chief-Scientific-Officer_Microsoft-6eda88b6.md"
+      ],
+      "local_sources": [
+        "episodes/018-EP-11_-Behind_the_Tech_Kevin-Scott_Podcast_with_Fei-Fei-Li-fa607629.md",
+        "episodes/012-EP-04_-Behind_the_Tech_Kevin-Scott_Podcast_with_Judy-Estrin-56e57785.md",
+        "episodes/024-EP-18_-Behind_the_Tech_Kevin_Scott_Podcast_ChrisUrmson-3b0950b4.md",
+        "episodes/023-EP-17_-Behind_the_Tech_Kevin_Scott_Podcast_2019-Year_In_Review-7a776da2.md",
+        "episodes/021-EP-15_-Behind_the_Tech_Kevin_Scott_Podcast_with_danah_boyd-7878db41.md",
+        "episodes/036-EP-42_Behind_the_Tech_Irma-Olguin_Transcript-382976b9.md",
+        "episodes/027-EP-21_-Behind_the_Tech_Kevin_Eric-Horvitz_Chief-Scientific-Officer_Microsoft-6eda88b6.md"
+      ]
+    }
+  ]
+}

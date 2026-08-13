@@ -6,6 +6,8 @@ from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
+from rag_core.graph.models import document_node_id
+from rag_core.graph.store import GraphStore
 from rag_core.indexing.store import VectorStoreManager
 from rag_core.retrieval.pipeline import RAGPipeline
 from rag_core.watcher import VaultWatcher
@@ -15,20 +17,23 @@ from config import get_config, Config
 _pipeline: RAGPipeline | None = None
 _store: VectorStoreManager | None = None
 _watcher: VaultWatcher | None = None
+_graph_store: GraphStore | None = None
 
 
 def init_app(config: Config | None = None):
-    global _pipeline, _store, _watcher
+    global _pipeline, _store, _watcher, _graph_store
     cfg = config or get_config()
 
     _store = VectorStoreManager(persist_dir=cfg.chroma_persist_dir)
-    _pipeline = RAGPipeline(store=_store)
+    _graph_store = GraphStore(cfg.graph_db_path) if cfg.graph_enabled else None
+    _pipeline = RAGPipeline(store=_store, graph_store=_graph_store)
 
     if cfg.obsidian_vault_path:
         _watcher = VaultWatcher(
             store=_store,
             vault_path=cfg.obsidian_vault_path,
             ignore_dirs=list(cfg.obsidian_ignore_dirs),
+            graph_store=_graph_store,
         )
         try:
             _watcher.full_sync()
@@ -50,6 +55,8 @@ def create_app(config: Config | None = None) -> FastAPI:
         yield
         if _watcher:
             _watcher.stop_watching()
+        if _graph_store:
+            _graph_store.close()
 
     app = FastAPI(title="RAG 知识库助手", version="0.1.0", lifespan=lifespan)
 
@@ -74,12 +81,24 @@ def create_app(config: Config | None = None) -> FastAPI:
         session_id = body.get("session_id", "default")
         folder = body.get("folder")
         tag = body.get("tag")
+        mode = body.get("mode", "auto")
+        debug_retrieval = bool(body.get("debug_retrieval", False))
+        if mode not in {"auto", "basic", "local"}:
+            raise HTTPException(
+                status_code=400, detail="mode 必须是 auto、basic 或 local"
+            )
 
         if _pipeline is None:
             raise HTTPException(status_code=500, detail="服务未初始化")
 
         result = await chat_answer(
-            _pipeline, question, session_id=session_id, folder=folder, tag=tag
+            _pipeline,
+            question,
+            session_id=session_id,
+            folder=folder,
+            tag=tag,
+            mode=mode,
+            debug_retrieval=debug_retrieval,
         )
         return JSONResponse(result)
 
@@ -89,7 +108,7 @@ def create_app(config: Config | None = None) -> FastAPI:
             return JSONResponse({"status": "not_initialized"}, status_code=200)
 
         stats = _store.get_stats()
-        return JSONResponse({
+        payload = {
             "status": "ok",
             "index": stats,
             "config": {
@@ -104,23 +123,67 @@ def create_app(config: Config | None = None) -> FastAPI:
                 "rag_max_retry": cfg.rag_max_retry,
                 "rag_require_citations": cfg.rag_require_citations,
                 "server_port": cfg.server_port,
+                "graph_enabled": cfg.graph_enabled,
             },
-        })
+        }
+        if _graph_store is not None:
+            payload["graph"] = _graph_store.get_stats()
+        return JSONResponse(payload)
 
     @app.get("/health")
     async def health():
         return {"status": "ok"}
 
     @app.post("/api/reindex")
-    async def reindex():
+    async def reindex(scope: str = Query(default="all")):
         if _watcher is None:
             raise HTTPException(status_code=400, detail="未配置 Obsidian 仓库路径")
 
         try:
-            result = _watcher.rebuild()
+            if scope == "graph":
+                if _graph_store is None:
+                    raise HTTPException(status_code=400, detail="图索引未启用")
+                result = _watcher.rebuild_graph()
+            elif scope == "vector":
+                result = _watcher.rebuild(include_graph=False)
+            elif scope == "all":
+                result = _watcher.rebuild()
+            else:
+                raise HTTPException(
+                    status_code=400, detail="scope 必须是 all、vector 或 graph"
+                )
             return JSONResponse({"status": "ok", **result})
+        except HTTPException:
+            raise
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
+
+    @app.get("/api/graph/status")
+    async def graph_status():
+        if _graph_store is None:
+            return JSONResponse({"status": "disabled"})
+        return JSONResponse({"status": "ok", **_graph_store.get_stats()})
+
+    @app.get("/api/graph/neighbors/{node_id:path}")
+    async def graph_neighbors(node_id: str, limit: int = Query(default=50, ge=1, le=200)):
+        if _graph_store is None:
+            raise HTTPException(status_code=404, detail="图索引未启用")
+        result = _graph_store.neighbors(node_id, limit=limit)
+        if result is None:
+            raise HTTPException(status_code=404, detail="图节点不存在")
+        return JSONResponse(result)
+
+    @app.get("/api/graph/subgraph")
+    async def graph_subgraph(
+        source: str = Query(...),
+        limit: int = Query(default=50, ge=1, le=200),
+    ):
+        if _graph_store is None:
+            raise HTTPException(status_code=404, detail="图索引未启用")
+        result = _graph_store.neighbors(document_node_id(source), limit=limit)
+        if result is None:
+            raise HTTPException(status_code=404, detail=f"图中未找到笔记: {source}")
+        return JSONResponse(result)
 
     @app.get("/api/sources/{source:path}")
     async def get_source(

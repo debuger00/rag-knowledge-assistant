@@ -144,6 +144,14 @@ body {
     outline: none;
 }
 
+.input-area select {
+    padding: 10px 8px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
 .input-area input:focus { border-color: var(--accent); }
 
 .input-area button {

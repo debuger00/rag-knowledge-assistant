@@ -63,7 +63,12 @@ class VectorStoreManager:
             batch = documents[i:i + self._BATCH_SIZE]
             for doc in batch:
                 doc.metadata = self._clean_metadata(doc.metadata)
-            ids = [f"parent_{doc.metadata.get('source', uuid.uuid4())}" for doc in batch]
+            ids = [
+                str(doc.metadata.get("document_id"))
+                if doc.metadata.get("document_id")
+                else f"parent_{doc.metadata.get('source', uuid.uuid4())}"
+                for doc in batch
+            ]
             self._parent_store.add_documents(batch, ids=ids)
             all_ids.extend(ids)
             done = min(i + self._BATCH_SIZE, total)
@@ -80,8 +85,12 @@ class VectorStoreManager:
             batch = documents[i:i + self._BATCH_SIZE]
             for doc in batch:
                 doc.metadata = self._clean_metadata(doc.metadata)
-            ids = [f"child_{uuid.uuid4().hex[:12]}_{doc.metadata.get('parent_id', 'unknown')}"
-                   for doc in batch]
+            ids = [
+                str(doc.metadata.get("chunk_id"))
+                if doc.metadata.get("chunk_id")
+                else f"child_{uuid.uuid4().hex[:12]}_{doc.metadata.get('parent_id', 'unknown')}"
+                for doc in batch
+            ]
             self._children_store.add_documents(batch, ids=ids)
             all_ids.extend(ids)
             done = min(i + self._BATCH_SIZE, total)
@@ -101,6 +110,49 @@ class VectorStoreManager:
         return self._children_store.similarity_search_with_relevance_scores(
             query, k=k, filter=filter_dict
         )
+
+    @staticmethod
+    def combine_filters(
+        first: dict | None, second: dict | None
+    ) -> dict | None:
+        if not first:
+            return second
+        if not second:
+            return first
+        return {"$and": [first, second]}
+
+    def similarity_search_by_sources(
+        self,
+        query: str,
+        sources: list[str],
+        *,
+        k_per_source: int = 1,
+        filter_dict: dict | None = None,
+    ) -> list[tuple[Document, float]]:
+        """Return the best semantic chunks from graph-expanded sources."""
+        effective_filter = dict(filter_dict or {})
+        tag = effective_filter.pop("__tag__", None)
+        results: list[tuple[Document, float]] = []
+        for source in dict.fromkeys(sources):
+            source_filter = self.combine_filters(
+                effective_filter or None, {"source": source}
+            )
+            candidates = self.similarity_search_with_scores(
+                query,
+                k=max(k_per_source * 5, k_per_source) if tag else k_per_source,
+                filter_dict=source_filter,
+            )
+            if tag:
+                candidates = [
+                    (doc, score) for doc, score in candidates
+                    if tag in {
+                        value.strip()
+                        for value in str(doc.metadata.get("tags", "")).split("|")
+                        if value.strip()
+                    }
+                ]
+            results.extend(candidates[:k_per_source])
+        return results
 
     def list_parent_sources(self) -> set[str]:
         """Return every source currently present in the parent collection."""

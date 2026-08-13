@@ -8,8 +8,10 @@ from langchain_core.documents import Document
 from langchain_core.prompts import ChatPromptTemplate
 
 from config import get_config
+from rag_core.graph.store import GraphStore
 from rag_core.indexing.store import VectorStoreManager
 from rag_core.llm.deepseek import create_llm
+from rag_core.retrieval.hybrid import HybridGraphRetriever
 from rag_core.retrieval.retriever import ParentChildRetriever
 
 
@@ -39,6 +41,8 @@ class AnswerResponse(TypedDict, total=False):
     citations: list[Citation]
     message: str
     reason: str
+    mode: str
+    retrieval_trace: dict[str, Any]
 
 
 SYSTEM_PROMPT = """你只能根据提供的文档证据回答问题。
@@ -212,14 +216,26 @@ def validate_answer_with_citations(
 
 
 class RAGPipeline:
-    def __init__(self, store: VectorStoreManager):
+    def __init__(
+        self,
+        store: VectorStoreManager,
+        graph_store: GraphStore | None = None,
+    ):
         self.store = store
+        self.graph_store = graph_store
         self.config = get_config()
-        self.retriever = ParentChildRetriever(
+        self.basic_retriever = ParentChildRetriever(
             store=store,
             top_k=self.config.retrieval_top_k,
-            enable_link_expansion=self.config.enable_link_expansion,
+            enable_link_expansion=False,
         )
+        self.hybrid_retriever = (
+            HybridGraphRetriever(store, graph_store)
+            if graph_store is not None and self.config.graph_enabled
+            else None
+        )
+        self.retriever = self.hybrid_retriever or self.basic_retriever
+        self.last_retrieval_mode = "local" if self.hybrid_retriever else "basic"
         self.prompt = ChatPromptTemplate.from_template(SYSTEM_PROMPT)
         self._llm = None
 
@@ -230,11 +246,39 @@ class RAGPipeline:
         return self._llm
 
     def retrieve_scored_evidence(
-        self, question: str
+        self,
+        question: str,
+        mode: str = "auto",
+        filter_dict: dict | None = None,
     ) -> list[tuple[Document, float]]:
-        return self.retriever.retrieve_with_scores(question)[
+        retriever, resolved_mode = self._retriever_for_mode(mode)
+        self.last_retrieval_mode = resolved_mode
+        if filter_dict is None:
+            scored = retriever.retrieve_with_scores(question)
+        else:
+            scored = retriever.retrieve_with_scores(question, filter_dict=filter_dict)
+        return scored[
             : self.config.rag_max_citations
         ]
+
+    def _retriever_for_mode(self, mode: str):
+        normalized = (mode or "auto").lower()
+        if normalized not in {"auto", "basic", "local"}:
+            raise ValueError("mode 必须是 auto、basic 或 local")
+        basic = getattr(self, "basic_retriever", None)
+        hybrid = getattr(self, "hybrid_retriever", None)
+        fallback = getattr(self, "retriever")
+        if normalized == "basic":
+            return basic or fallback, "basic"
+        if hybrid is not None:
+            return hybrid, "local"
+        return basic or fallback, "basic"
+
+    def get_retrieval_trace(self) -> dict[str, Any]:
+        hybrid = getattr(self, "hybrid_retriever", None)
+        if hybrid is None or self.last_retrieval_mode != "local":
+            return {}
+        return dict(hybrid.last_trace)
 
     def retrieve_evidence(
         self, question: str
@@ -254,17 +298,15 @@ class RAGPipeline:
         question: str,
         folder: str | None = None,
         tag: str | None = None,
+        mode: str = "auto",
     ) -> list[tuple[Document, float]]:
         filter_dict = {"folder": folder} if folder else None
         if tag:
             filter_dict = filter_dict or {}
-            filter_dict["tags"] = {"$contains": tag}
-        original_filter = self.retriever.filter_dict
-        self.retriever.filter_dict = filter_dict
-        try:
-            return self.retrieve_scored_evidence(question)
-        finally:
-            self.retriever.filter_dict = original_filter
+            filter_dict["__tag__"] = tag
+        return self.retrieve_scored_evidence(
+            question, mode=mode, filter_dict=filter_dict
+        )
 
     def retrieve_evidence_with_filter(
         self,
@@ -283,9 +325,10 @@ class RAGPipeline:
         question: str,
         history: list[dict] | None = None,
         scored_evidence: list[tuple[Document, float]] | None = None,
+        mode: str = "auto",
     ) -> AnswerResponse:
         scored = (
-            self.retrieve_scored_evidence(question)
+            self.retrieve_scored_evidence(question, mode=mode)
             if scored_evidence is None
             else scored_evidence
         )
@@ -323,9 +366,10 @@ class RAGPipeline:
         question: str,
         history: list[dict] | None = None,
         scored_evidence: list[tuple[Document, float]] | None = None,
+        mode: str = "auto",
     ) -> AnswerResponse:
         scored = (
-            self.retrieve_scored_evidence(question)
+            self.retrieve_scored_evidence(question, mode=mode)
             if scored_evidence is None
             else scored_evidence
         )
@@ -358,13 +402,21 @@ class RAGPipeline:
             reason += "：" + "；".join(validation_errors)
         return insufficient_evidence(reason)
 
-    def ask(self, question: str, history: list[dict] | None = None) -> AnswerResponse:
-        return self.answer(question, history)
+    def ask(
+        self,
+        question: str,
+        history: list[dict] | None = None,
+        mode: str = "auto",
+    ) -> AnswerResponse:
+        return self.answer(question, history, mode=mode)
 
     async def aask(
-        self, question: str, history: list[dict] | None = None
+        self,
+        question: str,
+        history: list[dict] | None = None,
+        mode: str = "auto",
     ) -> AnswerResponse:
-        return await self.aanswer(question, history)
+        return await self.aanswer(question, history, mode=mode)
 
     def ask_with_filter(
         self,
@@ -372,9 +424,12 @@ class RAGPipeline:
         history: list[dict] | None = None,
         folder: str | None = None,
         tag: str | None = None,
+        mode: str = "auto",
     ) -> AnswerResponse:
-        scored = self.retrieve_scored_evidence_with_filter(question, folder, tag)
-        return self.answer(question, history, scored)
+        scored = self.retrieve_scored_evidence_with_filter(
+            question, folder, tag, mode=mode
+        )
+        return self.answer(question, history, scored, mode=mode)
 
     async def aask_with_filter(
         self,
@@ -382,9 +437,12 @@ class RAGPipeline:
         history: list[dict] | None = None,
         folder: str | None = None,
         tag: str | None = None,
+        mode: str = "auto",
     ) -> AnswerResponse:
-        scored = self.retrieve_scored_evidence_with_filter(question, folder, tag)
-        return await self.aanswer(question, history, scored)
+        scored = self.retrieve_scored_evidence_with_filter(
+            question, folder, tag, mode=mode
+        )
+        return await self.aanswer(question, history, scored, mode=mode)
 
 
 def _evidence_descriptor(

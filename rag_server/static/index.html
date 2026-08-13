@@ -55,6 +55,11 @@
     </div>
 
     <div class="input-area">
+        <select x-model="retrievalMode" @change="localStorage.setItem('retrievalMode', retrievalMode)" aria-label="检索模式" title="检索模式">
+            <option value="auto">自动检索</option>
+            <option value="local">图增强</option>
+            <option value="basic">仅向量</option>
+        </select>
         <input
             type="text"
             x-model="question"
@@ -99,6 +104,7 @@
         return {
             messages: [],
             question: '',
+            retrievalMode: localStorage.getItem('retrievalMode') || 'auto',
             loading: false,
             typingText: '',
             showSettings: false,
@@ -126,7 +132,8 @@
                         const data = await res.json();
                         if (data.status === 'ok' && data.index) {
                             const t = new Date(data.index.last_sync).toLocaleTimeString('zh-CN');
-                            this.statusText = `已索引 ${data.index.parent_count} 篇笔记 · 最近同步 ${t}`;
+                            const graphText = data.graph ? ` · 图 ${data.graph.node_count} 节点` : '';
+                            this.statusText = `已索引 ${data.index.parent_count} 篇笔记${graphText} · 最近同步 ${t}`;
                         }
                         if (data.config) {
                             if (!localStorage.getItem('vaultPath')) {
@@ -173,7 +180,11 @@
                     const resp = await fetch('/api/chat', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ question: q, session_id: this.sessionId }),
+                        body: JSON.stringify({
+                            question: q,
+                            session_id: this.sessionId,
+                            mode: this.retrievalMode,
+                        }),
                     });
 
                     const data = await resp.json();
