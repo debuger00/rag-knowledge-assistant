@@ -41,8 +41,8 @@ class ObsidianLoader:
     def _iter_md_files(self):
         for root, dirs, files in os.walk(self.vault_path):
             # 过滤忽略目录
-            rel_dir = Path(root).relative_to(self.vault_path)
-            parts = rel_dir.parts
+            rel_dir = Path(root).relative_to(self.vault_path)#算出当前目录相对 vault 根目录的路径
+            parts = rel_dir.parts  #.parts —— 把这段路径拆成元组
             if any(ignored in parts for ignored in self.ignore_dirs):
                 continue
 
@@ -72,7 +72,7 @@ class ObsidianLoader:
             str(rel_path.parent).replace("\\", "/")
             if str(rel_path.parent) != "."
             else ""
-        )
+        )#获取当前md文件的 所在的文件夹
 
         mtime = datetime.fromtimestamp(
             filepath.stat().st_mtime, tz=timezone.utc

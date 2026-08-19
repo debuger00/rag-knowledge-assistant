@@ -1,0 +1,72 @@
+# 隔离配置：docker_practice 文档集完整 GraphRAG 测试
+# 用法：RAG_CONFIG_PATH=config.docker.yaml uv run rag <command>
+
+documents:
+  path: ./documents/01docker_practice
+  ignore_dirs:
+    - .git
+    - .github
+    - .devcontainer
+    - .docker
+    - _images
+
+llm:
+  model: deepseek-chat
+  base_url: https://api.deepseek.com
+
+embedding:
+  model: BAAI/bge-small-zh-v1.5
+  device: cuda
+  local_files_only: true   # 强制使用本地缓存模型，避免构建时访问 HuggingFace 校验
+
+storage:
+  chroma_dir: ./data/01docker_data/chroma
+  history_dir: ./data/01docker_data/history
+
+retrieval:
+  top_k: 10
+  score_threshold: 0.35
+  max_citations: 5
+  max_retry: 1
+  require_citations: true
+  enable_link_expansion: false
+
+server:
+  host: 127.0.0.1
+  port: 8501
+
+chunking:
+  chunk_size: 800
+  chunk_overlap: 100
+  max_len_before_split: 2000
+
+graph:
+  enabled: true
+  db_path: ./data/01docker_data/graph.sqlite3
+  max_hops: 2
+  max_seed_nodes: 10
+  max_neighbors: 30
+  graph_weight: 0.25
+  entity_extraction: true
+  community_detection: true
+  community_reports: true
+  extraction:
+    prompt: prompts/extract_graph.txt
+    summary_prompt: prompts/summarize_descriptions.txt
+    entity_types:
+      - concept
+      - command
+      - tool
+      - file
+      - image
+      - service
+      - network
+      - component
+    max_gleanings: 0
+    concurrency: 4
+    max_retries: 2
+    min_confidence: 0.65
+  community:
+    max_cluster_size: 100
+    seed: 42
+    report_prompt: prompts/community_report.txt

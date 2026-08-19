@@ -1,0 +1,1 @@
+{"status":"answered","answer":[{"text":"使用 docker ps 命令查看正在运行的容器 ID。","citation_ids":["cite_1"]}],"citations":[{"id":"cite_1","document_path":"01_introduction/1.1_quickstart.md","anchor":"查看正在运行的容器-id","section_title":"查看正在运行的容器 ID","quote":"# 查看正在运行的容器 ID\n\n$ docker ps","score":0.5721}],"mode":"basic"}
