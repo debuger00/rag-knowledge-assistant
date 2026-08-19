@@ -83,9 +83,9 @@ def create_app(config: Config | None = None) -> FastAPI:
         tag = body.get("tag")
         mode = body.get("mode", "auto")
         debug_retrieval = bool(body.get("debug_retrieval", False))
-        if mode not in {"auto", "basic", "local"}:
+        if mode not in {"auto", "basic", "local", "global"}:
             raise HTTPException(
-                status_code=400, detail="mode 必须是 auto、basic 或 local"
+                status_code=400, detail="mode 必须是 auto、basic、local 或 global"
             )
 
         if _pipeline is None:

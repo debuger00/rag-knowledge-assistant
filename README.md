@@ -11,6 +11,7 @@
 - 新增、修改、删除实时同步，服务重启后清理已删除文档
 - FastAPI + 结构化 JSON 问答 Web UI
 - OpenAI-compatible LLM 网关，开发阶段使用 DeepSeek API 占位
+- LLM 实体/关系抽取、跨块合并、Leiden 社区与可追溯 GraphRAG 检索
 - Docker Compose 一键运行和 GitHub Actions 自动测试
 
 ## 一键运行
@@ -67,11 +68,50 @@ Linux/macOS 使用 `source .venv/bin/activate` 激活环境。
 python -m rag_cli.main ask "文档中的部署步骤是什么？"
 python -m rag_cli.main index --sync
 python -m rag_cli.main index --status
+python -m rag_cli.main graph-build --changed-only
+python -m rag_cli.main graph-communities --reports
 python -m pytest tests -q
 ```
 
 由于比赛版新增了 anchor 元数据，从旧面试项目升级后必须执行一次
 `index --rebuild`。
+
+### 语义 GraphRAG
+
+语义建图是显式的离线操作，不会随服务启动自动调用 LLM。先在 `config.yaml`
+中设置：
+
+```yaml
+graph:
+  entity_extraction: true
+```
+
+然后运行：
+
+```powershell
+uv run rag graph-build --changed-only
+```
+
+该命令复用现有 child chunk 作为 TextUnit，抽取实体与关系、校验证据原文、
+缓存模型结果、合并跨块描述并更新实体向量。未修改的 TextUnit 不会重复调用模型。
+
+若要启用 Leiden 社区和社区报告，可设置：
+
+```yaml
+graph:
+  community_detection: true
+  community_reports: true
+```
+
+也可对已有语义图单独运行：
+
+```powershell
+uv run rag graph-communities --reports
+```
+
+问答支持 `--mode basic|local|global|auto`。`local` 使用实体关系路径扩展，
+`global` 使用社区报告发现相关文档，但两者最终都只把可定位的原始 child chunk
+作为回答证据。
 
 ## 回答与引用协议
 
@@ -157,6 +197,7 @@ GET /api/sources/guide.md?anchor=部署
 ## 文档
 
 - [架构与数据流](docs/architecture.md)
+- [语义 GraphRAG 实施方案](docs/semantic-graphrag-implementation.md)
 - [自测报告](docs/self-test-report.md)
 - [2～3 分钟 Demo 录制脚本](docs/demo-script.md)
 - [原始设计记录](docs/superpowers/specs/2026-06-09-rag-knowledge-assistant-design.md)

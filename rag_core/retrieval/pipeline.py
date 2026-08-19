@@ -9,6 +9,7 @@ from langchain_core.prompts import ChatPromptTemplate
 
 from config import get_config
 from rag_core.graph.store import GraphStore
+from rag_core.retrieval.global_search import GlobalCommunityRetriever
 from rag_core.indexing.store import VectorStoreManager
 from rag_core.llm.deepseek import create_llm
 from rag_core.retrieval.hybrid import HybridGraphRetriever
@@ -234,6 +235,11 @@ class RAGPipeline:
             if graph_store is not None and self.config.graph_enabled
             else None
         )
+        self.global_retriever = (
+            GlobalCommunityRetriever(store, graph_store)
+            if graph_store is not None and self.config.graph_enabled
+            else None
+        )
         self.retriever = self.hybrid_retriever or self.basic_retriever
         self.last_retrieval_mode = "local" if self.hybrid_retriever else "basic"
         self.prompt = ChatPromptTemplate.from_template(SYSTEM_PROMPT)
@@ -263,18 +269,26 @@ class RAGPipeline:
 
     def _retriever_for_mode(self, mode: str):
         normalized = (mode or "auto").lower()
-        if normalized not in {"auto", "basic", "local"}:
-            raise ValueError("mode 必须是 auto、basic 或 local")
+        if normalized not in {"auto", "basic", "local", "global"}:
+            raise ValueError("mode 必须是 auto、basic、local 或 global")
         basic = getattr(self, "basic_retriever", None)
         hybrid = getattr(self, "hybrid_retriever", None)
         fallback = getattr(self, "retriever")
         if normalized == "basic":
             return basic or fallback, "basic"
+        if normalized == "global":
+            global_retriever = getattr(self, "global_retriever", None)
+            return global_retriever or basic or fallback, (
+                "global" if global_retriever is not None else "basic"
+            )
         if hybrid is not None:
             return hybrid, "local"
         return basic or fallback, "basic"
 
     def get_retrieval_trace(self) -> dict[str, Any]:
+        if self.last_retrieval_mode == "global":
+            global_retriever = getattr(self, "global_retriever", None)
+            return dict(global_retriever.last_trace) if global_retriever else {}
         hybrid = getattr(self, "hybrid_retriever", None)
         if hybrid is None or self.last_retrieval_mode != "local":
             return {}

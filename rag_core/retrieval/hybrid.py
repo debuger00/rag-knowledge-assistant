@@ -40,6 +40,35 @@ class HybridGraphRetriever:
             max_neighbors=self.config.graph_max_neighbors,
             max_results=self.config.graph_max_neighbors,
         )
+        entity_seeds = []
+        entity_search = getattr(self.store, "similarity_search_entities", None)
+        entity_expand = getattr(self.graph_store, "expand_entities", None)
+        entity_hits = []
+        if callable(entity_search) and callable(entity_expand):
+            entity_matches = entity_search(
+                query, k=self.config.graph_max_seed_nodes
+            )
+            entity_seeds = [
+                str(doc.metadata.get("entity_id", ""))
+                for doc, score in entity_matches
+                if doc.metadata.get("entity_id")
+                and float(score) >= self.config.retrieval_score_threshold
+            ]
+            if entity_seeds:
+                entity_hits = entity_expand(
+                    entity_seeds,
+                    max_hops=self.config.graph_max_hops,
+                    max_neighbors=self.config.graph_max_neighbors,
+                    max_results=self.config.graph_max_neighbors,
+                )
+        hits_by_source = {}
+        for hit in [*graph_hits, *entity_hits]:
+            current = hits_by_source.get(hit.source)
+            if current is None or hit.score > current.score:
+                hits_by_source[hit.source] = hit
+        graph_hits = sorted(
+            hits_by_source.values(), key=lambda hit: (-hit.score, hit.source)
+        )[: self.config.graph_max_neighbors]
         expanded = self.store.similarity_search_by_sources(
             query,
             [hit.source for hit in graph_hits],
@@ -104,6 +133,7 @@ class HybridGraphRetriever:
         self.last_trace = {
             "vector_hits": len(base),
             "seed_nodes": len(seeds),
+            "entity_seed_nodes": len(entity_seeds),
             "expanded_sources": len(graph_hits),
             "graph_candidates": len(expanded),
             "selected_evidence": len(selected),

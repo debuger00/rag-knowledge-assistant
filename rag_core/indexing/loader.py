@@ -26,9 +26,9 @@ class ObsidianLoader:
 
     def load(self) -> list[Document]:
         docs = []
-        for md_file in self._iter_md_files():
-            doc = self._parse_file(md_file)
-            if doc is not None:
+        for md_file in self._iter_md_files(): # 遍历厂库里每个.md 文件
+            doc = self._parse_file(md_file)  # 把这个文件解析成 Document 文件
+            if doc is not None:   # 解析错误 就跳过
                 docs.append(doc)
         return docs
 

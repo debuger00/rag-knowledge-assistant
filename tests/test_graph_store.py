@@ -1,4 +1,5 @@
 from langchain_core.documents import Document
+import sqlite3
 
 from rag_core.graph.builder import rebuild_structure_graph
 from rag_core.graph.models import document_node_id
@@ -72,3 +73,41 @@ def test_structural_section_edges_do_not_consume_semantic_hops(tmp_path):
     hits = store.expand_sources([("a.md", "seed")], max_hops=2)
 
     assert {hit.source for hit in hits} >= {"b.md", "c.md"}
+
+
+def test_schema_v1_database_is_migrated_in_place(tmp_path):
+    path = tmp_path / "graph.sqlite3"
+    with sqlite3.connect(path) as connection:
+        connection.executescript("""
+            CREATE TABLE nodes (
+                id TEXT PRIMARY KEY, type TEXT NOT NULL, name TEXT NOT NULL,
+                source TEXT NOT NULL DEFAULT '', anchor TEXT NOT NULL DEFAULT '',
+                owner_source TEXT NOT NULL DEFAULT '',
+                content_hash TEXT NOT NULL DEFAULT '',
+                metadata_json TEXT NOT NULL DEFAULT '{}'
+            );
+            CREATE TABLE edges (
+                id TEXT PRIMARY KEY, source_id TEXT NOT NULL,
+                target_id TEXT NOT NULL, type TEXT NOT NULL, weight REAL NOT NULL,
+                evidence_source TEXT NOT NULL DEFAULT '',
+                evidence_anchor TEXT NOT NULL DEFAULT '',
+                evidence_chunk_id TEXT NOT NULL DEFAULT '',
+                metadata_json TEXT NOT NULL DEFAULT '{}'
+            );
+        """)
+
+    store = GraphStore(str(path))
+    try:
+        node_columns = {
+            row["name"]
+            for row in store._connection.execute("PRAGMA table_info(nodes)")
+        }
+        edge_columns = {
+            row["name"]
+            for row in store._connection.execute("PRAGMA table_info(edges)")
+        }
+        assert "description" in node_columns
+        assert {"description", "predicate"} <= edge_columns
+        assert store.get_stats()["schema_version"] == 2
+    finally:
+        store.close()

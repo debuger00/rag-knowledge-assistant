@@ -60,6 +60,22 @@ _YAML_FIELDS = {
     },
 }
 
+_GRAPH_EXTRACTION_FIELDS = {
+    "prompt": "graph_extraction_prompt",
+    "summary_prompt": "graph_summary_prompt",
+    "entity_types": "graph_entity_types",
+    "max_gleanings": "graph_max_gleanings",
+    "concurrency": "graph_extraction_concurrency",
+    "max_retries": "graph_extraction_max_retries",
+    "min_confidence": "graph_min_confidence",
+}
+
+_GRAPH_COMMUNITY_FIELDS = {
+    "max_cluster_size": "graph_community_max_cluster_size",
+    "seed": "graph_community_seed",
+    "report_prompt": "graph_community_report_prompt",
+}
+
 
 @dataclass
 class Config:
@@ -101,6 +117,19 @@ class Config:
     graph_entity_extraction: bool = False
     graph_community_detection: bool = False
     graph_community_reports: bool = False
+    graph_extraction_prompt: str = "prompts/extract_graph.txt"
+    graph_summary_prompt: str = "prompts/summarize_descriptions.txt"
+    graph_entity_types: list[str] = field(default_factory=lambda: [
+        "concept", "language", "library", "class",
+        "function", "api", "tool", "error",
+    ])
+    graph_max_gleanings: int = 0
+    graph_extraction_concurrency: int = 4
+    graph_extraction_max_retries: int = 2
+    graph_min_confidence: float = 0.65
+    graph_community_max_cluster_size: int = 100
+    graph_community_seed: int = 42
+    graph_community_report_prompt: str = "prompts/community_report.txt"
 
     def __post_init__(self) -> None:
         if self.retrieval_top_k < 1:
@@ -131,6 +160,21 @@ class Config:
             raise ValueError("graph.max_neighbors 必须大于 0")
         if not 0 <= self.graph_weight <= 1:
             raise ValueError("graph.graph_weight 必须在 0 到 1 之间")
+        if not self.graph_entity_types or not all(
+            isinstance(value, str) and value.strip()
+            for value in self.graph_entity_types
+        ):
+            raise ValueError("graph.extraction.entity_types 必须是非空字符串数组")
+        if self.graph_max_gleanings < 0:
+            raise ValueError("graph.extraction.max_gleanings 必须大于等于 0")
+        if self.graph_extraction_concurrency < 1:
+            raise ValueError("graph.extraction.concurrency 必须大于 0")
+        if self.graph_extraction_max_retries < 0:
+            raise ValueError("graph.extraction.max_retries 必须大于等于 0")
+        if not 0 <= self.graph_min_confidence <= 1:
+            raise ValueError("graph.extraction.min_confidence 必须在 0 到 1 之间")
+        if self.graph_community_max_cluster_size < 2:
+            raise ValueError("graph.community.max_cluster_size 必须大于等于 2")
 
     @classmethod
     def from_yaml(cls, path: str | Path = DEFAULT_CONFIG_PATH) -> "Config":
@@ -157,13 +201,33 @@ class Config:
             if forbidden:
                 raise ValueError("密钥禁止写入 config.yaml，请使用 .env")
 
-            unknown_fields = set(section_data) - set(fields)
+            allowed_fields = set(fields)
+            if section == "graph":
+                allowed_fields.update({"extraction", "community"})
+            unknown_fields = set(section_data) - allowed_fields
             if unknown_fields:
                 names = ", ".join(sorted(unknown_fields))
                 raise ValueError(f"config.yaml 的 {section} 包含未知字段: {names}")
 
             for yaml_name, value in section_data.items():
-                values[fields[yaml_name]] = value
+                if section == "graph" and yaml_name in {"extraction", "community"}:
+                    if not isinstance(value, dict):
+                        raise ValueError(f"config.yaml 的 graph.{yaml_name} 必须是对象")
+                    nested_fields = (
+                        _GRAPH_EXTRACTION_FIELDS
+                        if yaml_name == "extraction"
+                        else _GRAPH_COMMUNITY_FIELDS
+                    )
+                    unknown_nested = set(value) - set(nested_fields)
+                    if unknown_nested:
+                        names = ", ".join(sorted(unknown_nested))
+                        raise ValueError(
+                            f"config.yaml 的 graph.{yaml_name} 包含未知字段: " + names
+                        )
+                    for nested_name, nested_value in value.items():
+                        values[nested_fields[nested_name]] = nested_value
+                else:
+                    values[fields[yaml_name]] = value
 
         env_overrides: dict[str, tuple[str, Any]] = {
             "RAG_MIN_RETRIEVAL_SCORE": (
@@ -201,7 +265,12 @@ _config: Config | None = None
 def get_config() -> Config:
     global _config
     if _config is None:
-        _config = Config.from_yaml()
+        config_path = os.getenv("RAG_CONFIG_PATH")
+        _config = (
+            Config.from_yaml(config_path)
+            if config_path
+            else Config.from_yaml()
+        )
     return _config
 
 

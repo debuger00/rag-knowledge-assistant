@@ -33,6 +33,16 @@ class VectorStoreManager:
             embedding_function=self._embedder,
             client=self._client,
         )
+        self._entity_store = Chroma(
+            collection_name="rag_entities",
+            embedding_function=self._embedder,
+            client=self._client,
+        )
+        self._community_store = Chroma(
+            collection_name="rag_community_reports",
+            embedding_function=self._embedder,
+            client=self._client,
+        )
 
     _BATCH_SIZE = 20  # 较小批次，降低内存峰值
 
@@ -154,6 +164,92 @@ class VectorStoreManager:
             results.extend(candidates[:k_per_source])
         return results
 
+    def rebuild_entities(self, entities: list[dict]) -> int:
+        """Replace the semantic-entity embedding collection."""
+        try:
+            self._client.delete_collection("rag_entities")
+        except Exception:
+            pass
+        self._entity_store = Chroma(
+            collection_name="rag_entities",
+            embedding_function=self._embedder,
+            client=self._client,
+        )
+        documents = [
+            Document(
+                page_content=(
+                    str(entity.get("name", ""))
+                    + "\n"
+                    + str(entity.get("description", ""))
+                ).strip(),
+                metadata={
+                    "entity_id": str(entity.get("id", "")),
+                    "entity_type": str(
+                        (entity.get("metadata") or {}).get("entity_type", "")
+                    ),
+                },
+            )
+            for entity in entities
+            if entity.get("id") and entity.get("name")
+        ]
+        for index in range(0, len(documents), self._BATCH_SIZE):
+            batch = documents[index:index + self._BATCH_SIZE]
+            self._entity_store.add_documents(
+                batch,
+                ids=[str(value.metadata["entity_id"]) for value in batch],
+            )
+        return len(documents)
+
+    def similarity_search_entities(
+        self, query: str, k: int = 10
+    ) -> list[tuple[Document, float]]:
+        if self._entity_store._collection.count() == 0:
+            return []
+        return self._entity_store.similarity_search_with_relevance_scores(query, k=k)
+
+    def rebuild_community_reports(self, reports: list[dict]) -> int:
+        try:
+            self._client.delete_collection("rag_community_reports")
+        except Exception:
+            pass
+        self._community_store = Chroma(
+            collection_name="rag_community_reports",
+            embedding_function=self._embedder,
+            client=self._client,
+        )
+        documents = [
+            Document(
+                page_content=(
+                    str(report.get("title", ""))
+                    + "\n"
+                    + str(report.get("summary", ""))
+                ).strip(),
+                metadata={
+                    "community_id": str(report.get("id", "")),
+                    "level": int(report.get("level", 0)),
+                    "rank": float(report.get("rank", 0.0)),
+                },
+            )
+            for report in reports
+            if report.get("id") and report.get("summary")
+        ]
+        for index in range(0, len(documents), self._BATCH_SIZE):
+            batch = documents[index:index + self._BATCH_SIZE]
+            self._community_store.add_documents(
+                batch,
+                ids=[str(value.metadata["community_id"]) for value in batch],
+            )
+        return len(documents)
+
+    def similarity_search_communities(
+        self, query: str, k: int = 5
+    ) -> list[tuple[Document, float]]:
+        if self._community_store._collection.count() == 0:
+            return []
+        return self._community_store.similarity_search_with_relevance_scores(
+            query, k=k
+        )
+
     def list_parent_sources(self) -> set[str]:
         """Return every source currently present in the parent collection."""
         result = self._parent_store.get(include=["metadatas"])
@@ -242,8 +338,18 @@ class VectorStoreManager:
             child_count = self._children_store._collection.count()
         except Exception:
             child_count = 0
+        try:
+            entity_count = self._entity_store._collection.count()
+        except Exception:
+            entity_count = 0
+        try:
+            community_report_count = self._community_store._collection.count()
+        except Exception:
+            community_report_count = 0
         return {
             "parent_count": parent_count,
             "child_count": child_count,
+            "entity_count": entity_count,
+            "community_report_count": community_report_count,
             "last_sync": datetime.now(timezone.utc).isoformat(),
         }

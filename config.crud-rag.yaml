@@ -1,37 +1,30 @@
 documents:
-  path: E:\aaa_learning_obsidian\C++_learning    #资料库路径
-  ignore_dirs:
-    - .obsidian
-    - .trash
-    - .git
+  path: ./data/crud_rag_demo/vault
+  ignore_dirs: []
 
 llm:
-  # 开发阶段使用 DeepSeek；比赛网关下发后修改这两项
-  # apikey 在 .env 文件中设置
   model: deepseek-chat
   base_url: https://api.deepseek.com
 
 embedding:
   model: BAAI/bge-small-zh-v1.5
-  # 可选: cpu（通用）、cuda / cuda:0（NVIDIA GPU）、mps（Apple Silicon）
   device: cuda
   local_files_only: false
 
 storage:
-  # 向量库存储路径
-  chroma_dir: ./chroma_data
-  history_dir: ./chat_history
+  chroma_dir: ./data/crud_rag_demo/chroma
+  history_dir: ./data/crud_rag_demo/history
 
 retrieval:
   top_k: 10
-  score_threshold: 0.35
-  max_citations: 5
+  score_threshold: 0.0
+  max_citations: 10
   max_retry: 1
   require_citations: true
   enable_link_expansion: false
 
 server:
-  host: 0.0.0.0
+  host: 127.0.0.1
   port: 8501
 
 chunking:
@@ -41,26 +34,24 @@ chunking:
 
 graph:
   enabled: true
-  db_path: ./graph_data/graph.sqlite3
+  db_path: ./data/crud_rag_demo/graph.sqlite3
   max_hops: 2
   max_seed_nodes: 10
   max_neighbors: 30
   graph_weight: 0.25
-  entity_extraction: false
-  community_detection: false
-  community_reports: false
+  entity_extraction: true
+  community_detection: true
+  community_reports: true
   extraction:
     prompt: prompts/extract_graph.txt
     summary_prompt: prompts/summarize_descriptions.txt
     entity_types:
-      - concept
-      - language
-      - library
-      - class
-      - function
-      - api
-      - tool
-      - error
+      - person
+      - organization
+      - location
+      - event
+      - policy
+      - product
     max_gleanings: 0
     concurrency: 4
     max_retries: 2

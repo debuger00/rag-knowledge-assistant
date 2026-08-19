@@ -45,6 +45,7 @@ class GraphNode:
     owner_source: str = ""
     content_hash: str = ""
     metadata: dict[str, Any] = field(default_factory=dict)
+    description: str = ""
 
 
 @dataclass
@@ -58,6 +59,8 @@ class GraphEdge:
     evidence_anchor: str = ""
     evidence_chunk_id: str = ""
     metadata: dict[str, Any] = field(default_factory=dict)
+    description: str = ""
+    predicate: str = ""
 
 
 @dataclass(frozen=True)
@@ -65,4 +68,3 @@ class GraphHit:
     source: str
     score: float
     path: tuple[str, ...]
-

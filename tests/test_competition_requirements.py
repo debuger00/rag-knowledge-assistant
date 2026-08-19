@@ -86,6 +86,32 @@ graph:
     assert config.graph_weight == 0.3
 
 
+def test_semantic_graph_nested_yaml_configuration(tmp_path):
+    config_file = tmp_path / "config.yaml"
+    config_file.write_text(
+        """
+graph:
+  extraction:
+    prompt: prompts/custom.txt
+    entity_types: [person, organization]
+    max_gleanings: 1
+    concurrency: 2
+    max_retries: 3
+    min_confidence: 0.75
+""",
+        encoding="utf-8",
+    )
+
+    config = Config.from_yaml(config_file)
+
+    assert config.graph_extraction_prompt == "prompts/custom.txt"
+    assert config.graph_entity_types == ["person", "organization"]
+    assert config.graph_max_gleanings == 1
+    assert config.graph_extraction_concurrency == 2
+    assert config.graph_extraction_max_retries == 3
+    assert config.graph_min_confidence == 0.75
+
+
 def test_graph_api_routes_are_registered():
     app = create_app(Config(graph_enabled=False))
     paths = {route.path for route in app.routes}

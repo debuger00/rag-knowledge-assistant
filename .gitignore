@@ -20,7 +20,14 @@ docs/
 tools/
 graph_data/
 
+# Keep the reusable CRUD-RAG demo entry points versioned.
+!tools/
+tools/*
+!tools/prepare_crud_rag_vault.py
+!tools/run_crud_rag_questions.py
+
 # Keep the GraphRAG implementation plan versioned while other generated docs stay ignored.
 !docs/
 docs/*
 !docs/graphrag-modification-plan.md
+!docs/semantic-graphrag-implementation.md

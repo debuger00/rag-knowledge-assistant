@@ -8,6 +8,14 @@ import typer
 from rich.console import Console
 
 from rag_core.graph.builder import rebuild_structure_graph
+from rag_core.graph.communities import (
+    LLMCommunityReporter,
+    build_communities,
+    generate_community_reports,
+)
+from rag_core.graph.extractor import LLMGraphExtractor
+from rag_core.graph.semantic import SemanticGraphIndexer
+from rag_core.graph.summarizer import LLMDescriptionSummarizer
 from rag_core.graph.store import GraphStore
 from rag_core.indexing.loader import ObsidianLoader
 from rag_core.indexing.store import VectorStoreManager
@@ -60,7 +68,9 @@ def ask(
     folder: Optional[str] = typer.Option(None, "--folder", help="Filter by folder"),
     tag: Optional[str] = typer.Option(None, "--tag", help="Filter by tag"),
     clear: bool = typer.Option(False, "--clear", help="Clear history for this session"),
-    mode: str = typer.Option("auto", "--mode", help="Retrieval mode: auto, basic, local"),
+    mode: str = typer.Option(
+        "auto", "--mode", help="Retrieval mode: auto, basic, local, global"
+    ),
 ):
     """Ask your knowledge base a question (streaming output)."""
     config = get_config()
@@ -150,6 +160,11 @@ def index(
             graph_stats = graph_store.get_stats()
             console.print(f"   Graph nodes: {graph_stats['node_count']}")
             console.print(f"   Graph edges: {graph_stats['edge_count']}")
+            console.print(
+                "   Semantic evidence: "
+                f"{graph_stats['semantic_node_evidence_count']} entities / "
+                f"{graph_stats['semantic_edge_evidence_count']} relationships"
+            )
             graph_store.close()
         return
 
@@ -204,6 +219,113 @@ def index(
             f"[green]Done: {result['total']} notes "
             f"({result['new']} new, {result['updated']} updated)[/green]"
         )
+
+
+@app.command("graph-build")
+def graph_build(
+    changed_only: bool = typer.Option(
+        True,
+        "--changed-only/--all",
+        help="Only extract sources whose semantic fingerprint changed",
+    ),
+    source: Optional[str] = typer.Option(
+        None, "--source", help="Only extract one vault-relative Markdown source"
+    ),
+    no_embeddings: bool = typer.Option(
+        False, "--no-embeddings", help="Skip rebuilding entity embeddings"
+    ),
+):
+    """Build the offline LLM entity/relationship graph."""
+    config = get_config()
+    if not config.graph_enabled:
+        console.print("[red][ERROR] graph.enabled is false.[/red]")
+        raise typer.Exit(code=1)
+    if not config.graph_entity_extraction:
+        console.print(
+            "[red][ERROR] graph.entity_extraction is false. "
+            "Enable it explicitly before running costly LLM extraction.[/red]"
+        )
+        raise typer.Exit(code=1)
+
+    documents = ObsidianLoader(
+        config.obsidian_vault_path,
+        list(config.obsidian_ignore_dirs),
+    ).load()
+    graph_store = GraphStore(config.graph_db_path)
+    try:
+        console.print("Refreshing structural graph...")
+        rebuild_structure_graph(
+            graph_store,
+            documents,
+            child_chunk_size=config.child_chunk_size,
+            child_chunk_overlap=config.child_chunk_overlap,
+            child_max_len=config.child_max_len_before_split,
+        )
+        vector_store = (
+            None
+            if no_embeddings
+            else VectorStoreManager(persist_dir=config.chroma_persist_dir)
+        )
+        indexer = SemanticGraphIndexer(
+            graph_store,
+            LLMGraphExtractor(config),
+            config,
+            vector_store=vector_store,
+            summarizer=LLMDescriptionSummarizer(config),
+        )
+        result = indexer.build(
+            documents,
+            changed_only=changed_only,
+            source=source,
+        )
+        if not result["documents_failed"] and config.graph_community_detection:
+            result["communities"] = build_communities(graph_store, config)
+            if config.graph_community_reports:
+                result["community_reports"] = generate_community_reports(
+                    graph_store, LLMCommunityReporter(config)
+                )
+            if vector_store is not None:
+                result["community_embeddings"] = (
+                    vector_store.rebuild_community_reports(
+                        graph_store.list_community_reports()
+                    )
+                )
+        console.print_json(data=result)
+        if result["documents_failed"]:
+            raise typer.Exit(code=1)
+    finally:
+        graph_store.close()
+
+
+@app.command("graph-communities")
+def graph_communities(
+    reports: bool = typer.Option(
+        False, "--reports", help="Also generate cached LLM community reports"
+    ),
+    no_embeddings: bool = typer.Option(
+        False, "--no-embeddings", help="Skip rebuilding community embeddings"
+    ),
+):
+    """Run Leiden over the current semantic entity graph."""
+    config = get_config()
+    if not config.graph_enabled:
+        console.print("[red][ERROR] graph.enabled is false.[/red]")
+        raise typer.Exit(code=1)
+    graph_store = GraphStore(config.graph_db_path)
+    try:
+        result: dict = {"communities": build_communities(graph_store, config)}
+        if reports:
+            result["community_reports"] = generate_community_reports(
+                graph_store, LLMCommunityReporter(config)
+            )
+        if not no_embeddings:
+            vector_store = VectorStoreManager(persist_dir=config.chroma_persist_dir)
+            result["community_embeddings"] = vector_store.rebuild_community_reports(
+                graph_store.list_community_reports()
+            )
+        console.print_json(data=result)
+    finally:
+        graph_store.close()
 
 
 @app.command()
