@@ -1,3 +1,4 @@
+import chromadb
 import pytest
 from langchain_core.documents import Document
 from langchain_core.embeddings import DeterministicFakeEmbedding
@@ -150,3 +151,30 @@ def test_similarity_by_sources_filters_flattened_tags(store_manager):
     )
 
     assert [doc.metadata["source"] for doc, _ in results] == ["a.md"]
+
+
+def test_similarity_by_sources_skips_persistent_chroma_internal_error():
+    manager = object.__new__(VectorStoreManager)
+    attempts = {"broken.md": 0, "healthy.md": 0}
+
+    def search(query, k, filter_dict):
+        source = filter_dict["source"]
+        attempts[source] += 1
+        if source == "broken.md":
+            raise chromadb.errors.InternalError("Error finding id")
+        return [(
+            Document(
+                page_content="healthy evidence",
+                metadata={"source": source, "anchor": "answer"},
+            ),
+            0.8,
+        )]
+
+    manager.similarity_search_with_scores = search
+
+    results = manager.similarity_search_by_sources(
+        "question", ["broken.md", "healthy.md"]
+    )
+
+    assert attempts == {"broken.md": 2, "healthy.md": 1}
+    assert [doc.metadata["source"] for doc, _ in results] == ["healthy.md"]

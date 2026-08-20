@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="/static/style.css">
     <script defer src="/static/alpine.min.js"></script>
     <script src="/static/marked.min.js"></script>
+    <script src="/static/cytoscape.min.js"></script>
 </head>
 <body x-data="chatApp()" x-init="init()">
     <header class="header">
@@ -44,6 +45,30 @@
                                 <div class="citation-actions"><button @click.stop="toggleQuote(msg, citation)" x-text="expandedQuotes[citationDomId(msg, citation.id)] ? '收起' : '展开原文'"></button><button @click.stop="viewSource(citation)">查看原文</button><span x-show="citation.score !== undefined" x-text="'相关度 ' + Number(citation.score).toFixed(2)"></span></div>
                             </article>
                         </template>
+                    </section>
+                    <section class="retrieval-path-section" x-show="hasRetrievalPath(msg)" x-cloak>
+                        <button class="retrieval-path-toggle" @click="toggleRetrievalPath(msg)" :aria-expanded="!!msg.pathOpen">
+                            <span x-text="msg.pathOpen ? '收起检索路径' : '查看检索路径'"></span>
+                        </button>
+                        <div class="retrieval-path-panel" x-show="msg.pathOpen" x-transition>
+                            <div class="retrieval-path-toolbar">
+                                <span>本次回答采用的证据链</span>
+                                <div class="retrieval-path-tools">
+                                    <button type="button" @click="fitRetrievalPath(msg)" title="适应画布" aria-label="适应画布">⌗</button>
+                                    <button type="button" @click="centerRetrievalPath(msg)" title="重新居中" aria-label="重新居中">⊙</button>
+                                </div>
+                            </div>
+                            <div class="retrieval-path-canvas" x-show="!msg.pathFallback" :id="retrievalPathDomId(msg)"></div>
+                            <div class="retrieval-path-fallback" x-show="msg.pathFallback">
+                                <template x-for="node in (msg.response?.retrieval_path?.nodes || [])" :key="node.id">
+                                    <span class="retrieval-path-fallback-node" :class="'path-node-' + node.type" x-text="node.label"></span>
+                                </template>
+                            </div>
+                            <div class="retrieval-path-detail" x-show="msg.pathSelection">
+                                <strong x-text="msg.pathSelection?.label"></strong>
+                                <span x-text="pathNodeDetail(msg.pathSelection)"></span>
+                            </div>
+                        </div>
                     </section>
                 </div>
                 <div x-show="msg.response?.status === 'insufficient_evidence'" class="refusal-card"><h2>未找到可靠答案</h2><p x-text="msg.response?.message"></p><p class="refusal-reason"><strong>原因：</strong><span x-text="msg.response?.reason"></span></p></div>
@@ -114,6 +139,7 @@
             highlightedCitation: '',
             expandedQuotes: {},
             preview: { open: false, title: '', location: '', parts: [] },
+            retrievalGraphs: {},
             settings: {
                 vaultPath: localStorage.getItem('vaultPath') || '',
                 topK: parseInt(localStorage.getItem('topK') || '10'),
@@ -209,6 +235,135 @@
 
             citationNumber(msg, citationId) {
                 return (msg.response?.citations || []).findIndex(c => c.id === citationId) + 1;
+            },
+
+            hasRetrievalPath(msg) {
+                return !!(msg.response?.retrieval_path?.nodes?.length);
+            },
+
+            retrievalPathDomId(msg) { return `retrieval-path-${msg.id}`; },
+
+            async toggleRetrievalPath(msg) {
+                msg.pathOpen = !msg.pathOpen;
+                if (!msg.pathOpen || this.retrievalGraphs[msg.id]) return;
+                await this.$nextTick();
+                this.renderRetrievalPath(msg);
+            },
+
+            renderRetrievalPath(msg) {
+                const path = msg.response?.retrieval_path;
+                const container = document.getElementById(this.retrievalPathDomId(msg));
+                if (!path || !container) return;
+                if (typeof window.cytoscape !== 'function') {
+                    msg.pathFallback = true;
+                    return;
+                }
+                try {
+                    const positions = this.retrievalPathPositions(path);
+                    const elements = [
+                        ...(path.nodes || []).map(node => ({
+                            data: { ...node, id: node.id },
+                            position: positions[node.id] || { x: 80, y: 80 },
+                        })),
+                        ...(path.edges || []).map(edge => ({ data: { ...edge, id: edge.id } })),
+                    ];
+                    const cy = window.cytoscape({
+                        container,
+                        elements,
+                        minZoom: 0.2,
+                        maxZoom: 2.5,
+                        wheelSensitivity: 0.18,
+                        style: [
+                            { selector: 'node', style: {
+                                'background-color': '#64748b', 'label': 'data(label)',
+                                'color': '#172033', 'text-valign': 'center', 'text-halign': 'center',
+                                'text-wrap': 'ellipsis', 'text-max-width': 120, 'font-size': 11,
+                                'width': 132, 'height': 42, 'shape': 'roundrectangle',
+                                'border-width': 1, 'border-color': '#cbd5e1',
+                            }},
+                            { selector: 'node[type = "query"]', style: { 'background-color': '#172033', 'color': '#fff' }},
+                            { selector: 'node[type = "entity"]', style: { 'background-color': '#bfdbfe' }},
+                            { selector: 'node[type = "community"]', style: { 'background-color': '#ddd6fe' }},
+                            { selector: 'node[type = "graph"]', style: { 'background-color': '#a5f3fc' }},
+                            { selector: 'node[type = "document"]', style: { 'background-color': '#e2e8f0' }},
+                            { selector: 'node[type = "citation"]', style: { 'background-color': '#bbf7d0', 'border-color': '#16a34a' }},
+                            { selector: 'edge', style: {
+                                'curve-style': 'bezier', 'width': 1.5, 'line-color': '#94a3b8',
+                                'target-arrow-color': '#64748b', 'target-arrow-shape': 'triangle',
+                                'label': 'data(label)', 'font-size': 9, 'color': '#475569',
+                                'text-background-color': '#fff', 'text-background-opacity': 0.85,
+                                'text-background-padding': 2,
+                            }},
+                            { selector: ':selected', style: { 'border-width': 3, 'border-color': '#4f46e5' }},
+                        ],
+                        layout: { name: 'preset', fit: true, padding: 28, animate: false },
+                    });
+                    cy.on('tap', 'node', event => {
+                        const node = event.target.data();
+                        msg.pathSelection = node;
+                        if (node.type === 'citation' && node.metadata?.citation_id) {
+                            this.jumpToCitation(msg, node.metadata.citation_id);
+                        }
+                    });
+                    this.retrievalGraphs[msg.id] = cy;
+                    setTimeout(() => cy.resize().fit(undefined, 28), 0);
+                } catch (error) {
+                    console.warn('retrieval path graph failed', error);
+                    msg.pathFallback = true;
+                }
+            },
+
+            retrievalPathPositions(path) {
+                const nodes = path?.nodes || [];
+                const edges = path?.edges || [];
+                const incoming = Object.fromEntries(nodes.map(node => [node.id, 0]));
+                const outgoing = Object.fromEntries(nodes.map(node => [node.id, []]));
+                edges.forEach(edge => {
+                    if (incoming[edge.target] !== undefined && outgoing[edge.source]) {
+                        incoming[edge.target] += 1;
+                        outgoing[edge.source].push(edge.target);
+                    }
+                });
+                const depth = Object.fromEntries(nodes.map(node => [node.id, 0]));
+                const queue = nodes.filter(node => incoming[node.id] === 0).map(node => node.id);
+                for (let index = 0; index < queue.length; index += 1) {
+                    const nodeId = queue[index];
+                    (outgoing[nodeId] || []).forEach(target => {
+                        depth[target] = Math.max(depth[target], depth[nodeId] + 1);
+                        incoming[target] -= 1;
+                        if (incoming[target] === 0) queue.push(target);
+                    });
+                }
+                const layers = {};
+                nodes.forEach(node => (layers[depth[node.id]] ||= []).push(node.id));
+                const positions = {};
+                Object.entries(layers).forEach(([layer, nodeIds]) => {
+                    const height = (nodeIds.length - 1) * 86;
+                    nodeIds.forEach((nodeId, index) => {
+                        positions[nodeId] = {
+                            x: 90 + Number(layer) * 205,
+                            y: 210 - height / 2 + index * 86,
+                        };
+                    });
+                });
+                return positions;
+            },
+
+            fitRetrievalPath(msg) {
+                const cy = this.retrievalGraphs[msg.id];
+                if (cy) cy.resize().fit(undefined, 28);
+            },
+
+            centerRetrievalPath(msg) {
+                const cy = this.retrievalGraphs[msg.id];
+                if (cy) cy.center();
+            },
+
+            pathNodeDetail(node) {
+                if (!node) return '';
+                const metadata = node.metadata || {};
+                const details = [metadata.path, metadata.anchor, metadata.section_title, metadata.score !== undefined ? `相关度 ${Number(metadata.score).toFixed(2)}` : ''].filter(Boolean);
+                return details.join(' · ');
             },
 
             citationDomId(msg, citationId) { return `citation-${msg.id}-${citationId}`; },

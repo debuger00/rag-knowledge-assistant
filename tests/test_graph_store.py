@@ -34,10 +34,16 @@ def test_rebuild_and_expand_follow_grounded_wikilinks(tmp_path):
         child_max_len=200,
     )
     hits = store.expand_sources([("a.md", "a")], max_hops=2)
+    target_hit = next(hit for hit in hits if hit.source == "b.md")
+    path_details = store.describe_path(target_hit.path)
 
     assert stats["document_count"] == 2
     assert stats["edge_count"] >= 5
     assert any(hit.source == "b.md" for hit in hits)
+    assert path_details["nodes"]
+    assert path_details["edges"]
+    assert all(node["name"] for node in path_details["nodes"])
+    assert all(edge["type"] for edge in path_details["edges"])
     assert store.neighbors(document_node_id("a.md")) is not None
 
 

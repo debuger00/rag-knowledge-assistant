@@ -916,6 +916,49 @@ class GraphStore:
                 max_results=max_results,
             )
 
+    def describe_path(self, path: tuple[str, ...] | list[str]) -> dict[str, Any]:
+        """Return display-safe node and edge details for a traversed path."""
+        node_ids = list(dict.fromkeys(str(node_id) for node_id in path if node_id))
+        if not node_ids:
+            return {"nodes": [], "edges": []}
+        with self._lock:
+            nodes = []
+            for node_id in node_ids:
+                row = self._node(node_id)
+                if row is None:
+                    continue
+                nodes.append({
+                    "id": str(row["id"]),
+                    "type": str(row["type"]),
+                    "name": str(row["name"]),
+                    "source": str(row["source"] or ""),
+                    "anchor": str(row["anchor"] or ""),
+                })
+
+            edges = []
+            for source_id, target_id in zip(path, path[1:]):
+                row = self._connection.execute(
+                    """
+                    SELECT * FROM edges
+                    WHERE (source_id = ? AND target_id = ?)
+                       OR (source_id = ? AND target_id = ?)
+                    ORDER BY weight DESC, id
+                    LIMIT 1
+                    """,
+                    (source_id, target_id, target_id, source_id),
+                ).fetchone()
+                if row is None:
+                    continue
+                forward = row["source_id"] == source_id
+                edges.append({
+                    "id": str(row["id"]),
+                    "source": str(source_id),
+                    "target": str(target_id),
+                    "type": str(row["predicate"] or row["type"]),
+                    "traversed_forward": bool(forward),
+                })
+        return {"nodes": nodes, "edges": edges}
+
     def _expand_node_ids(
         self,
         seed_ids: list[str],

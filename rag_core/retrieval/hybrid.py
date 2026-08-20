@@ -125,6 +125,11 @@ class HybridGraphRetriever:
             if candidate["graph_rank"] is not None:
                 rank_score += graph_weight / (60 + candidate["graph_rank"])
                 candidate["doc"].metadata["graph_path"] = list(candidate["path"])
+                describe_path = getattr(self.graph_store, "describe_path", None)
+                if callable(describe_path):
+                    candidate["doc"].metadata["graph_path_details"] = (
+                        describe_path(candidate["path"])
+                    )
                 candidate["doc"].metadata["graph_score"] = round(graph_score, 4)
             ranked.append((rank_score, min(1.0, final_score), candidate["doc"]))
         ranked.sort(key=lambda item: (-item[0], -item[1], self._key(item[2])))

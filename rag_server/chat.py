@@ -1,5 +1,9 @@
 """聊天服务：返回经过引用校验的结构化回答。"""
-from rag_core.retrieval.pipeline import AnswerResponse, RAGPipeline
+from rag_core.retrieval.pipeline import (
+    AnswerResponse,
+    RAGPipeline,
+    build_retrieval_path,
+)
 
 _sessions: dict[str, list[dict]] = {}
 
@@ -22,14 +26,26 @@ async def chat_answer(
     debug_retrieval: bool = False,
 ) -> AnswerResponse:
     history = get_history(session_id)
-    if folder or tag:
-        response = await pipeline.aask_with_filter(
-            question, history, folder=folder, tag=tag, mode=mode
-        )
-    else:
-        response = await pipeline.aask(question, history, mode=mode)
+    filter_dict = {"folder": folder} if folder else None
+    if tag:
+        filter_dict = filter_dict or {}
+        filter_dict["__tag__"] = tag
+    scored, resolved_mode = pipeline.retrieve_scored_evidence_with_mode(
+        question, mode=mode, filter_dict=filter_dict
+    )
+    response = await pipeline.aanswer(
+        question,
+        history,
+        scored_evidence=scored,
+        mode=resolved_mode,
+    )
 
-    response["mode"] = pipeline.last_retrieval_mode
+    response["mode"] = resolved_mode
+    retrieval_path = build_retrieval_path(
+        question, resolved_mode, response, scored
+    )
+    if retrieval_path is not None:
+        response["retrieval_path"] = retrieval_path
     if debug_retrieval:
         response["retrieval_trace"] = pipeline.get_retrieval_trace()
 

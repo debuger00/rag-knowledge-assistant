@@ -31,3 +31,4 @@ tools/*
 docs/*
 !docs/graphrag-modification-plan.md
 !docs/semantic-graphrag-implementation.md
+.tmp/

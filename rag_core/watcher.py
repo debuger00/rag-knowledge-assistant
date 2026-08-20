@@ -162,7 +162,7 @@ class VaultWatcher:
             vault_path=self.vault_path,
             ignore_dirs=list(self.ignore_dirs),
         )
-        current_docs = loader.load()
+        current_docs = loader.load()     #磁盘最新刚扫描到的所有文档
         current_sources = {
             str(doc.metadata["source"]) for doc in current_docs
         }
@@ -176,7 +176,7 @@ class VaultWatcher:
             existing = self.store.search_parents_by_source(source)
 
             if not existing:
-                self._index_document(doc)
+                self._index_document(doc)      #把这篇文档切分、嵌入、写入向量库,new_count += 1
                 new_count += 1
             else:
                 existing_mtime = existing[0].metadata.get("mtime", "")
@@ -189,7 +189,7 @@ class VaultWatcher:
                     self._index_document(doc)
                     updated_count += 1
 
-        stale_sources = self.store.list_parent_sources() - current_sources
+        stale_sources = self.store.list_parent_sources() - current_sources # 清理已经删除的文档
         for source in stale_sources:
             self.store.delete_by_source(source)
             deleted_count += 1

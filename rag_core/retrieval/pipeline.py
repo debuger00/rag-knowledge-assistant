@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import json
+import hashlib
+from pathlib import PurePosixPath
 from typing import Any, TypedDict
 
 from langchain_core.documents import Document
@@ -44,6 +46,7 @@ class AnswerResponse(TypedDict, total=False):
     reason: str
     mode: str
     retrieval_trace: dict[str, Any]
+    retrieval_path: dict[str, Any]
 
 
 SYSTEM_PROMPT = """你只能根据提供的文档证据回答问题。
@@ -112,6 +115,165 @@ def insufficient_evidence(reason: str = DEFAULT_REFUSAL_REASON) -> AnswerRespons
         "message": REFUSAL_MESSAGE,
         "reason": reason or DEFAULT_REFUSAL_REASON,
     }
+
+
+def build_retrieval_path(
+    question: str,
+    mode: str,
+    response: AnswerResponse,
+    scored_evidence: list[tuple[Document, float]],
+) -> dict[str, Any] | None:
+    """Build a display-safe path from evidence actually cited by the answer."""
+    citations = response.get("citations", [])
+    if response.get("status") != "answered" or not citations:
+        return None
+
+    evidence_by_key = {
+        (str(doc.metadata.get("source", "")), str(doc.metadata.get("anchor", ""))): (
+            doc,
+            float(score),
+        )
+        for doc, score in scored_evidence
+    }
+    nodes: dict[str, dict[str, Any]] = {}
+    edges: dict[str, dict[str, Any]] = {}
+
+    def add_node(
+        node_id: str, node_type: str, label: str, metadata: dict[str, Any] | None = None
+    ) -> str:
+        nodes.setdefault(node_id, {
+            "id": node_id,
+            "type": node_type,
+            "label": str(label),
+            "metadata": metadata or {},
+        })
+        return node_id
+
+    def add_edge(source: str, target: str, edge_type: str, label: str) -> None:
+        if not source or not target or source == target:
+            return
+        edge_id = _view_id("edge", source, target, edge_type)
+        edges.setdefault(edge_id, {
+            "id": edge_id,
+            "source": source,
+            "target": target,
+            "type": edge_type,
+            "label": str(label),
+        })
+
+    query_id = add_node(
+        "query", "query", question, {"mode": str(mode or "basic")}
+    )
+    retrieval_id = ""
+    resolved_mode = str(mode or "basic")
+
+    for citation_number, citation in enumerate(citations, 1):
+        source = str(citation.get("document_path", ""))
+        anchor = str(citation.get("anchor", ""))
+        evidence = evidence_by_key.get((source, anchor))
+        if evidence is None:
+            continue
+        doc, evidence_score = evidence
+        document_id = _view_id("document", source)
+        add_node(document_id, "document", _file_name(source), {"path": source})
+
+        connected_to_document = False
+        details = doc.metadata.get("graph_path_details")
+        if resolved_mode == "local" and isinstance(details, dict):
+            detail_nodes = details.get("nodes", [])
+            detail_edges = details.get("edges", [])
+            if isinstance(detail_nodes, list) and detail_nodes:
+                id_map: dict[str, str] = {}
+                for index, item in enumerate(detail_nodes):
+                    if not isinstance(item, dict) or not item.get("id"):
+                        continue
+                    raw_id = str(item["id"])
+                    raw_type = str(item.get("type", "graph"))
+                    is_target = index == len(detail_nodes) - 1 and raw_type in {
+                        "document", "section"
+                    }
+                    if is_target:
+                        id_map[raw_id] = document_id
+                        continue
+                    node_type = raw_type if raw_type in {
+                        "entity", "community", "document"
+                    } else "graph"
+                    view_id = _view_id(node_type, raw_id)
+                    id_map[raw_id] = view_id
+                    metadata = {
+                        key: str(item.get(key, ""))
+                        for key in ("source", "anchor")
+                        if item.get(key)
+                    }
+                    add_node(
+                        view_id,
+                        node_type,
+                        str(item.get("name") or raw_id),
+                        metadata,
+                    )
+                mapped = [id_map[str(item["id"])] for item in detail_nodes
+                          if isinstance(item, dict) and str(item.get("id", "")) in id_map]
+                if mapped:
+                    add_edge(query_id, mapped[0], "graph_search", "图搜索")
+                    for item in detail_edges if isinstance(detail_edges, list) else []:
+                        if not isinstance(item, dict):
+                            continue
+                        source_id = id_map.get(str(item.get("source", "")))
+                        target_id = id_map.get(str(item.get("target", "")))
+                        relation = str(item.get("type") or "图关系")
+                        if source_id and target_id:
+                            add_edge(source_id, target_id, "graph_relation", relation)
+                    if mapped[-1] != document_id:
+                        add_edge(mapped[-1], document_id, "retrieved_document", "命中文档")
+                    connected_to_document = True
+
+        if resolved_mode == "global":
+            community_ids = doc.metadata.get("community_ids", [])
+            if isinstance(community_ids, (list, tuple)) and community_ids:
+                for community_id in community_ids:
+                    community_id = str(community_id)
+                    view_id = _view_id("community", community_id)
+                    add_node(view_id, "community", community_id, {
+                        "score": float(doc.metadata.get("community_score", 0.0))
+                    })
+                    add_edge(query_id, view_id, "community_match", "社区匹配")
+                    add_edge(view_id, document_id, "community_source", "包含来源")
+                connected_to_document = True
+
+        if not connected_to_document:
+            if not retrieval_id:
+                retrieval_id = add_node(
+                    _view_id("retrieval", "vector"),
+                    "retrieval",
+                    "向量检索",
+                    {},
+                )
+                add_edge(query_id, retrieval_id, "vector_search", "语义检索")
+            add_edge(retrieval_id, document_id, "retrieved_document", "命中文档")
+
+        citation_id = _view_id("citation", str(citation.get("id", citation_number)))
+        add_node(citation_id, "citation", f"最终引用 [{citation_number}]", {
+            "citation_id": str(citation.get("id", "")),
+            "path": source,
+            "anchor": anchor,
+            "section_title": str(citation.get("section_title", "")),
+            "score": float(citation.get("score", evidence_score)),
+        })
+        add_edge(document_id, citation_id, "supports", "支持答案")
+
+    if not any(node["type"] == "citation" for node in nodes.values()):
+        return None
+    return {"nodes": list(nodes.values()), "edges": list(edges.values())}
+
+
+def _view_id(prefix: str, *parts: str) -> str:
+    payload = "\0".join(str(part) for part in parts).encode("utf-8")
+    return f"{prefix}:{hashlib.sha256(payload).hexdigest()[:16]}"
+
+
+def _file_name(path: str) -> str:
+    normalized = str(path or "").replace("\\", "/")
+    return PurePosixPath(normalized).name or normalized
 
 
 def validate_answer_with_citations(
@@ -257,15 +419,24 @@ class RAGPipeline:
         mode: str = "auto",
         filter_dict: dict | None = None,
     ) -> list[tuple[Document, float]]:
+        scored, _ = self.retrieve_scored_evidence_with_mode(
+            question, mode=mode, filter_dict=filter_dict
+        )
+        return scored
+
+    def retrieve_scored_evidence_with_mode(
+        self,
+        question: str,
+        mode: str = "auto",
+        filter_dict: dict | None = None,
+    ) -> tuple[list[tuple[Document, float]], str]:
         retriever, resolved_mode = self._retriever_for_mode(mode)
         self.last_retrieval_mode = resolved_mode
         if filter_dict is None:
             scored = retriever.retrieve_with_scores(question)
         else:
             scored = retriever.retrieve_with_scores(question, filter_dict=filter_dict)
-        return scored[
-            : self.config.rag_max_citations
-        ]
+        return scored[: self.config.rag_max_citations], resolved_mode
 
     def _retriever_for_mode(self, mode: str):
         normalized = (mode or "auto").lower()

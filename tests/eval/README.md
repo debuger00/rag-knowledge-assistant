@@ -112,3 +112,50 @@ Profile 定义在 `tests/eval/datasets/microsoft_graphrag_profiles.json`。其�
 - `msft_multi`：跨 41 份财报的聚合问题，推荐 Global。
 
 微软的播客/财报问题 CSV 没有 Gold 答案和 supporting source，因此当前只生成检索覆盖诊断，不把它误报为准确率。`kevin_scott` 和 `msft_multi` 会明确显示 `global_pipeline_status=required_not_implemented`，待社区发现、社区摘要和 Map-Reduce 实现后再作为 Global GraphRAG 验收集。
+
+## RGB 中文 Retriever 检索性能评测
+
+只评测 **Retriever 检索性能**，不调用 LLM、不生成答案、不评测回答质量。数据使用中文 RGB `data/02RGB/data/zh_refine.json`（JSONL，300 条 query，每条含 `positive` Ground Truth 与 `negative` 干扰文档）。
+
+### 口径
+
+1. 汇总全部样本的 `positive + negative` 按正文去重，构建统一全局 Corpus（7337 篇），每篇唯一文档分配原始文档 `source` ID；
+2. `query` 作为检索输入，`positive` 作为 Ground Truth，`negative` 仅作干扰文档；
+3. **直接调用项目现有 Retriever**（`ParentChildRetriever`=basic 向量、`HybridGraphRetriever`=local 向量+图），不另写检索器；
+4. 项目按 chunk 检索，评测时按原始文档 `source` 去重，同一文档的多个 chunk 只算一次；
+5. 计算 Recall@1/3/5/10/20、HitRate@1/3/5/10/20、MRR@10、nDCG@10，以及检索延迟 mean/P50/P95。
+
+### 运行
+
+```powershell
+python -m rag_core.eval.runner
+```
+
+可选参数：
+
+```powershell
+# 指定数据集 / 工作目录（索引落地）/ 报告输出目录
+python -m rag_core.eval.runner --dataset data/02RGB/data/zh_refine.json --work-root data/eval/rgb_retrieval --results-root tests/eval/results
+
+# 复用已构建的向量索引（跳过重建）
+python -m rag_core.eval.runner --reuse-index
+
+# 只评测前 N 条 query（索引仍用全部语料，用于快速验证）
+python -m rag_core.eval.runner --max-queries 3
+```
+
+输出产物（写入 `--results-root`，默认 `tests/eval/results`）：
+
+```text
+rgb-retrieval-eval-report.json   # 完整报告：分 retriever 指标 + 延迟 + 逐 query Top-K/gold/排名/命中
+rgb-retrieval-eval-report.md     # Markdown 对比报告
+rgb-retrieval-eval-cases.csv     # 逐 retriever × query 的失败分析表
+```
+
+评测期会临时把 `retrieval_top_k` 调高、`score_threshold` 置 0（纯排序不过滤），结束后自动恢复原配置。RGB 语料无 wikilink，图扩展为空，因此 `local` 实际退化为向量路径，报告中会如实呈现。
+
+### 单元测试
+
+```powershell
+python -m pytest tests/test_rgb_retrieval_eval.py
+```

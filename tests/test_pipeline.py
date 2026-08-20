@@ -8,6 +8,7 @@ from rag_core.retrieval.pipeline import (
     RAGPipeline,
     SYSTEM_PROMPT,
     _build_response,
+    build_retrieval_path,
     _citation_quote,
     _format_docs,
     _format_history,
@@ -139,3 +140,102 @@ def test_pipeline_retries_invalid_json_then_returns_validated_answer():
     assert pipeline._llm.calls == 2
     assert response["status"] == "answered"
     assert response["citations"][0]["id"] == "cite_1"
+
+
+def test_build_retrieval_path_basic_only_contains_cited_evidence():
+    cited = _evidence()[0]
+    unused = (
+        Document(
+            page_content="未采用证据",
+            metadata={"source": "unused.md", "anchor": "unused"},
+        ),
+        0.92,
+    )
+    response = _build_response({
+        "status": "answered",
+        "answer": [{"text": "使用 Compose。", "evidence_ids": ["ev_1"]}],
+    }, [cited, unused])
+
+    path = build_retrieval_path("如何启动？", "basic", response, [cited, unused])
+
+    assert path is not None
+    assert {node["type"] for node in path["nodes"]} == {
+        "query", "retrieval", "document", "citation",
+    }
+    assert not any("unused.md" in str(node) for node in path["nodes"])
+    assert path["edges"][-1]["type"] == "supports"
+
+
+def test_build_retrieval_path_local_uses_readable_graph_path():
+    evidence = _evidence()
+    evidence[0][0].metadata.update({
+        "graph_score": 0.74,
+        "graph_path_details": {
+            "nodes": [
+                {"id": "entity:bank", "type": "entity", "name": "示例银行"},
+                {"id": "doc:guide", "type": "document", "name": "部署指南"},
+            ],
+            "edges": [
+                {
+                    "id": "semantic-edge:1",
+                    "source": "entity:bank",
+                    "target": "doc:guide",
+                    "type": "MENTIONS",
+                }
+            ],
+        },
+    })
+    response = _build_response({
+        "status": "answered",
+        "answer": [{"text": "使用 Compose。", "evidence_ids": ["ev_1"]}],
+    }, evidence)
+
+    path = build_retrieval_path("如何启动？", "local", response, evidence)
+
+    assert path is not None
+    entity = next(node for node in path["nodes"] if node["type"] == "entity")
+    assert entity["label"] == "示例银行"
+    assert any(edge["label"] == "MENTIONS" for edge in path["edges"])
+    assert not any(node["type"] == "retrieval" for node in path["nodes"])
+
+
+def test_build_retrieval_path_global_reuses_document_node():
+    first = _evidence()[0]
+    second = (
+        Document(
+            page_content="## 配置\n\n配置同一份部署指南。",
+            metadata={
+                "source": "guide/deploy.md",
+                "anchor": "配置",
+                "heading": "配置",
+                "community_ids": ["community:ops"],
+                "community_score": 0.81,
+            },
+        ),
+        0.82,
+    )
+    first[0].metadata.update({
+        "community_ids": ["community:ops"],
+        "community_score": 0.81,
+    })
+    evidence = [first, second]
+    response = _build_response({
+        "status": "answered",
+        "answer": [{
+            "text": "部署有两个步骤。",
+            "evidence_ids": ["ev_1", "ev_2"],
+        }],
+    }, evidence)
+
+    path = build_retrieval_path("如何部署？", "global", response, evidence)
+
+    assert path is not None
+    assert len([node for node in path["nodes"] if node["type"] == "document"]) == 1
+    assert len([node for node in path["nodes"] if node["type"] == "citation"]) == 2
+    assert len([node for node in path["nodes"] if node["type"] == "community"]) == 1
+
+
+def test_build_retrieval_path_returns_none_for_refusal():
+    assert build_retrieval_path(
+        "问题", "basic", insufficient_evidence(), _evidence()
+    ) is None

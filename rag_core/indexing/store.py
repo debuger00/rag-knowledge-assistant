@@ -147,11 +147,24 @@ class VectorStoreManager:
             source_filter = self.combine_filters(
                 effective_filter or None, {"source": source}
             )
-            candidates = self.similarity_search_with_scores(
-                query,
-                k=max(k_per_source * 5, k_per_source) if tag else k_per_source,
-                filter_dict=source_filter,
-            )
+            candidates = None
+            for attempt in range(2):
+                try:
+                    candidates = self.similarity_search_with_scores(
+                        query,
+                        k=max(k_per_source * 5, k_per_source) if tag else k_per_source,
+                        filter_dict=source_filter,
+                    )
+                    break
+                except chromadb.errors.InternalError as exc:
+                    if attempt == 1:
+                        print(
+                            "  [graph retrieval] 跳过 Chroma 回查失败的来源 "
+                            f"{source}: {exc}",
+                            flush=True,
+                        )
+            if candidates is None:
+                continue
             if tag:
                 candidates = [
                     (doc, score) for doc, score in candidates
